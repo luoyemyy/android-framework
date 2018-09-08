@@ -15,7 +15,7 @@ class AsyncRun {
     @MainThread
     fun <T> newCall(): AsyncRun.Call<ModelBack<T>> = Call(ModelBack.error())
 
-    inner class Call<M : ModelBack<*>>(private val error: M) : Runnable {
+    inner class Call<M : ModelBack<*>>(private val error: M) {
 
         private var back: M = error
         //start
@@ -89,35 +89,6 @@ class AsyncRun {
                     ok(back)
                 } else {
                     fail(back)
-                }
-            }
-        }
-
-        override fun run() {
-            if (!cancel && s()) {
-                Worker.execute {
-                    //work thread
-                    if (!cancel) {
-                        val back: M = try {
-                            c()
-                        } catch (e: Throwable) {
-                            Log.e("AsyncRun.Call", "execute", e)
-                            error
-                        }
-                        if (!cancel) {
-                            mMainHandler.post {
-                                // main thread
-                                if (!cancel) {
-                                    r(back)
-                                    if (back.isSuccess) {
-                                        ok(back)
-                                    } else {
-                                        fail(back)
-                                    }
-                                }
-                            }
-                        }
-                    }
                 }
             }
         }

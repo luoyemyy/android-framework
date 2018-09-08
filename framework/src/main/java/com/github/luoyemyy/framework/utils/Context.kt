@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.support.annotation.StringRes
 import android.support.v4.content.ContextCompat
+import android.util.Log
 import android.widget.Toast
 
 fun Context.dp2px(dp: Int) = Math.round(resources.displayMetrics.density * dp)

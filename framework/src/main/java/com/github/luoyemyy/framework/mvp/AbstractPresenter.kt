@@ -1,25 +1,37 @@
 package com.github.luoyemyy.framework.mvp
 
 import android.app.Application
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Observer
-import android.databinding.PropertyChangeRegistry
-import com.github.luoyemyy.framework.mvp.action.IGeneralPresenter
-import com.github.luoyemyy.framework.mvp.action.IGeneralValue
+import android.arch.lifecycle.AndroidViewModel
+import android.os.Bundle
 
-abstract class AbstractPresenter<T>(app: Application) : BasePresenter(app), IGeneralValue<T>, IGeneralPresenter {
-
-    private val callbacks: PropertyChangeRegistry = PropertyChangeRegistry()
-
-    val mLiveData = MutableLiveData<T>()
-
-    fun attach(owner: LifecycleOwner, observer: Observer<T>) {
-        super.attach(owner)
-        mLiveData.observe(owner, observer)
-    }
-
-    override fun setValue(value: T?) {
-        mLiveData.value = value
-    }
+/**
+ *
+ *  example:
+ *
+ *  class MainActivity : AppCompatActivity() {
+ *
+ *      private lateinit var mBinding: ActivityMainBinding
+ *
+ *      override fun onCreate(savedInstanceState: Bundle?) {
+ *          super.onCreate(savedInstanceState)
+ *          mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+ *          mBinding.also {
+ *              it.setLifecycleOwner(this)
+ *              it.presenter = getPresenter(this)
+ *          }
+ *      }
+ *
+ *      class Presenter(app: Application) : AbstractPresenter(app) {
+ *
+ *          val liveData = MutableLiveData<String>()
+ *
+ *          override fun load(bundle: Bundle?) {
+ *              liveData.value = "123"
+ *          }
+ *      }
+ *  }
+ *
+ */
+abstract class AbstractPresenter(app: Application) : AndroidViewModel(app) {
+    abstract fun load(bundle: Bundle? = null)
 }
