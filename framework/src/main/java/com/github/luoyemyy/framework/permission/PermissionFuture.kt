@@ -1,6 +1,7 @@
 package com.github.luoyemyy.framework.permission
 
 import android.content.pm.PackageManager
+import android.os.Handler
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 
@@ -32,8 +33,10 @@ class PermissionFuture(private val mRequestCode: Int, private val mPermissions: 
             return
         }
         val permissionFragment = PermissionFragment.getInstance(activity)
-        permissionFragment.requestPermissions(mRequestPermission, mRequestCode)
-        mRequest = true
+        Handler().post {
+            permissionFragment.requestPermissions(mRequestPermission, mRequestCode)
+            mRequest = true
+        }
     }
 
     fun result(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

@@ -20,7 +20,7 @@ internal class PermissionFragment : Fragment() {
                 fragment as PermissionFragment
             } else {
                 val permissionFragment = PermissionFragment()
-                manager.beginTransaction().add(permissionFragment, TAG).commitNow()
+                manager.beginTransaction().add(permissionFragment, TAG).commit()
                 permissionFragment
             }
         }
