@@ -4,15 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 
-import com.github.luoyemyy.framework.bus.Bus
+import com.github.luoyemyy.framework.bus.BusManager
 import com.github.luoyemyy.framework.bus.BusMsg
 
 class AudioManager private constructor() {
 
+    interface Callback : BusManager.Callback, AudioCallback {
 
-    interface Callback : Bus.Callback, AudioCallback {
-
-        override fun interceptGroup(): Int = Bus.GROUP_AUDIO
+        override fun interceptGroup(): Int = BusManager.GROUP_AUDIO
 
         override fun busResult(group: Int, code: Long, msg: BusMsg) {
             when (msg.mInt) {
@@ -26,19 +25,19 @@ class AudioManager private constructor() {
     companion object {
 
         fun register(callback: Callback) {
-            Bus.single().register(callback)
+            BusManager.single().register(callback)
         }
 
         fun registerIfNotExist(callback: Callback) {
-            Bus.single().registerIfNotExist(callback)
+            BusManager.single().registerIfNotExist(callback)
         }
 
         fun unRegister(callback: Callback) {
-            Bus.single().unRegister(callback)
+            BusManager.single().unRegister(callback)
         }
 
         fun unRegister(group: Int) {
-            Bus.single().unRegister(group)
+            BusManager.single().unRegister(group)
         }
 
         fun play(context: Context, id: Long, path: String) {
@@ -92,8 +91,8 @@ class AudioManager private constructor() {
             unRegister(callback)
         }
 
-        internal fun bus(group: Int = Bus.GROUP_AUDIO, op: Int, id: Long, leftSecond: Int = 0) {
-            Bus.single().post(group, id, op, leftSecond.toLong(), false, null, null)
+        internal fun bus(group: Int = BusManager.GROUP_AUDIO, op: Int, id: Long, leftSecond: Int = 0) {
+            BusManager.single().post(group, id, op, leftSecond.toLong(), false, null, null)
         }
 
     }

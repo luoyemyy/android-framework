@@ -4,23 +4,27 @@ import android.arch.lifecycle.GenericLifecycleObserver
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleOwner
 
-class BusRegistry private constructor(private val mResult: BusResult, lifecycle: Lifecycle, codes: LongArray) : Bus.Callback, GenericLifecycleObserver {
+/**
+ * bus 管理注册器
+ * 注册后，此事件监听会绑定生命周期，不用手动去释放
+ */
+class BusRegistry private constructor(private val mResult: BusResult, lifecycle: Lifecycle, codes: LongArray) : BusManager.Callback, GenericLifecycleObserver {
 
     private val mCodes: LongArray = codes
 
     init {
         lifecycle.addObserver(this)
-        Bus.single().register(this)
+        BusManager.single().register(this)
     }
 
     override fun onStateChanged(source: LifecycleOwner?, event: Lifecycle.Event?) {
         if (event == Lifecycle.Event.ON_DESTROY) {
-            Bus.single().unRegister(this)
+            BusManager.single().unRegister(this)
             source?.lifecycle?.removeObserver(this)
         }
     }
 
-    override fun interceptGroup(): Int = Bus.GROUP_DEFAULT
+    override fun interceptGroup(): Int = BusManager.GROUP_DEFAULT
 
     override fun interceptCode(): LongArray = mCodes
 

@@ -8,12 +8,12 @@ import android.util.SparseArray
 import com.github.luoyemyy.framework.utils.compare
 
 /**
- * 1) [Bus.register]    注册监听
- * 2) [Bus.unRegister]  反注册监听
- * 3) [Bus.unRegister]       反注册监听
- * 4) [Bus.post]             发送消息
+ * 1) [BusManager.register]    注册监听
+ * 2) [BusManager.unRegister]  反注册监听
+ * 3) [BusManager.unRegister]       反注册监听
+ * 4) [BusManager.post]             发送消息
  */
-class Bus private constructor() {
+class BusManager private constructor() {
 
     private val mCallbacks = SparseArray<MutableList<Callback>>()
     private val mHandler = Handler(Looper.getMainLooper())
@@ -151,12 +151,12 @@ class Bus private constructor() {
 
     companion object {
 
-        private val single = Bus()
+        private val single = BusManager()
 
         internal const val GROUP_DEFAULT = 0
 
         internal const val GROUP_AUDIO = 1
 
-        fun single(): Bus = single
+        fun single(): BusManager = single
     }
 }
