@@ -3,6 +3,7 @@ package com.github.luoyemyy.framework.app
 import android.app.Application
 import android.content.Context
 import android.os.Build
+import android.os.Process
 import android.util.Log
 import com.github.luoyemyy.framework.manager.FileManager
 import java.io.FileOutputStream
@@ -19,6 +20,7 @@ internal class AppError private constructor(private val mApp: Application, priva
         if (!handleException(ex)) {
             //如果用户没有处理则让系统默认的异常处理器来处理
             mDefaultHandler.uncaughtException(thread, ex)
+            ActivityLifecycleManager.instance.exit()
         }
     }
 
@@ -42,7 +44,7 @@ internal class AppError private constructor(private val mApp: Application, priva
         try {
             val pm = context.packageManager
             val pi = pm.getPackageInfo(context.packageName, 0)
-            stringBuilder.append("versionCode").append("=").append(pi.longVersionCode).append("\n")
+            stringBuilder.append("versionCode").append("=").append(pi.versionCode).append("\n")
             stringBuilder.append("versionName").append("=").append(pi.versionName).append("\n")
 
             val fields = Build::class.java.declaredFields

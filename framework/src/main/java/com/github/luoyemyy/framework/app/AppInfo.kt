@@ -10,10 +10,13 @@ object AppInfo {
     var logPath: String? = null
 
     fun init(app: Application, enableLog: Boolean = true, spfName: String? = null) {
+        app.registerActivityLifecycleCallbacks(ActivityLifecycleManager.instance)
+
         AppError.init(app)
         packageName = app.packageName
         preferencesName = spfName ?: "app_info"
         logPath = FileManager.getInstance(app).inner().dir(FileManager.LOG)?.absolutePath
+
 
         Logger.setEnableLog(enableLog)
     }
