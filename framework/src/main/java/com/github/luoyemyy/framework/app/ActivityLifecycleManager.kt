@@ -17,7 +17,7 @@ class ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
     }
 
     companion object {
-        val instance: ActivityLifecycleManager by lazy {
+        val instance: ActivityLifecycleManager by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
             ActivityLifecycleManager()
         }
     }

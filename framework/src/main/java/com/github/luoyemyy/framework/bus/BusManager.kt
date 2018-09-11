@@ -75,6 +75,7 @@ class BusManager private constructor() {
         }
 
     }
+
     @MainThread
     fun unRegister(callbacks: MutableList<Callback>) {
         if (callbacks.isEmpty()) return
@@ -151,7 +152,7 @@ class BusManager private constructor() {
 
     companion object {
 
-        private val single = BusManager()
+        private val single by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { BusManager() }
 
         internal const val GROUP_DEFAULT = 0
 

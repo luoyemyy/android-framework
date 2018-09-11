@@ -96,7 +96,6 @@ class FileManager(val app: Application) {
     fun db(name: String = getName()): File? = inner.file(DB, name)
 
 
-
     /**
      * 如果文件已存在，直接返回
      * @return
@@ -357,6 +356,7 @@ class FileManager(val app: Application) {
         val DB = Type(CUSTOM_DIRECTORY_DATABASE, SUFFIX_DB)
         val APK = Type(CUSTOM_DIRECTORY_APK, SUFFIX_APK)
 
+        @Volatile
         private var fileManager: FileManager? = null
 
         @JvmStatic
