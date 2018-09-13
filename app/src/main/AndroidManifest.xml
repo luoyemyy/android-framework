@@ -21,8 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name="com.github.luoyemyy.framework.status.StatusActivity" android:theme="@style/AppTheme.Immersive"/>
+        <activity android:name="com.github.luoyemyy.framework.status.StatusActivity" />
     </application>
 
 </manifest>
