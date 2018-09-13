@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AndroidFramework</string>
+    <string name="status">沉浸式</string>
 </resources>

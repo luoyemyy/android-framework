@@ -39,6 +39,7 @@ internal class AppError private constructor(private val mApp: Application, priva
         return true
     }
 
+    @Suppress("DEPRECATION")
     private fun collectDeviceInfo(context: Context) {
         val stringBuilder = StringBuilder()
         try {

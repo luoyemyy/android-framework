@@ -217,7 +217,7 @@ class FileManager(val app: Application) {
          */
         fun privateDir(type: Type): File? =
                 if (isMounted())
-                    app.getExternalFilesDir(type.dir).takeIf { it.exists() || it.mkdirs() }
+                    app.getExternalFilesDir(type.dir).takeIf { it != null && (it.exists() || it.mkdirs()) }
                 else null
 
         /**
@@ -232,8 +232,8 @@ class FileManager(val app: Application) {
          */
         fun privateCacheDir(type: Type): File? =
                 if (isMounted())
-                    app.externalCacheDir.let {
-                        File(it, type.dir).takeIf { it.exists() || it.mkdirs() }
+                    app.externalCacheDir.let { baseDir ->
+                        File(baseDir, type.dir).takeIf { it.exists() || it.mkdirs() }
                     }
                 else null
 
@@ -250,8 +250,8 @@ class FileManager(val app: Application) {
          */
         fun publicDir(type: Type): File? =
                 if (isMounted() && hasPermission())
-                    Environment.getExternalStorageDirectory().let {
-                        File(it, "${app.packageName}${File.separator}${type.dir}").takeIf { it.exists() || it.mkdirs() }
+                    Environment.getExternalStorageDirectory().let { baseDir ->
+                        File(baseDir, "${app.packageName}${File.separator}${type.dir}").takeIf { it.exists() || it.mkdirs() }
                     }
                 else null
 
@@ -269,8 +269,8 @@ class FileManager(val app: Application) {
          */
         fun publicCustomDir(type: Type): File? =
                 if (isMounted() && hasPermission())
-                    Environment.getExternalStorageDirectory().let {
-                        File(it, type.dir).takeIf { it.exists() || it.mkdirs() }
+                    Environment.getExternalStorageDirectory().let { baseDir ->
+                        File(baseDir, type.dir).takeIf { it.exists() || it.mkdirs() }
                     }
                 else null
 
