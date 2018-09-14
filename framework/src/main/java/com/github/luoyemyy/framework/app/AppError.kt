@@ -3,7 +3,6 @@ package com.github.luoyemyy.framework.app
 import android.app.Application
 import android.content.Context
 import android.os.Build
-import android.os.Process
 import android.util.Log
 import com.github.luoyemyy.framework.manager.FileManager
 import java.io.FileOutputStream
