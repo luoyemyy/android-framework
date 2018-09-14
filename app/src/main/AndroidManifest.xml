@@ -21,8 +21,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.github.luoyemyy.framework.status.StatusActivity" />
+        <activity
+            android:name="com.github.luoyemyy.framework.status.StatusActivity"
+            android:theme="@style/AppTheme.Immerse" />
         <activity android:name="com.github.luoyemyy.framework.drawer.DrawerActivity" />
+        <activity android:name="com.github.luoyemyy.framework.mvp.MvpActivity" />
+        <activity android:name="com.github.luoyemyy.framework.navigation.NavigationActivity" />
     </application>
 
 </manifest>

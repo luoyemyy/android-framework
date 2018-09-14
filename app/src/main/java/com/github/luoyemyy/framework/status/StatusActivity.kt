@@ -33,7 +33,7 @@ class StatusActivity : AppCompatActivity() {
         }
         mPresenter.loadInit()
 
-        alert(string = "${getStatusBarHeight1(this)},${getStatusBarHeight2(this)}")
+//        alert(string = "${getStatusBarHeight1(this)},${getStatusBarHeight2(this)}")
     }
 
     private fun getStatusBarHeight1(context: Context): Double {

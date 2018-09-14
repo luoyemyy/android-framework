@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.github.luoyemyy.framework.drawer.DrawerActivity
+import com.github.luoyemyy.framework.mvp.MvpActivity
 import com.github.luoyemyy.framework.mvp.recycler.AbstractAdapter
 import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.framework.mvp.recycler.RecyclerData
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() {
             when (position) {
                 0 -> startActivity(Intent(this@MainActivity, StatusActivity::class.java))
                 1 -> startActivity(Intent(this@MainActivity, DrawerActivity::class.java))
+                2 -> startActivity(Intent(this@MainActivity, MvpActivity::class.java))
             }
         }
     }
@@ -69,7 +71,8 @@ class MainActivity : AppCompatActivity() {
         override fun loadInit(bundle: Bundle?) {
             liveData.value = RecyclerData.ofInit(listOf(
                     "浸入状态栏",
-                    "drawer"
+                    "drawer",
+                    "mvp"
             ))
         }
     }
