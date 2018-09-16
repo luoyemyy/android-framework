@@ -19,6 +19,8 @@ import android.os.Bundle
  *              it.setLifecycleOwner(this)
  *              it.presenter = getPresenter(this)
  *          }
+ *
+ *          mBinding.presenter?.load()
  *      }
  *
  *      class Presenter(app: Application) : AbstractPresenter(app) {

@@ -5,6 +5,6 @@
 
     <fragment
         android:id="@+id/hostFragment"
-        android:name="com.github.luoyemyy.framework.navigation.HostFragment"
+        android:name="com.github.luoyemyy.framework.test.navigation.HostFragment"
         android:label="HostFragment" />
 </navigation>

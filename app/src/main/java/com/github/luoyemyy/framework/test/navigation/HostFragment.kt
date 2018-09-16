@@ -1,4 +1,4 @@
-package com.github.luoyemyy.framework.navigation
+package com.github.luoyemyy.framework.test.navigation
 
 import android.support.v4.app.Fragment
 

@@ -1,4 +1,4 @@
-package com.github.luoyemyy.framework.helper
+package com.github.luoyemyy.framework.test.helper
 
 import com.github.luoyemyy.framework.api.AbstractApiManager
 

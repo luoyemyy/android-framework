@@ -1,4 +1,4 @@
-package com.github.luoyemyy.framework.status
+package com.github.luoyemyy.framework.test.status
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
@@ -13,7 +13,6 @@ import com.github.luoyemyy.framework.mvp.recycler.RecyclerData
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityStatusBinding
-import com.github.luoyemyy.framework.utils.alert
 import com.github.luoyemyy.framework.utils.getPresenter
 
 

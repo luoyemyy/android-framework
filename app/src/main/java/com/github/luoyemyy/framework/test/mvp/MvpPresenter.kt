@@ -1,9 +1,10 @@
-package com.github.luoyemyy.framework.mvp
+package com.github.luoyemyy.framework.test.mvp
 
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
-import com.github.luoyemyy.framework.helper.newSimpleCall
+import com.github.luoyemyy.framework.mvp.AbstractPresenter
+import com.github.luoyemyy.framework.test.helper.newSimpleCall
 
 class MvpPresenter(var app: Application) : AbstractPresenter(app) {
 

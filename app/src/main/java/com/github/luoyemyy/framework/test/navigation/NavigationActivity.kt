@@ -1,4 +1,4 @@
-package com.github.luoyemyy.framework.navigation
+package com.github.luoyemyy.framework.test.navigation
 
 import android.databinding.DataBindingUtil
 import android.os.Bundle
@@ -15,8 +15,8 @@ class NavigationActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN and View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-        window.statusBarColor = resources.getColor(android.R.color.transparent)
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = resources.getColor(android.R.color.transparent)
 
         DataBindingUtil.setContentView<ActivityNavigationBinding>(this, R.layout.activity_navigation).apply {
 

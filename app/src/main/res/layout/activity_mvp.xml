@@ -6,7 +6,7 @@
 
         <variable
             name="presenter"
-            type="com.github.luoyemyy.framework.mvp.MvpPresenter" />
+            type="com.github.luoyemyy.framework.test.mvp.MvpPresenter" />
     </data>
 
     <android.support.constraint.ConstraintLayout

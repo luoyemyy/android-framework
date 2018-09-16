@@ -9,12 +9,13 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.chad.library.adapter.base.BaseQuickAdapter
-import com.github.luoyemyy.framework.drawer.DrawerActivity
-import com.github.luoyemyy.framework.mvp.MvpActivity
+import com.github.luoyemyy.framework.test.drawer.DrawerActivity
+import com.github.luoyemyy.framework.test.mvp.MvpActivity
 import com.github.luoyemyy.framework.mvp.recycler.AbstractAdapter
 import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.framework.mvp.recycler.RecyclerData
-import com.github.luoyemyy.framework.status.StatusActivity
+import com.github.luoyemyy.framework.test.navigation.NavigationActivity
+import com.github.luoyemyy.framework.test.status.StatusActivity
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
 import com.github.luoyemyy.framework.utils.getPresenter
@@ -60,6 +61,7 @@ class MainActivity : AppCompatActivity() {
                 0 -> startActivity(Intent(this@MainActivity, StatusActivity::class.java))
                 1 -> startActivity(Intent(this@MainActivity, DrawerActivity::class.java))
                 2 -> startActivity(Intent(this@MainActivity, MvpActivity::class.java))
+                3 -> startActivity(Intent(this@MainActivity, NavigationActivity::class.java))
             }
         }
     }
@@ -72,7 +74,8 @@ class MainActivity : AppCompatActivity() {
             liveData.value = RecyclerData.ofInit(listOf(
                     "浸入状态栏",
                     "drawer",
-                    "mvp"
+                    "mvp",
+                    "navigation"
             ))
         }
     }
