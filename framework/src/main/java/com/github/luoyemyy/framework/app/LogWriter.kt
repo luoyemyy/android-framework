@@ -11,23 +11,17 @@ import java.util.*
 
 internal class LogWriter private constructor() {
 
-    private var mWriterHandler: WriterHandler? = null
-    private var mWriterLooper: Looper? = null
+    private var mWriterHandler: WriterHandler
 
     init {
-        init()
-    }
-
-    private fun init() {
         val handlerThread = HandlerThread("LogWriter")
         handlerThread.start()
-        mWriterLooper = handlerThread.looper
-        mWriterHandler = WriterHandler(mWriterLooper!!)
+        mWriterHandler = WriterHandler(handlerThread.looper)
     }
 
     fun write(throwable: Throwable?, threadName: String, level: String, tag: String, msg: String) {
 
-        val message = mWriterHandler!!.obtainMessage(1)
+        val message = mWriterHandler.obtainMessage(1)
         message.obj = throwable
         val bundle = Bundle()
         bundle.putString("threadName", threadName)
@@ -36,9 +30,9 @@ internal class LogWriter private constructor() {
         bundle.putString("msg", msg)
         message.data = bundle
 
-        mWriterHandler!!.sendMessage(message)
+        mWriterHandler.sendMessage(message)
 
-        mWriterHandler!!.sendEmptyMessageDelayed(2, mFreeTime)
+        mWriterHandler.sendEmptyMessageDelayed(2, mFreeTime)
     }
 
     private inner class WriterHandler internal constructor(looper: Looper) : Handler(looper) {
@@ -93,16 +87,14 @@ internal class LogWriter private constructor() {
     companion object {
 
         private var mWriter: LogWriter? = null
-        private var mQuit: Boolean = false
         private const val mFreeTime: Long = 120000//空闲时间 2分钟，如果在这段时间内没有写入日志的请求，则销毁写入日志线程
 
         private fun destroy() {
             synchronized(LogWriter::class.java) {
-                if (mWriter != null) {
-                    mWriter!!.mWriterLooper!!.quit()
-                    mWriter!!.mWriterHandler = null
-                    mWriter!!.mWriterLooper = null
-                    mQuit = true
+                val writer = mWriter
+                if (writer != null) {
+                    writer.mWriterHandler.looper.quit()
+                    mWriter = null
                     Log.i("LogWriter", "销毁写日记线程")
                 }
             }
@@ -113,14 +105,6 @@ internal class LogWriter private constructor() {
                 synchronized(LogWriter::class.java) {
                     if (mWriter == null) {
                         mWriter = LogWriter()
-                    }
-                }
-            }
-            if (mQuit) {
-                synchronized(LogWriter::class.java) {
-                    if (mQuit) {
-                        mWriter!!.init()
-                        mQuit = false
                     }
                 }
             }
