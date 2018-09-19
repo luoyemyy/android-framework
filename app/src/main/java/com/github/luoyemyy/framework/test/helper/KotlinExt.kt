@@ -5,8 +5,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import com.github.luoyemyy.framework.async.AsyncRun
-import com.github.luoyemyy.framework.async.ModelBack
-import com.github.luoyemyy.framework.async.SimpleBack
+import retrofit2.Call
 
 inline fun <reified T : AndroidViewModel> getPresenter(fragment: Fragment): T = ViewModelProviders.of(fragment).get(T::class.java)
 
@@ -14,6 +13,14 @@ inline fun <reified T : AndroidViewModel> getPresenter(activity: AppCompatActivi
 
 fun getApi(): Api = ApiManager().getApi()
 
-fun newSimpleCall(): AsyncRun.Call<SimpleBack> = AsyncRun.single().newSimpleCall()
-
-fun <T> newCall(): AsyncRun.Call<ModelBack<T>> = AsyncRun.single().newCall()
+fun <T> Call<ApiResult<T>>.success(ok: (ApiResult<T>) -> Unit): AsyncRun.Call<ApiResult<T>> {
+    val error = ApiResult<T>()
+    return AsyncRun.single().Call(error).create {
+        val result = this.execute()
+        if (result.isSuccessful) {
+            result.body() ?: error
+        } else {
+            error
+        }
+    }.success(ok)
+}

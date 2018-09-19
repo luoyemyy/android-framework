@@ -2,20 +2,13 @@ package com.github.luoyemyy.framework.async
 
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.MainThread
 import android.util.Log
 
 class AsyncRun {
 
     private val mMainHandler: Handler = Handler(Looper.getMainLooper())
 
-    @MainThread
-    fun newSimpleCall(): AsyncRun.Call<SimpleBack> = Call(SimpleBack())
-
-    @MainThread
-    fun <T> newCall(): AsyncRun.Call<ModelBack<T>> = Call(ModelBack.error())
-
-    inner class Call<M : ModelBack<*>>(private val error: M) {
+    inner class Call<M : AsyncRunResult>(private val error: M) {
 
         private var back: M = error
         //start
