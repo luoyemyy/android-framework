@@ -2,8 +2,8 @@ package com.github.luoyemyy.framework.app
 
 import android.os.*
 import android.util.Log
-import com.github.luoyemyy.framework.utils.formatDate
-import com.github.luoyemyy.framework.utils.formatDateTime
+import com.github.luoyemyy.framework.ext.formatDate
+import com.github.luoyemyy.framework.ext.formatDateTime
 import java.io.File
 import java.io.FileWriter
 import java.io.PrintWriter

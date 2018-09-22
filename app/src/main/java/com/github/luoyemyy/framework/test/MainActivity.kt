@@ -18,7 +18,7 @@ import com.github.luoyemyy.framework.test.navigation.NavigationActivity
 import com.github.luoyemyy.framework.test.status.StatusActivity
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
-import com.github.luoyemyy.framework.utils.getPresenter
+import com.github.luoyemyy.framework.ext.getPresenter
 
 class MainActivity : AppCompatActivity() {
 

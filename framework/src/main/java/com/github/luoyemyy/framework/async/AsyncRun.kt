@@ -8,7 +8,7 @@ class AsyncRun {
 
     private val mMainHandler: Handler = Handler(Looper.getMainLooper())
 
-    inner class Call<M : AsyncRunResult>(private val error: M) {
+    inner class Call<M : Result>(private val error: M) {
 
         private var back: M = error
         //start
@@ -92,5 +92,9 @@ class AsyncRun {
         private val single by lazy { AsyncRun() }
 
         fun single(): AsyncRun = single
+    }
+
+    interface Result{
+        var isSuccess: Boolean
     }
 }

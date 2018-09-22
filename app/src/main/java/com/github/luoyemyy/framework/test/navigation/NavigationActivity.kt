@@ -18,8 +18,6 @@ class NavigationActivity : AppCompatActivity() {
 //        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
 //        window.statusBarColor = resources.getColor(android.R.color.transparent)
 
-        DataBindingUtil.setContentView<ActivityNavigationBinding>(this, R.layout.activity_navigation).apply {
-
-        }
+        DataBindingUtil.setContentView<ActivityNavigationBinding>(this, R.layout.activity_navigation)
     }
 }

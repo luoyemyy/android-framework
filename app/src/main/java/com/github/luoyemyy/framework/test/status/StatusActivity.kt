@@ -13,7 +13,7 @@ import com.github.luoyemyy.framework.mvp.recycler.RecyclerData
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityStatusBinding
-import com.github.luoyemyy.framework.utils.getPresenter
+import com.github.luoyemyy.framework.ext.getPresenter
 
 
 class StatusActivity : AppCompatActivity() {

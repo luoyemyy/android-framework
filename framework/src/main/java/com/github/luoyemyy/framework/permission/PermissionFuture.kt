@@ -1,7 +1,11 @@
 package com.github.luoyemyy.framework.permission
 
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Handler
+import android.provider.Settings
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 
@@ -60,5 +64,13 @@ class PermissionFuture(private val mRequestCode: Int, private val mPermissions: 
     companion object {
         @JvmStatic
         fun of(requestCode: Int, permissions: Array<String>) = PermissionFuture(requestCode, permissions)
+
+        fun toSettings(activity: Activity) {
+            activity.startActivity(Intent().apply {
+                action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                data = Uri.parse("package:${activity.packageName}")
+            })
+        }
     }
+
 }

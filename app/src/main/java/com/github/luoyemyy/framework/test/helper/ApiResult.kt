@@ -1,8 +1,8 @@
 package com.github.luoyemyy.framework.test.helper
 
-import com.github.luoyemyy.framework.async.AsyncRunResult
+import com.github.luoyemyy.framework.async.AsyncRun
 
-class ApiResult<T> : AsyncRunResult {
+class ApiResult<T> : AsyncRun.Result {
     override var isSuccess: Boolean = false
 
     var data: T? = null

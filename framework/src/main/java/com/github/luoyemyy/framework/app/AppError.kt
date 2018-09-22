@@ -3,7 +3,9 @@ package com.github.luoyemyy.framework.app
 import android.app.Application
 import android.content.Context
 import android.os.Build
+import android.os.Handler
 import android.util.Log
+import com.github.luoyemyy.framework.ext.toast
 import com.github.luoyemyy.framework.manager.FileManager
 import java.io.FileOutputStream
 import java.io.PrintWriter
@@ -19,7 +21,11 @@ internal class AppError private constructor(private val mApp: Application, priva
         if (!handleException(ex)) {
             //如果用户没有处理则让系统默认的异常处理器来处理
             mDefaultHandler.uncaughtException(thread, ex)
-            ActivityLifecycleManager.instance.exit()
+
+            mApp.toast("app error")
+            Handler().postDelayed({
+                ActivityLifecycleManager.instance.exit()
+            }, 3000)
         }
     }
 

@@ -5,7 +5,7 @@ import android.os.Handler
 import android.os.Looper
 import android.support.annotation.MainThread
 import android.util.SparseArray
-import com.github.luoyemyy.framework.utils.compare
+import com.github.luoyemyy.framework.ext.compare
 
 /**
  * 1) [BusManager.register]    注册监听
