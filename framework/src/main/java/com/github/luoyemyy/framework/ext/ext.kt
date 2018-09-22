@@ -55,6 +55,7 @@ fun Context.toast(string: String) = Toast.makeText(this, string, Toast.LENGTH_SH
 
 fun Context.toast(@StringRes stringRes: Int) = Toast.makeText(this, stringRes, Toast.LENGTH_SHORT).show()
 //浸入式状态栏
+//使用drawerLayout时可以在NavigationView中增加app:insetForeground="@android:color/transparent"，侧滑栏适配浸入式
 fun Activity.immerse() {
     window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN and View.SYSTEM_UI_FLAG_LAYOUT_STABLE
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
