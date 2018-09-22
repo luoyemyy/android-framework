@@ -9,16 +9,17 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.chad.library.adapter.base.BaseQuickAdapter
-import com.github.luoyemyy.framework.test.drawer.DrawerActivity
-import com.github.luoyemyy.framework.test.mvp.MvpActivity
+import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.mvp.recycler.AbstractAdapter
 import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.framework.mvp.recycler.RecyclerData
-import com.github.luoyemyy.framework.test.navigation.NavigationActivity
-import com.github.luoyemyy.framework.test.status.StatusActivity
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
-import com.github.luoyemyy.framework.ext.getPresenter
+import com.github.luoyemyy.framework.test.drawer.DrawerActivity
+import com.github.luoyemyy.framework.test.mvp.MvpActivity
+import com.github.luoyemyy.framework.test.navigation.NavigationActivity
+import com.github.luoyemyy.framework.test.status.StatusActivity
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,7 +29,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        mPresenter = getPresenter(this)
+        mPresenter = getPresenter()
         mPresenter.liveData.observe(this, Adapter())
 
         mBinding.apply {

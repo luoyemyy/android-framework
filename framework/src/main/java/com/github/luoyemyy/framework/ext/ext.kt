@@ -9,11 +9,15 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.graphics.Color
+import android.os.Build
 import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import android.widget.Toast
 import com.github.luoyemyy.framework.app.AppInfo
 import com.github.luoyemyy.framework.app.Logger
@@ -50,6 +54,18 @@ fun Activity.alert(@StringRes stringRes: Int) = AlertDialog.Builder(this).setMes
 fun Context.toast(string: String) = Toast.makeText(this, string, Toast.LENGTH_SHORT).show()
 
 fun Context.toast(@StringRes stringRes: Int) = Toast.makeText(this, stringRes, Toast.LENGTH_SHORT).show()
+//浸入式状态栏
+fun Activity.immerse() {
+    window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN and View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+    window.statusBarColor = Color.TRANSPARENT
+}
+//状态栏黑色字体
+fun Activity.lightStatusBar() {
+    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+        window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
+    }
+}
 
 /**
  *  empty
