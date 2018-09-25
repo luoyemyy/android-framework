@@ -34,3 +34,11 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:2.4.0'
 }
 
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+artifacts {
+    archives sourcesJar
+}
