@@ -53,7 +53,6 @@ sb.append("\n outer        publicStandardFile:${manager.outer().publicStandardFi
  */
 class FileManager(val app: Application) {
 
-    private val sdf = SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.getDefault())
     private val inner: Inner by lazy { Inner() }
     private val outer: Outer by lazy { Outer() }
 
@@ -63,7 +62,7 @@ class FileManager(val app: Application) {
     /**
      * 生成一个当前时间的名称
      */
-    fun getName(): String = sdf.format(Date())
+    fun getName(): String = SimpleDateFormat("yyyyMMdd_HHmmss_SSS", Locale.getDefault()).format(Date())
 
     /**
      * /data/user/0/${packageName}/files/log/${name}.txt

@@ -24,7 +24,7 @@ object DateExt {
 
 object JsonExt {
 
-    val json: Gson = GsonBuilder().setDateFormat(DateExt.YMDHMS).create()
+    val json: Gson = GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create()
     val jsonParser = JsonParser()
 
     class ArrayListType constructor(private val clazz: Class<*>) : ParameterizedType {
