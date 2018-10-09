@@ -1,6 +1,5 @@
 package com.github.luoyemyy.framework.async
 
-import android.arch.core.executor.ArchTaskExecutor
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -56,12 +55,14 @@ class AsyncRun {
             this.cancel = true
         }
 
+        //main thread
         private val startRunnable = {
             if (!cancel && s()) {
                 Worker.execute(createRunnable)
             }
         }
 
+        //work thread
         private val createRunnable = {
             if (!cancel) {
                 back = try {
@@ -76,6 +77,7 @@ class AsyncRun {
             }
         }
 
+        //main thread
         private val resultRunnable = {
             if (!cancel) {
                 r(back)
@@ -90,12 +92,12 @@ class AsyncRun {
 
     companion object {
 
-        private val single by lazy { AsyncRun() }
+        private val single by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { AsyncRun() }
 
         fun single(): AsyncRun = single
     }
 
-    interface Result{
+    interface Result {
         var isSuccess: Boolean
     }
 }
