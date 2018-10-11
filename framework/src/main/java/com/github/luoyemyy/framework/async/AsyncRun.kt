@@ -13,10 +13,10 @@ class AsyncRun {
 
         private var back: R = error
         //start
-        private var s: () -> Boolean = { true }
+        private var s: (Call<R>) -> Unit = { }
 
         //create
-        private lateinit var c: () -> R
+        private lateinit var c: (Call<R>) -> R
 
         //result
         private var r: (R) -> Unit = {}
@@ -26,12 +26,12 @@ class AsyncRun {
         //cancel
         private var cancel: Boolean = false
 
-        fun start(s: () -> Boolean): Call<R> {
+        fun start(s: (Call<R>) -> Unit): Call<R> {
             this.s = s
             return this
         }
 
-        fun create(c: () -> R): Call<R> {
+        fun create(c: (Call<R>) -> R): Call<R> {
             this.c = c
             mMainHandler.post(startRunnable)
             return this
@@ -58,7 +58,8 @@ class AsyncRun {
 
         //main thread
         private val startRunnable = {
-            if (!cancel && s()) {
+            if (!cancel) {
+                s(this)
                 AsyncTask.execute(createRunnable)
             }
         }
@@ -67,7 +68,7 @@ class AsyncRun {
         private val createRunnable = {
             if (!cancel) {
                 back = try {
-                    c()
+                    c(this)
                 } catch (e: Throwable) {
                     Log.e("AsyncRun.Call", "execute", e)
                     error

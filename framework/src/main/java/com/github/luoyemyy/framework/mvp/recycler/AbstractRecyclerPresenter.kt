@@ -33,7 +33,6 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         page = 1
         run().start {
             mDataSet.notifyRefreshState(true)
-            true
         }.create {
             RecyclerResult(true, loadData(page))
         }.success {
@@ -73,7 +72,6 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         page = 1
         run().start {
             mDataSet.notifyRefreshState(true)
-            true
         }.create {
             RecyclerResult(true, loadData(page))
         }.success {

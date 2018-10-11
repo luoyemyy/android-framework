@@ -7,7 +7,7 @@ fun getApi(): Api = ApiManager().getApi()
 
 fun <T, R> Call<ApiResult<T>>.create(map: (ApiResult<T>) -> ApiResult<R>): AsyncRun.Call<ApiResult<R>> {
     val error = ApiResult<R>()
-    return AsyncRun.single().Call(error).create {
+    return AsyncRun.single().Call(error).create { _ ->
         val result = this.execute()
         if (result.isSuccessful) {
             result.body()?.let {
