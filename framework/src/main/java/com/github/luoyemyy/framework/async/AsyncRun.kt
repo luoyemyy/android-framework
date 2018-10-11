@@ -1,5 +1,6 @@
 package com.github.luoyemyy.framework.async
 
+import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -8,45 +9,45 @@ class AsyncRun {
 
     private val mMainHandler: Handler = Handler(Looper.getMainLooper())
 
-    inner class Call<M : Result>(private val error: M) {
+    inner class Call<R : Result>(private val error: R) {
 
-        private var back: M = error
+        private var back: R = error
         //start
         private var s: () -> Boolean = { true }
 
         //create
-        private lateinit var c: () -> M
+        private lateinit var c: () -> R
 
         //result
-        private var r: (M) -> Unit = {}
-        private var ok: (M) -> Unit = {}
-        private var fail: (M) -> Unit = {}
+        private var r: (R) -> Unit = {}
+        private var ok: (R) -> Unit = {}
+        private var fail: (R) -> Unit = {}
 
         //cancel
         private var cancel: Boolean = false
 
-        fun start(s: () -> Boolean): Call<M> {
+        fun start(s: () -> Boolean): Call<R> {
             this.s = s
             return this
         }
 
-        fun create(c: () -> M): Call<M> {
+        fun create(c: () -> R): Call<R> {
             this.c = c
             mMainHandler.post(startRunnable)
             return this
         }
 
-        fun result(r: (M) -> Unit = {}): Call<M> {
+        fun result(r: (R) -> Unit = {}): Call<R> {
             this.r = r
             return this
         }
 
-        fun success(success: (M) -> Unit): Call<M> {
+        fun success(success: (R) -> Unit): Call<R> {
             ok = success
             return this
         }
 
-        fun failure(failure: (M) -> Unit): Call<M> {
+        fun failure(failure: (R) -> Unit): Call<R> {
             fail = failure
             return this
         }
@@ -58,7 +59,7 @@ class AsyncRun {
         //main thread
         private val startRunnable = {
             if (!cancel && s()) {
-                Worker.execute(createRunnable)
+                AsyncTask.execute(createRunnable)
             }
         }
 

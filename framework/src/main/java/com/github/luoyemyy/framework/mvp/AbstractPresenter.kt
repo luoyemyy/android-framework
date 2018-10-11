@@ -2,6 +2,7 @@ package com.github.luoyemyy.framework.mvp
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
+import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 
 /**
@@ -23,17 +24,18 @@ import android.os.Bundle
  *          mBinding.presenter?.load()
  *      }
  *
- *      class Presenter(app: Application) : AbstractPresenter(app) {
- *
- *          val liveData = MutableLiveData<String>()
+ *      class Presenter(app: Application) : AbstractPresenter<String>(app) {
  *
  *          override fun load(bundle: Bundle?) {
- *              liveData.value = "123"
+ *              data.value = "123"
  *          }
  *      }
  *  }
  *
  */
-abstract class AbstractPresenter(app: Application) : AndroidViewModel(app) {
+abstract class AbstractPresenter<T>(app: Application) : AndroidViewModel(app) {
+
+    val data = MutableLiveData<T>()
+
     abstract fun load(bundle: Bundle? = null)
 }

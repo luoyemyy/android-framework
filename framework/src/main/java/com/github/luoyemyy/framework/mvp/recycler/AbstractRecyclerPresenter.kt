@@ -7,7 +7,7 @@ import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
 import com.github.luoyemyy.framework.async.AsyncRun
 
-abstract class RecyclerPresenter<T>(app: Application) : AndroidViewModel(app), IRecyclerPresenter<T> {
+abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), IRecyclerPresenter<T> {
 
     private val mDataSet by lazy { DataSet<T>() }
     private var page = 1

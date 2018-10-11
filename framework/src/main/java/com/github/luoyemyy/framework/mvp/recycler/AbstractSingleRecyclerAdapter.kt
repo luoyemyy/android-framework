@@ -3,7 +3,7 @@ package com.github.luoyemyy.framework.mvp.recycler
 import android.arch.lifecycle.LifecycleOwner
 import android.databinding.ViewDataBinding
 
-abstract class SingleRecyclerAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, presenter: IRecyclerPresenter<T>) : BaseRecyclerAdapter<T, BIND>(owner, presenter) {
+abstract class AbstractSingleRecyclerAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, presenter: IRecyclerPresenter<T>) : BaseRecyclerAdapter<T, BIND>(owner, presenter) {
 
     companion object {
         const val DEFAULT_CONTENT_VIEW_TYPE = DataSet.CONTENT

@@ -4,15 +4,15 @@ import com.github.luoyemyy.framework.api.AbstractApiManager
 
 class ApiManager : AbstractApiManager() {
     override fun baseDevUrl(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return ""
     }
 
     override fun baseTestUrl(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return ""
     }
 
     override fun baseProUrl(): String {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return ""
     }
 
 }

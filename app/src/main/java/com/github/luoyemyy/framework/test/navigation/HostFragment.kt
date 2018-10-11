@@ -39,9 +39,7 @@ class HostFragment : Fragment() {
         }
     }
 
-    class Presenter(app: Application) : AbstractPresenter(app) {
-
-        val liveData = MutableLiveData<String>()
+    class Presenter(app: Application) : AbstractPresenter<String>(app) {
 
         override fun load(bundle: Bundle?) {
 

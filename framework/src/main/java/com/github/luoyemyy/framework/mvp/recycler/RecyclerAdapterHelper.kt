@@ -18,7 +18,7 @@ import com.github.luoyemyy.framework.ext.dp2px
 class RecyclerAdapterHelper<T, BIND : ViewDataBinding>(owner: LifecycleOwner, private var presenter: IRecyclerPresenter<T>, private var adapter: BaseRecyclerAdapter<T, BIND>) : RecyclerAdapterOp {
 
     init {
-        presenter.getDataSet().liveData.observe(owner, Observer {
+        presenter.getDataSet().diffResultLiveData.observe(owner, Observer {
             it?.dispatchUpdatesTo(adapter)
         })
         presenter.getDataSet().refreshStateLiveData.observe(owner, Observer {
@@ -31,7 +31,7 @@ class RecyclerAdapterHelper<T, BIND : ViewDataBinding>(owner: LifecycleOwner, pr
     private var mMoreEndLayoutId = 0
     private var mEmptyLayoutId = 0
 
-    override fun bindItemClickListener(enable: Boolean) {
+    override fun enableItemClickListener(enable: Boolean) {
         mFlagBindItemClick = enable
     }
 
@@ -120,7 +120,7 @@ class RecyclerAdapterHelper<T, BIND : ViewDataBinding>(owner: LifecycleOwner, pr
     }
 
     private fun createLayout(context: Context, text: String): LinearLayout {
-        val padding = context.dp2px(8)
+        val padding = context.dp2px(16)
         val layout = LinearLayout(context)
         layout.orientation = LinearLayout.HORIZONTAL
         layout.gravity = Gravity.CENTER

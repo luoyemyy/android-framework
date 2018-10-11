@@ -18,27 +18,40 @@ class DataSet<T> {
     private class ExtraItem(var type: Int)
 
     /**
-     *
+     * 通知更新item
      */
-    internal val liveData = MutableLiveData<DiffUtil.DiffResult>()
+    internal val diffResultLiveData = MutableLiveData<DiffUtil.DiffResult>()
+    /**
+     * 通知更新刷新样式
+     */
     internal val refreshStateLiveData = MutableLiveData<Boolean>()
     internal var enableEmpty = true
     internal var enableMore = true
+
 
     private val mData: MutableList<T> = mutableListOf()
 
     private val mEmptyItem = ExtraItem(EMPTY)
     private val mMoreLoadingItem = ExtraItem(MORE_LOADING)
     private val mMoreEndItem = ExtraItem(MORE_END)
-    private var moreLoading = false
-    private var moreEnd = false
-    private var firstLoad = false
+    /**
+     * 加载更多状态
+     */
+    private var moreLoadingState = false
+    /**
+     * 标记加载更多没有更多数据
+     */
+    private var flagMoreEnd = false
+    /**
+     * 是否加过数据，如果没有加载过数据，则不会出现空数据提示样式
+     */
+    private var initLoad = false
 
     fun canLoadMore(): Boolean {
-        val enable = enableMore && !moreLoading && !moreEnd
+        val enable = enableMore && !moreLoadingState && !flagMoreEnd
         if (enable) {
-            moreLoading = true
-            moreEnd = false
+            moreLoadingState = true
+            flagMoreEnd = false
         }
         return enable
     }
@@ -46,7 +59,7 @@ class DataSet<T> {
     fun count(): Int {
         var count = mData.size
         if (count == 0) {
-            if (enableEmpty && firstLoad) {
+            if (enableEmpty && initLoad) {
                 count++
             }
         } else {
@@ -74,7 +87,7 @@ class DataSet<T> {
     private fun itemListWithoutExtra(): List<T?> {
         val list = mutableListOf<T?>()
         if (mData.isEmpty()) {
-            if (enableEmpty && firstLoad) {
+            if (enableEmpty && initLoad) {
                 list.add(null)
             }
         } else {
@@ -89,18 +102,18 @@ class DataSet<T> {
     }
 
 
-    private fun itemList(): List<Any> {
-        val list = mutableListOf<Any>()
+    private fun itemList(): List<Any?> {
+        val list = mutableListOf<Any?>()
         if (mData.isEmpty()) {
-            if (enableEmpty && firstLoad) {
+            if (enableEmpty && initLoad) {
                 list.add(mEmptyItem)
             }
         } else {
             mData.forEach {
-                list.add(it!!)
+                list.add(it)
             }
             if (enableMore) {
-                if (moreEnd) {
+                if (flagMoreEnd) {
                     list.add(mMoreEndItem)
                 } else {
                     list.add(mMoreLoadingItem)
@@ -114,9 +127,9 @@ class DataSet<T> {
 
     fun initData(list: List<T>?) {
         opData {
-            moreEnd = false
-            moreLoading = false
-            firstLoad = true
+            flagMoreEnd = false
+            moreLoadingState = false
+            initLoad = true
             mData.clear()
             if (list != null) {
                 mData.addAll(list)
@@ -126,8 +139,8 @@ class DataSet<T> {
 
     fun setData(list: List<T>?) {
         opData {
-            moreEnd = false
-            moreLoading = false
+            flagMoreEnd = false
+            moreLoadingState = false
             mData.clear()
             if (list != null) {
                 mData.addAll(list)
@@ -137,11 +150,19 @@ class DataSet<T> {
 
     fun addData(list: List<T>?) {
         opData {
-            moreLoading = false
+            moreLoadingState = false
             if (list != null) {
                 mData.addAll(list)
             } else {
-                moreEnd = true
+                flagMoreEnd = true
+            }
+        }
+    }
+
+    fun remove(list: List<T>?) {
+        opData {
+            list?.forEach {
+                mData.remove(it)
             }
         }
     }
@@ -157,11 +178,7 @@ class DataSet<T> {
         refreshStateLiveData.postValue(refreshing)
     }
 
-    fun setFirstLoad() {
-        firstLoad = true
-    }
-
-    private fun notifyAdapter(oldList: List<Any>, newList: List<Any>) {
+    private fun notifyAdapter(oldList: List<Any?>, newList: List<Any?>) {
 
         val result = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
 
@@ -174,21 +191,22 @@ class DataSet<T> {
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                val oldItem = oldList[oldItemPosition]
-                val oldType = if (oldItem is ExtraItem) {
-                    oldItem.type
-                } else {
-                    CONTENT
-                }
-                val newItem = newList[newItemPosition]
-                val newType = if (newItem is ExtraItem) {
-                    newItem.type
-                } else {
-                    CONTENT
-                }
-                return oldType == newType
+//                val oldItem = oldList[oldItemPosition]
+//                val oldType = if (oldItem is ExtraItem) {
+//                    oldItem.type
+//                } else {
+//                    CONTENT
+//                }
+//                val newItem = newList[newItemPosition]
+//                val newType = if (newItem is ExtraItem) {
+//                    newItem.type
+//                } else {
+//                    CONTENT
+//                }
+//                return oldType == newType
+                return true
             }
         })
-        liveData.postValue(result)
+        diffResultLiveData.postValue(result)
     }
 }

@@ -9,7 +9,7 @@ fun RecyclerView.wrap(recyclerAdapter: BaseRecyclerAdapter<*, *>) {
     adapter = recyclerAdapter
 }
 
-fun SwipeRefreshLayout.wrap(presenter: RecyclerPresenter<*>) {
+fun SwipeRefreshLayout.wrap(presenter: AbstractRecyclerPresenter<*>) {
     setOnRefreshListener {
         presenter.loadRefresh()
     }

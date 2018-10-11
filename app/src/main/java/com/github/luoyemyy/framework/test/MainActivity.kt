@@ -8,8 +8,8 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.github.luoyemyy.framework.ext.getPresenter
-import com.github.luoyemyy.framework.mvp.recycler.SingleRecyclerAdapter
-import com.github.luoyemyy.framework.mvp.recycler.RecyclerPresenter
+import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
+import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.framework.mvp.recycler.wrap
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
@@ -37,11 +37,11 @@ class MainActivity : AppCompatActivity() {
         mPresenter.loadInit()
     }
 
-    inner class Adapter(owner: LifecycleOwner, presenter: Presenter) : SingleRecyclerAdapter<String, ActivityMainRecyclerBinding>(owner, presenter) {
+    inner class Adapter(owner: LifecycleOwner, presenter: Presenter) : AbstractSingleRecyclerAdapter<String, ActivityMainRecyclerBinding>(owner, presenter) {
 
         init {
             setLayout(R.layout.activity_main_recycler)
-            bindItemClickListener()
+            enableItemClickListener()
             enableLoadMore(false)
         }
 
@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
                 executePendingBindings()
             }
         }
+
 
         override fun onItemClickListener(view: View, position: Int) {
             when (position) {
@@ -64,7 +65,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    class Presenter(app: Application) : RecyclerPresenter<String>(app) {
+    class Presenter(app: Application) : AbstractRecyclerPresenter<String>(app) {
 
         override fun loadData(page: Int): List<String>? {
             return listOf(

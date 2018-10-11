@@ -9,7 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, presenter: IRecyclerPresenter<T>) : RecyclerView.Adapter<VH<BIND>>(), RecyclerAdapterOp, RecyclerAdapterExt<T, BIND> {
+abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, presenter: IRecyclerPresenter<T>) : RecyclerView.Adapter<VH<BIND>>(), RecyclerAdapterOp {
 
     /**
      * 辅助类
@@ -24,23 +24,47 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOw
     protected val layoutIntArray = SparseIntArray()
 
     /**
-     *
+     * 绑定数据
      */
-    override fun bindItemClickListener(enable: Boolean) {
-        helper.bindItemClickListener(enable)
+    abstract fun bindContentViewHolder(binding: BIND, content: T, position: Int)
+
+
+    /**
+     * 获得内容类型id，如果是多类型需要重写该方法
+     */
+    abstract fun getContentType(position: Int, item: T?): Int
+
+    /**
+     * 设置刷新控件样式
+     */
+    open fun setRefreshState(refreshing: Boolean) {
+
+    }
+
+    /**
+     * 是否可以点击item
+     */
+    override fun enableItemClickListener(enable: Boolean) {
+        helper.enableItemClickListener(enable)
     }
 
     /**
      * 如果绑定了item的点击事件，则需要重写该方法，
      */
-    override fun onItemClickListener(view: View, position: Int) {
+    open fun onItemClickListener(view: View, position: Int) {
         //nothing
     }
 
+    /**
+     * 是否需要加载更多样式
+     */
     override fun enableLoadMore(enable: Boolean) {
         helper.enableLoadMore(enable)
     }
 
+    /**
+     * 是否需要空数据样式
+     */
     override fun enableEmpty(enable: Boolean) {
         helper.enableEmpty(enable)
     }
@@ -70,35 +94,29 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOw
         helper.onBindViewHolder(holder, position)
     }
 
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<BIND> {
         return helper.onCreateViewHolder(parent, viewType)
-    }
-
-    /**
-     * 创建内容view
-     */
-    override fun createContentView(parent: ViewGroup, viewType: Int): BIND {
-        return DataBindingUtil.inflate(LayoutInflater.from(parent.context), layoutIntArray[viewType], parent, false)
     }
 
     override fun getItemViewType(position: Int): Int {
         return helper.getItemViewType(position)
     }
 
-    /**
-     * 获得指定项内容实体
-     */
-    override fun getItem(position: Int): T? {
-        return helper.getItem(position)
-    }
-
     override fun getItemCount(): Int {
         return helper.getItemCount()
     }
 
+    /**
+     * 创建内容view
+     */
+    fun createContentView(parent: ViewGroup, viewType: Int): BIND {
+        return DataBindingUtil.inflate(LayoutInflater.from(parent.context), layoutIntArray[viewType], parent, false)
+    }
 
-    override fun setRefreshState(refreshing: Boolean) {
-        //nothing
+    /**
+     * 获得指定项内容实体
+     */
+    fun getItem(position: Int): T? {
+        return helper.getItem(position)
     }
 }

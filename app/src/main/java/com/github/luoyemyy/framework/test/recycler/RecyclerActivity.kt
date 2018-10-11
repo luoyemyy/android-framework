@@ -6,8 +6,8 @@ import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import com.github.luoyemyy.framework.ext.getPresenter
-import com.github.luoyemyy.framework.mvp.recycler.SingleRecyclerAdapter
-import com.github.luoyemyy.framework.mvp.recycler.RecyclerPresenter
+import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
+import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.framework.mvp.recycler.wrap
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityRecyclerBinding
@@ -30,7 +30,7 @@ class RecyclerActivity : AppCompatActivity() {
         mPresenter.loadInit()
     }
 
-    inner class Adapter(owner: LifecycleOwner, presenter: Presenter) : SingleRecyclerAdapter<String, ActivityRecyclerRecyclerBinding>(owner, presenter) {
+    inner class Adapter(owner: LifecycleOwner, presenter: Presenter) : AbstractSingleRecyclerAdapter<String, ActivityRecyclerRecyclerBinding>(owner, presenter) {
 
         init {
             setLayout(R.layout.activity_recycler_recycler)
@@ -46,12 +46,12 @@ class RecyclerActivity : AppCompatActivity() {
         }
     }
 
-    class Presenter(app: Application) : RecyclerPresenter<String>(app) {
+    class Presenter(app: Application) : AbstractRecyclerPresenter<String>(app) {
 
         override fun loadData(page: Int): List<String>? {
             Thread.sleep(1000)
-            return if (page < 2) {
-                (0..2).map { ((page - 1) * 10 + it).toString() }
+            return if (page < 3) {
+                (0..9).map { ((page - 1) * 10 + it).toString() }
             } else {
                 null
             }
