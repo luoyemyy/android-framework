@@ -20,7 +20,7 @@ interface RecyclerAdapterOp {
     /**
      * 是否绑定点击item的事件
      */
-    fun enableBindItemListener(enable: Boolean = true)
+    fun bindItemClickListener(enable: Boolean = true)
 
     /**
      * 是否开启加载更过

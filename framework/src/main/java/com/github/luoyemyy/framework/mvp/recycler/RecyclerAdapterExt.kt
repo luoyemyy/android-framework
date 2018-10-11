@@ -4,26 +4,17 @@ import android.databinding.ViewDataBinding
 import android.view.View
 import android.view.ViewGroup
 
-interface RecyclerAdapterExt<T> {
-    /**
-     * 增加布局文件，多个类型时使用
-     */
-    fun addLayout(viewType: Int, layoutId: Int)
-
-    /**
-     * 设置单个布局文件，单类型使用
-     */
-    fun setLayout(layoutId: Int)
+interface RecyclerAdapterExt<T, BIND : ViewDataBinding> {
 
     /**
      * 绑定数据
      */
-    fun bindContentViewHolder(binding: ViewDataBinding, content: T, position: Int)
+    fun bindContentViewHolder(binding: BIND, content: T, position: Int)
 
     /**
      * 创建内容view
      */
-    fun createContentView(parent: ViewGroup, viewType: Int): ViewDataBinding
+    fun createContentView(parent: ViewGroup, viewType: Int): BIND
 
     /**
      * 如果绑定了item的点击事件，则需要重写该方法，
@@ -39,4 +30,9 @@ interface RecyclerAdapterExt<T> {
      * 获得指定项内容实体
      */
     fun getItem(position: Int): T?
+
+    /**
+     * 设置刷新样式
+     */
+    fun setRefreshState(refreshing: Boolean)
 }

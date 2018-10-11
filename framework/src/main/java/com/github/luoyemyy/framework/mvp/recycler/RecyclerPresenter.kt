@@ -5,7 +5,6 @@ import android.arch.lifecycle.AndroidViewModel
 import android.os.Bundle
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
-import android.util.Log
 import com.github.luoyemyy.framework.async.AsyncRun
 
 abstract class RecyclerPresenter<T>(app: Application) : AndroidViewModel(app), IRecyclerPresenter<T> {
@@ -32,10 +31,14 @@ abstract class RecyclerPresenter<T>(app: Application) : AndroidViewModel(app), I
     override fun loadInit(bundle: Bundle?) {
         beforeLoadInit(bundle)
         page = 1
-        run().create {
+        run().start {
+            mDataSet.notifyRefreshState(true)
+            true
+        }.create {
             RecyclerResult(true, loadData(page))
         }.success {
-            mDataSet.setData(it.list)
+            mDataSet.initData(it.list)
+            mDataSet.notifyRefreshState(false)
         }
     }
 
@@ -47,6 +50,7 @@ abstract class RecyclerPresenter<T>(app: Application) : AndroidViewModel(app), I
             RecyclerResult(true, loadData(page))
         }.success {
             mDataSet.setData(it.list)
+            mDataSet.notifyRefreshState(false)
         }
     }
 
@@ -67,10 +71,14 @@ abstract class RecyclerPresenter<T>(app: Application) : AndroidViewModel(app), I
     override fun loadSearch(search: String) {
         beforeLoadSearch(search)
         page = 1
-        run().create {
+        run().start {
+            mDataSet.notifyRefreshState(true)
+            true
+        }.create {
             RecyclerResult(true, loadData(page))
         }.success {
             mDataSet.setData(it.list)
+            mDataSet.notifyRefreshState(false)
         }
     }
 

@@ -9,11 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-abstract class RecyclerAdapter<T>(owner: LifecycleOwner, presenter: IRecyclerPresenter<T>) : RecyclerView.Adapter<VH>(), RecyclerAdapterOp, RecyclerAdapterExt<T> {
-
-    companion object {
-        const val DEFAULT_CONTENT_VIEW_TYPE = DataSet.CONTENT
-    }
+abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, presenter: IRecyclerPresenter<T>) : RecyclerView.Adapter<VH<BIND>>(), RecyclerAdapterOp, RecyclerAdapterExt<T, BIND> {
 
     /**
      * 辅助类
@@ -25,20 +21,28 @@ abstract class RecyclerAdapter<T>(owner: LifecycleOwner, presenter: IRecyclerPre
     /**
      * item 布局文件集合
      */
-    private val layoutIntArray = SparseIntArray()
+    protected val layoutIntArray = SparseIntArray()
 
     /**
-     * 增加布局文件，多个类型时使用
+     *
      */
-    override fun addLayout(viewType: Int, layoutId: Int) {
-        layoutIntArray.put(viewType, layoutId)
+    override fun bindItemClickListener(enable: Boolean) {
+        helper.bindItemClickListener(enable)
     }
 
     /**
-     * 设置单个布局文件，单类型使用
+     * 如果绑定了item的点击事件，则需要重写该方法，
      */
-    override fun setLayout(layoutId: Int) {
-        layoutIntArray.put(DEFAULT_CONTENT_VIEW_TYPE, layoutId)
+    override fun onItemClickListener(view: View, position: Int) {
+        //nothing
+    }
+
+    override fun enableLoadMore(enable: Boolean) {
+        helper.enableLoadMore(enable)
+    }
+
+    override fun enableEmpty(enable: Boolean) {
+        helper.enableEmpty(enable)
     }
 
     /**
@@ -62,50 +66,24 @@ abstract class RecyclerAdapter<T>(owner: LifecycleOwner, presenter: IRecyclerPre
         helper.setEmptyLayout(layoutId)
     }
 
-    override fun onBindViewHolder(holder: VH, position: Int) {
+    override fun onBindViewHolder(holder: VH<BIND>, position: Int) {
         helper.onBindViewHolder(holder, position)
     }
 
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<BIND> {
         return helper.onCreateViewHolder(parent, viewType)
     }
 
     /**
      * 创建内容view
      */
-    override fun createContentView(parent: ViewGroup, viewType: Int): ViewDataBinding {
+    override fun createContentView(parent: ViewGroup, viewType: Int): BIND {
         return DataBindingUtil.inflate(LayoutInflater.from(parent.context), layoutIntArray[viewType], parent, false)
-    }
-
-    override fun enableBindItemListener(enable: Boolean) {
-        helper.enableBindItemListener(enable)
-    }
-
-    override fun enableLoadMore(enable: Boolean) {
-        helper.enableLoadMore(enable)
-    }
-
-    override fun enableEmpty(enable: Boolean) {
-        helper.enableEmpty(enable)
-    }
-
-    /**
-     * 如果绑定了item的点击事件，则需要重写该方法，
-     */
-    override fun onItemClickListener(view: View, position: Int) {
-        //nothing
     }
 
     override fun getItemViewType(position: Int): Int {
         return helper.getItemViewType(position)
-    }
-
-    /**
-     * 获得内容类型id，如果是多类型需要重写该方法
-     */
-    override fun getContentType(position: Int, item: T?): Int {
-        return DEFAULT_CONTENT_VIEW_TYPE
     }
 
     /**
@@ -119,4 +97,8 @@ abstract class RecyclerAdapter<T>(owner: LifecycleOwner, presenter: IRecyclerPre
         return helper.getItemCount()
     }
 
+
+    override fun setRefreshState(refreshing: Boolean) {
+        //nothing
+    }
 }

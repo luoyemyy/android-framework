@@ -4,14 +4,13 @@ import android.app.Application
 import android.arch.lifecycle.LifecycleOwner
 import android.content.Intent
 import android.databinding.DataBindingUtil
-import android.databinding.ViewDataBinding
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.github.luoyemyy.framework.ext.getPresenter
-import com.github.luoyemyy.framework.mvp.recycler.RecyclerAdapter
+import com.github.luoyemyy.framework.mvp.recycler.SingleRecyclerAdapter
 import com.github.luoyemyy.framework.mvp.recycler.RecyclerPresenter
+import com.github.luoyemyy.framework.mvp.recycler.wrap
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
 import com.github.luoyemyy.framework.test.drawer.DrawerActivity
@@ -32,26 +31,22 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         mPresenter = getPresenter()
-        mAdapter = Adapter(this, mPresenter)
 
-        mBinding.apply {
-            recyclerView.layoutManager = LinearLayoutManager(this@MainActivity, LinearLayoutManager.VERTICAL, false)
-            recyclerView.adapter = mAdapter
-        }
+        mBinding.recyclerView.wrap(Adapter(this, mPresenter))
 
         mPresenter.loadInit()
     }
 
-    inner class Adapter(owner: LifecycleOwner, presenter: Presenter) : RecyclerAdapter<String>(owner, presenter) {
+    inner class Adapter(owner: LifecycleOwner, presenter: Presenter) : SingleRecyclerAdapter<String, ActivityMainRecyclerBinding>(owner, presenter) {
 
         init {
             setLayout(R.layout.activity_main_recycler)
-            enableBindItemListener()
+            bindItemClickListener()
             enableLoadMore(false)
         }
 
-        override fun bindContentViewHolder(binding: ViewDataBinding, content: String, position: Int) {
-            (binding as ActivityMainRecyclerBinding).apply {
+        override fun bindContentViewHolder(binding: ActivityMainRecyclerBinding, content: String, position: Int) {
+            binding.apply {
                 name = content
                 executePendingBindings()
             }

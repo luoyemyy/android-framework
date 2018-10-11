@@ -2,7 +2,6 @@ package com.github.luoyemyy.framework.mvp.recycler
 
 import android.arch.lifecycle.MutableLiveData
 import android.support.v7.util.DiffUtil
-import com.github.luoyemyy.framework.ext.toJsonString
 
 class DataSet<T> {
 
@@ -13,18 +12,27 @@ class DataSet<T> {
         const val CONTENT = 1
     }
 
-    class ExtraItem(var type: Int)
+    /**
+     * 额外的数据项（加载更多，无数据）
+     */
+    private class ExtraItem(var type: Int)
 
-    val liveData = MutableLiveData<DiffUtil.DiffResult>()
-    var enableEmpty = false
-    var enableMore = true
+    /**
+     *
+     */
+    internal val liveData = MutableLiveData<DiffUtil.DiffResult>()
+    internal val refreshStateLiveData = MutableLiveData<Boolean>()
+    internal var enableEmpty = true
+    internal var enableMore = true
 
     private val mData: MutableList<T> = mutableListOf()
 
     private val mEmptyItem = ExtraItem(EMPTY)
-    private val mMoreItem = ExtraItem(MORE_LOADING)
+    private val mMoreLoadingItem = ExtraItem(MORE_LOADING)
+    private val mMoreEndItem = ExtraItem(MORE_END)
     private var moreLoading = false
     private var moreEnd = false
+    private var firstLoad = false
 
     fun canLoadMore(): Boolean {
         val enable = enableMore && !moreLoading && !moreEnd
@@ -38,7 +46,7 @@ class DataSet<T> {
     fun count(): Int {
         var count = mData.size
         if (count == 0) {
-            if (enableEmpty) {
+            if (enableEmpty && firstLoad) {
                 count++
             }
         } else {
@@ -66,7 +74,7 @@ class DataSet<T> {
     private fun itemListWithoutExtra(): List<T?> {
         val list = mutableListOf<T?>()
         if (mData.isEmpty()) {
-            if (enableEmpty) {
+            if (enableEmpty && firstLoad) {
                 list.add(null)
             }
         } else {
@@ -84,7 +92,7 @@ class DataSet<T> {
     private fun itemList(): List<Any> {
         val list = mutableListOf<Any>()
         if (mData.isEmpty()) {
-            if (enableEmpty) {
+            if (enableEmpty && firstLoad) {
                 list.add(mEmptyItem)
             }
         } else {
@@ -93,17 +101,28 @@ class DataSet<T> {
             }
             if (enableMore) {
                 if (moreEnd) {
-                    mMoreItem.type = MORE_END
+                    list.add(mMoreEndItem)
                 } else {
-                    mMoreItem.type = MORE_LOADING
+                    list.add(mMoreLoadingItem)
                 }
-                list.add(mMoreItem)
             }
         }
         return list
     }
 
     fun dataList(): List<T> = mData
+
+    fun initData(list: List<T>?) {
+        opData {
+            moreEnd = false
+            moreLoading = false
+            firstLoad = true
+            mData.clear()
+            if (list != null) {
+                mData.addAll(list)
+            }
+        }
+    }
 
     fun setData(list: List<T>?) {
         opData {
@@ -134,6 +153,14 @@ class DataSet<T> {
         notifyAdapter(oldList, newList)
     }
 
+    fun notifyRefreshState(refreshing: Boolean) {
+        refreshStateLiveData.postValue(refreshing)
+    }
+
+    fun setFirstLoad() {
+        firstLoad = true
+    }
+
     private fun notifyAdapter(oldList: List<Any>, newList: List<Any>) {
 
         val result = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
@@ -143,6 +170,10 @@ class DataSet<T> {
             override fun getNewListSize(): Int = newList.size
 
             override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+                return oldList[oldItemPosition] == newList[newItemPosition]
+            }
+
+            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                 val oldItem = oldList[oldItemPosition]
                 val oldType = if (oldItem is ExtraItem) {
                     oldItem.type
@@ -156,10 +187,6 @@ class DataSet<T> {
                     CONTENT
                 }
                 return oldType == newType
-            }
-
-            override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return oldList[oldItemPosition].toJsonString() == newList[newItemPosition].toJsonString()
             }
         })
         liveData.postValue(result)

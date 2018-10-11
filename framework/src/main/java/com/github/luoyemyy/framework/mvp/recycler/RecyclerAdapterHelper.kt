@@ -3,6 +3,7 @@ package com.github.luoyemyy.framework.mvp.recycler
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.Observer
 import android.content.Context
+import android.databinding.ViewDataBinding
 import android.os.Handler
 import android.support.v7.widget.RecyclerView
 import android.view.Gravity
@@ -14,12 +15,14 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import com.github.luoyemyy.framework.ext.dp2px
 
-class RecyclerAdapterHelper<T>(owner: LifecycleOwner, var presenter: IRecyclerPresenter<T>, var adapter: RecyclerAdapter<T>) : RecyclerAdapterOp {
+class RecyclerAdapterHelper<T, BIND : ViewDataBinding>(owner: LifecycleOwner, private var presenter: IRecyclerPresenter<T>, private var adapter: BaseRecyclerAdapter<T, BIND>) : RecyclerAdapterOp {
 
     init {
         presenter.getDataSet().liveData.observe(owner, Observer {
             it?.dispatchUpdatesTo(adapter)
-            enableEmpty(true)
+        })
+        presenter.getDataSet().refreshStateLiveData.observe(owner, Observer {
+            adapter.setRefreshState(it ?: false)
         })
     }
 
@@ -28,7 +31,7 @@ class RecyclerAdapterHelper<T>(owner: LifecycleOwner, var presenter: IRecyclerPr
     private var mMoreEndLayoutId = 0
     private var mEmptyLayoutId = 0
 
-    override fun enableBindItemListener(enable: Boolean) {
+    override fun bindItemClickListener(enable: Boolean) {
         mFlagBindItemClick = enable
     }
 
@@ -40,7 +43,7 @@ class RecyclerAdapterHelper<T>(owner: LifecycleOwner, var presenter: IRecyclerPr
         presenter.getDataSet().enableEmpty = enable
     }
 
-    fun onBindViewHolder(holder: VH, position: Int) {
+    fun onBindViewHolder(holder: VH<BIND>, position: Int) {
         val type = presenter.getDataSet().type(position)
         if (isContentByType(type)) {
             val item = getItem(position) ?: return
@@ -49,7 +52,7 @@ class RecyclerAdapterHelper<T>(owner: LifecycleOwner, var presenter: IRecyclerPr
         }
     }
 
-    fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
+    fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<BIND> {
         return if (isContentByType(viewType)) {
             val binding = adapter.createContentView(parent, viewType)
             VH(binding, binding.root).apply {
@@ -78,7 +81,7 @@ class RecyclerAdapterHelper<T>(owner: LifecycleOwner, var presenter: IRecyclerPr
     fun getItem(position: Int): T? {
         if (position > getItemCount() - 3) {
             Handler().post {
-                //                presenter.loadMore()
+                presenter.loadMore()
             }
         }
         return presenter.getDataSet().item(position)
