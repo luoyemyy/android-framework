@@ -1,4 +1,4 @@
-package com.github.luoyemyy.framework.paging
+package com.github.luoyemyy.framework.test.paging
 
 import android.arch.lifecycle.MutableLiveData
 import android.arch.paging.DataSource

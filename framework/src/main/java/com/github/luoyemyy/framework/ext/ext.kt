@@ -21,7 +21,6 @@ import android.view.WindowManager
 import android.widget.Toast
 import com.github.luoyemyy.framework.app.AppInfo
 import com.github.luoyemyy.framework.app.Logger
-import com.github.luoyemyy.framework.async.AsyncRun
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import java.security.MessageDigest

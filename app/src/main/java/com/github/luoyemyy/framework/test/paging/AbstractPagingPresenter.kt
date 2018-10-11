@@ -1,4 +1,4 @@
-package com.github.luoyemyy.framework.paging
+package com.github.luoyemyy.framework.test.paging
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
