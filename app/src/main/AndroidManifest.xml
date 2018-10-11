@@ -24,9 +24,11 @@
         <activity
             android:name="com.github.luoyemyy.framework.test.status.StatusActivity"
             android:theme="@style/AppTheme.Immerse" />
-        <activity android:name="com.github.luoyemyy.framework.test.drawer.DrawerActivity" />
+        <activity android:name=".drawer.DrawerActivity" />
         <activity android:name=".mvp.MvpActivity" />
-        <activity android:name="com.github.luoyemyy.framework.test.navigation.NavigationActivity" />
+        <activity android:name=".navigation.NavigationActivity" />
+        <activity android:name=".paging.PagingActivity" />
+        <activity android:name=".recycler.RecyclerActivity" />
     </application>
 
 </manifest>

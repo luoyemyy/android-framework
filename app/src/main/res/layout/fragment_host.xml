@@ -28,7 +28,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingStart="0dp"
-                    android:paddingEnd="@dimen/dp_40">
+                    android:paddingEnd="40dp">
 
                     <android.support.design.widget.TabLayout
                         android:id="@+id/tabLayout"

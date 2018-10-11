@@ -21,6 +21,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import com.github.luoyemyy.framework.app.AppInfo
 import com.github.luoyemyy.framework.app.Logger
+import com.github.luoyemyy.framework.async.AsyncRun
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import java.security.MessageDigest
@@ -61,6 +62,7 @@ fun Activity.immerse() {
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.statusBarColor = Color.TRANSPARENT
 }
+
 //状态栏黑色字体
 fun Activity.lightStatusBar() {
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
