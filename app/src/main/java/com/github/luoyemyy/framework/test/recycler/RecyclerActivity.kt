@@ -56,12 +56,6 @@ class RecyclerActivity : AppCompatActivity() {
                 null
             }
         }
-
-        fun e(){
-            getDataSet().opData {
-
-            }
-        }
     }
 
 }
