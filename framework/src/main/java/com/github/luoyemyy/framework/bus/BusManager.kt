@@ -8,10 +8,7 @@ import android.util.SparseArray
 import com.github.luoyemyy.framework.ext.compare
 
 /**
- * 1) [BusManager.register]    注册监听
- * 2) [BusManager.unRegister]  反注册监听
- * 3) [BusManager.unRegister]       反注册监听
- * 4) [BusManager.post]             发送消息
+ *
  */
 class BusManager private constructor() {
 
@@ -103,30 +100,6 @@ class BusManager private constructor() {
         mCallbacks.remove(group)
     }
 
-    fun post(code: Long) {
-        post(GROUP_DEFAULT, code, 0, 0, false, null, null)
-    }
-
-    fun post(code: Long, anInt: Int) {
-        post(GROUP_DEFAULT, code, anInt, 0, false, null, null)
-    }
-
-    fun post(code: Long, aLong: Long) {
-        post(GROUP_DEFAULT, code, 0, aLong, false, null, null)
-    }
-
-    fun post(code: Long, aBoolean: Boolean) {
-        post(GROUP_DEFAULT, code, 0, 0L, aBoolean, null, null)
-    }
-
-    fun post(code: Long, string: String) {
-        post(GROUP_DEFAULT, code, 0, 0, false, string, null)
-    }
-
-    fun post(code: Long, bundle: Bundle) {
-        post(GROUP_DEFAULT, code, 0, 0, false, null, bundle)
-    }
-
     fun post(code: Long, anInt: Int = 0, aLong: Long = 0L, aBoolean: Boolean = false, string: String? = null, bundle: Bundle? = null) {
         post(GROUP_DEFAULT, code, anInt, aLong, aBoolean, string, bundle)
     }
@@ -140,9 +113,13 @@ class BusManager private constructor() {
             val msg = BusMsg(group, code, anInt, aLong, aBoolean, string, bundle)
             val callbacks = mCallbacks.get(msg.group)
             if (callbacks != null && callbacks.size > 0) {
-                callbacks.asSequence().filter {
-                    it.interceptGroup() == msg.group && it.interceptCode().contains(msg.code)
-                }.forEach { it.busResult(msg.group, msg.code, msg) }
+                callbacks.asSequence()
+                        .filter {
+                            it.interceptGroup() == msg.group && it.interceptCode().contains(msg.code)
+                        }
+                        .forEach {
+                            it.busResult(msg.code, msg)
+                        }
             }
         }
     }

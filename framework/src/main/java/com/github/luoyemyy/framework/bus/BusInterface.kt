@@ -9,5 +9,5 @@ interface BusIntercept {
 
 interface BusResult {
     @MainThread
-    fun busResult(group: Int, code: Long, msg: BusMsg){}
+    fun busResult(code: Long, msg: BusMsg)
 }

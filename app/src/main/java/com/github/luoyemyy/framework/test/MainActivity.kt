@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
 import com.github.luoyemyy.framework.ext.getPresenter
-import com.github.luoyemyy.framework.ext.toast
 import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
 import com.github.luoyemyy.framework.mvp.recycler.wrap
@@ -72,9 +71,6 @@ class MainActivity : AppCompatActivity() {
                 3 -> startActivity(Intent(this@MainActivity, NavigationActivity::class.java))
                 4 -> startActivity(Intent(this@MainActivity, PagingActivity::class.java))
                 5 -> startActivity(Intent(this@MainActivity, RecyclerActivity::class.java))
-                6 -> toast(supportFragmentManager.fragments.joinToString {
-                    it::class.java.canonicalName ?: ""
-                })
             }
         }
     }
@@ -88,8 +84,7 @@ class MainActivity : AppCompatActivity() {
                     "mvp",
                     "navigation",
                     "paging",
-                    "recycler",
-                    "log"
+                    "recycler"
             )
         }
     }

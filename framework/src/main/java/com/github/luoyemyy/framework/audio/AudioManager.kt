@@ -13,7 +13,7 @@ class AudioManager private constructor() {
 
         override fun interceptGroup(): Int = BusManager.GROUP_AUDIO
 
-        override fun busResult(group: Int, code: Long, msg: BusMsg) {
+        override fun busResult(code: Long, msg: BusMsg) {
             when (msg.mInt) {
                 AudioMsg.PLAY -> audioPlay(msg.code)
                 AudioMsg.STOP -> audioStop(msg.code)

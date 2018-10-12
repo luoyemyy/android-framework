@@ -28,8 +28,8 @@ class BusRegistry private constructor(private val mResult: BusResult, lifecycle:
 
     override fun interceptCode(): LongArray = mCodes
 
-    override fun busResult(group: Int, code: Long, msg: BusMsg) {
-        mResult.busResult(group, code, msg)
+    override fun busResult(code: Long, msg: BusMsg) {
+        mResult.busResult(code, msg)
     }
 
     companion object {
