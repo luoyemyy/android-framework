@@ -29,6 +29,7 @@ class HostFragment : Fragment() {
             toolbar.inflateMenu(R.menu.fragment_host)
 
             viewPager.adapter = Adapter(childFragmentManager)
+            viewPager.offscreenPageLimit=3
             tabLayout.apply {
                 setupWithViewPager(viewPager)
                 getTabAt(0)!!.setIcon(R.drawable.ic_extension)
