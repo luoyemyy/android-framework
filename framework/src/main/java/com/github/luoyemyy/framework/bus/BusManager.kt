@@ -5,7 +5,6 @@ import android.os.Handler
 import android.os.Looper
 import android.support.annotation.MainThread
 import android.util.SparseArray
-import com.github.luoyemyy.framework.ext.compare
 
 /**
  *
@@ -24,16 +23,16 @@ class BusManager private constructor() {
     fun registerIfNotExist(callback: Callback) {
 
         val group = callback.interceptGroup()
-        var callbacks: MutableList<Callback>? = mCallbacks.get(group)
-        if (callbacks == null) {
-            callbacks = mutableListOf(callback)
-            mCallbacks.put(group, callbacks)
-        } else {
-            if (!callbacks.any { it.interceptCode().compare(callback.interceptCode()) }) {
-                callbacks.add(callback)
+        mCallbacks.get(group)?.apply {
+            if (none { it.callbackId == callback.callbackId }) {
+                add(callback)
             }
-        }
+        } ?: createGroup(group).apply { add(callback) }
 
+    }
+
+    private fun createGroup(group: Int): MutableList<Callback> {
+        return mutableListOf<Callback>().apply { mCallbacks.put(group, this) }
     }
 
     /**
@@ -43,15 +42,8 @@ class BusManager private constructor() {
      */
     @MainThread
     fun register(callback: Callback) {
-
         val group = callback.interceptGroup()
-        var callbacks: MutableList<Callback>? = mCallbacks.get(group)
-        if (callbacks == null) {
-            callbacks = mutableListOf()
-            mCallbacks.put(group, callbacks)
-        }
-        callbacks.add(callback)
-
+        mCallbacks.get(group)?.apply { add(callback) } ?: createGroup(group).apply { add(callback) }
     }
 
     /**
@@ -86,7 +78,6 @@ class BusManager private constructor() {
                     mCallbacks.remove(group)
                 }
             }
-
         }
     }
 
@@ -100,32 +91,37 @@ class BusManager private constructor() {
         mCallbacks.remove(group)
     }
 
-    fun post(code: Long, anInt: Int = 0, aLong: Long = 0L, aBoolean: Boolean = false, string: String? = null, bundle: Bundle? = null) {
-        post(GROUP_DEFAULT, code, anInt, aLong, aBoolean, string, bundle)
+    fun post(event: String, intValue: Int = 0, longValue: Long = 0L, boolValue: Boolean = false, stringValue: String? = null, extra: Bundle? = null) {
+        post(GROUP_DEFAULT, event, intValue, longValue, boolValue, stringValue, extra)
     }
 
     /**
      * 派发消息
      */
-    fun post(group: Int, code: Long, anInt: Int = 0, aLong: Long = 0L, aBoolean: Boolean = false, string: String? = null, bundle: Bundle? = null) {
+    fun post(group: Int, event: String, intValue: Int = 0, longValue: Long = 0L, boolValue: Boolean = false, stringValue: String? = null, extra: Bundle? = null) {
         /* 开始派发消息 */
         mHandler.post {
-            val msg = BusMsg(group, code, anInt, aLong, aBoolean, string, bundle)
+            val msg = BusMsg(group, event, intValue, longValue, boolValue, stringValue, extra)
             val callbacks = mCallbacks.get(msg.group)
             if (callbacks != null && callbacks.size > 0) {
                 callbacks.asSequence()
                         .filter {
-                            it.interceptGroup() == msg.group && it.interceptCode().contains(msg.code)
+                            it.interceptGroup() == msg.group && it.interceptEvent().contains(msg.event)
                         }
                         .forEach {
-                            it.busResult(msg.code, msg)
+                            it.busResult(msg.event, msg)
                         }
             }
         }
     }
 
 
-    interface Callback : BusIntercept, BusResult
+    interface Callback : BusResult {
+
+        val callbackId: String
+        fun interceptGroup(): Int
+        fun interceptEvent(): Array<out String>
+    }
 
     companion object {
 

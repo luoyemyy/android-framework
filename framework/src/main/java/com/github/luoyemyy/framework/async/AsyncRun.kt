@@ -7,11 +7,13 @@ import android.util.Log
 
 class AsyncRun {
 
-    private val mMainHandler: Handler = Handler(Looper.getMainLooper())
+    class Call<R : Result> {
 
-    inner class Call<R : Result>(private val error: R) {
+        private val mMainHandler: Handler = Handler(Looper.getMainLooper())
 
-        private var back: R = error
+        //back
+        private var back: R? = null
+
         //start
         private var s: (Call<R>) -> Unit = { }
 
@@ -19,9 +21,9 @@ class AsyncRun {
         private lateinit var c: (Call<R>) -> R
 
         //result
-        private var r: (R) -> Unit = {}
-        private var ok: (R) -> Unit = {}
-        private var fail: (R) -> Unit = {}
+        private var r: (R?) -> Unit = {}
+        private var ok: (R?) -> Unit = {}
+        private var fail: (R?) -> Unit = {}
 
         //cancel
         private var cancel: Boolean = false
@@ -37,17 +39,17 @@ class AsyncRun {
             return this
         }
 
-        fun result(r: (R) -> Unit = {}): Call<R> {
+        fun result(r: (R?) -> Unit = {}): Call<R> {
             this.r = r
             return this
         }
 
-        fun success(success: (R) -> Unit): Call<R> {
+        fun success(success: (R?) -> Unit): Call<R> {
             ok = success
             return this
         }
 
-        fun failure(failure: (R) -> Unit): Call<R> {
+        fun failure(failure: (R?) -> Unit): Call<R> {
             fail = failure
             return this
         }
@@ -71,7 +73,7 @@ class AsyncRun {
                     c(this)
                 } catch (e: Throwable) {
                     Log.e("AsyncRun.Call", "execute", e)
-                    error
+                    null
                 }
                 if (!cancel) {
                     mMainHandler.post(resultRunnable)
@@ -83,20 +85,14 @@ class AsyncRun {
         private val resultRunnable = {
             if (!cancel) {
                 r(back)
-                if (back.isSuccess) {
-                    ok(back)
+                val result = back
+                if (result != null && result.isSuccess) {
+                    ok(result)
                 } else {
-                    fail(back)
+                    fail(result)
                 }
             }
         }
-    }
-
-    companion object {
-
-        private val single by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { AsyncRun() }
-
-        fun single(): AsyncRun = single
     }
 
     interface Result {

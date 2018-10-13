@@ -8,9 +8,7 @@ import android.arch.lifecycle.LifecycleOwner
  * bus 管理注册器
  * 注册后，此事件监听会绑定生命周期，不用手动去释放
  */
-class BusRegistry private constructor(private val mResult: BusResult, lifecycle: Lifecycle, codes: LongArray) : BusManager.Callback, GenericLifecycleObserver {
-
-    private val mCodes: LongArray = codes
+class BusRegistry private constructor(lifecycle: Lifecycle, private val mResult: BusResult, private var mEvents: Array<out String>) : BusManager.Callback, GenericLifecycleObserver {
 
     init {
         lifecycle.addObserver(this)
@@ -24,15 +22,19 @@ class BusRegistry private constructor(private val mResult: BusResult, lifecycle:
         }
     }
 
+    override val callbackId: String by lazy {
+        interceptEvent().sorted().joinToString("&")
+    }
+
     override fun interceptGroup(): Int = BusManager.GROUP_DEFAULT
 
-    override fun interceptCode(): LongArray = mCodes
+    override fun interceptEvent(): Array<out String> = mEvents
 
-    override fun busResult(code: Long, msg: BusMsg) {
-        mResult.busResult(code, msg)
+    override fun busResult(event: String, msg: BusMsg) {
+        mResult.busResult(event, msg)
     }
 
     companion object {
-        fun init(result: BusResult, lifecycle: Lifecycle, vararg codes: Long) = BusRegistry(result, lifecycle, codes)
+        fun init(lifecycle: Lifecycle, result: BusResult, vararg events: String) = BusRegistry(lifecycle, result, events)
     }
 }
