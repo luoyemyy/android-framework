@@ -7,10 +7,10 @@ import android.support.annotation.IntDef
 import android.support.annotation.IntRange
 import android.support.annotation.RawRes
 
-class AudioMsg() : Parcelable {
+internal class AudioMsg() : Parcelable {
 
     var op: Int = 0             //操作
-    var id: Long = 0            //消息id
+    var id: String? = null      //消息id
     var sourceType: Int = 0     //1 path 2 uri 3 rawId
     var path: String? = null    //资源文件路径，文件绝对地址，或网络路径
     var uri: Uri? = null        //资源文件uri
@@ -21,7 +21,7 @@ class AudioMsg() : Parcelable {
 
     constructor(parcel: Parcel) : this() {
         op = parcel.readInt()
-        id = parcel.readLong()
+        id = parcel.readString()
         sourceType = parcel.readInt()
         path = parcel.readString()
         uri = parcel.readParcelable(Uri::class.java.classLoader)
@@ -32,7 +32,7 @@ class AudioMsg() : Parcelable {
     }
 
     constructor(@Op op: Int,
-                id: Long = 0,
+                id: String? = null,
                 @SourceType sourceType: Int = NONE,
                 path: String? = null,
                 uri: Uri? = null,
@@ -104,7 +104,7 @@ class AudioMsg() : Parcelable {
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeInt(op)
-        parcel.writeLong(id)
+        parcel.writeString(id)
         parcel.writeInt(sourceType)
         parcel.writeString(path)
         parcel.writeParcelable(uri, flags)

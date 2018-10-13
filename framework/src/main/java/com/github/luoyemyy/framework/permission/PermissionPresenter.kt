@@ -7,7 +7,7 @@ import android.util.SparseArray
 /**
  *  example:
  *
- *  this.getPresenter<PermissionPresenter>() // this is FragmentActivity
+ *  fragmentActivity.getPresenter<PermissionPresenter>()
  *      .create(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE))
  *      .withPass {
  *          alert("success")
@@ -15,7 +15,7 @@ import android.util.SparseArray
  *      .withDenied { _, _ ->
  *          alert("failure")
  *      }
- *      .request(this)
+ *      .request(fragmentActivity)
  *
  */
 class PermissionPresenter(app: Application) : AndroidViewModel(app) {
@@ -39,7 +39,12 @@ class PermissionPresenter(app: Application) : AndroidViewModel(app) {
         return 1
     }
 
-    fun getFuture(requestCode: Int): PermissionFuture? {
-        return permissionFutureArray.get(requestCode)
+    /**
+     * 取出后，立即从缓存中删除
+     */
+    internal fun getFuture(requestCode: Int): PermissionFuture? {
+        val future = permissionFutureArray.get(requestCode)
+        permissionFutureArray.delete(requestCode)
+        return future
     }
 }

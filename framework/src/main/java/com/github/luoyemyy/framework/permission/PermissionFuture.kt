@@ -20,6 +20,9 @@ class PermissionFuture(private val mRequestCode: Int, private val mPermissions: 
         return this
     }
 
+    /**
+     * 可以使用 future.toSettings(activity,msg)，跳到应用详情页去授权
+     */
     fun withDenied(denied: ((future: PermissionFuture, permissions: Array<String>) -> Unit)): PermissionFuture {
         mDeniedRunnable = denied
         return this

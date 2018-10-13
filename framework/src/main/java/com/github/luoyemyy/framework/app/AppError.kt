@@ -39,7 +39,7 @@ internal class AppError private constructor(private val mApp: Application, priva
         }
         //打印和保存日志文件
         val log = collectExceptionInfo(ex)
-        FileOutputStream(FileManager.getInstance(mApp).log()).use { it.write(log.toByteArray()) }
+        FileOutputStream(FileManager.getInstance().log()).use { it.write(log.toByteArray()) }
         Log.e("AppError", "handleException:  $log")
         return true
     }
@@ -68,8 +68,8 @@ internal class AppError private constructor(private val mApp: Application, priva
         var ex = throwable
         val sb = StringBuilder()
         try {
-            StringWriter().use {
-                PrintWriter(it).use {
+            StringWriter().use { sw ->
+                PrintWriter(sw).use {
                     do {
                         ex?.printStackTrace(it)
                         ex = ex?.cause
@@ -77,7 +77,7 @@ internal class AppError private constructor(private val mApp: Application, priva
                 }
 
                 sb.append(deviceInfo)
-                sb.append(it.buffer)
+                sb.append(sw.buffer)
             }
         } catch (e: Exception) {
             Log.e("AppError", "collectExceptionInfo", e)

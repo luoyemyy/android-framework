@@ -8,24 +8,21 @@ import com.github.luoyemyy.framework.ext.getPresenter
 internal class PermissionFragment : Fragment() {
 
     private var mPermissionFuture: PermissionFuture? = null
-    private var mTag: String? = null
 
     companion object {
 
-        const val TAG = "tag"
         const val REQUEST_CODE = "requestCode"
         const val REQUEST_Permission = "requestPermission"
 
         fun startPermissionFragment(requestCode: Int, requestPermission: Array<String>, activity: FragmentActivity) {
-            val tag = "PermissionFragment_$requestCode"
             val permissionFragment = PermissionFragment().apply {
                 arguments = Bundle().apply {
                     putInt(REQUEST_CODE, requestCode)
                     putStringArray(REQUEST_Permission, requestPermission)
-                    putString(TAG, tag)
+
                 }
             }
-            activity.supportFragmentManager.beginTransaction().add(permissionFragment, tag).commit()
+            activity.supportFragmentManager.beginTransaction().add(permissionFragment, null).commit()
         }
     }
 
@@ -33,10 +30,9 @@ internal class PermissionFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         val requestCode = arguments?.getInt(REQUEST_CODE) ?: -1
         val requestPermission = arguments?.getStringArray(REQUEST_Permission)
-        mTag = arguments?.getString(TAG)
         if (requestPermission != null) {
-            mPermissionFuture = requireActivity().getPresenter<PermissionPresenter>().getFuture(requestCode)
-            if (mPermissionFuture != null) {
+            requireActivity().getPresenter<PermissionPresenter>().getFuture(requestCode)?.apply {
+                mPermissionFuture = this
                 requestPermissions(requestPermission, requestCode)
                 return
             }

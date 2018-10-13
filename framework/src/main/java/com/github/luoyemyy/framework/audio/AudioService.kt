@@ -164,7 +164,7 @@ class AudioService : Service(), MediaPlayer.OnErrorListener, MediaPlayer.OnCompl
 
     private fun clearAutoClose() {
         if (mAutoClose) {
-            mHandler.removeCallbacksAndMessages(null)
+            mHandler.removeCallbacks(mDestroyRunnable)
             mAutoClose = false
             Log.i("AudioService", "取消自动销毁服务")
         }

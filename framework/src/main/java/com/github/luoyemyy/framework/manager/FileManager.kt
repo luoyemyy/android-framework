@@ -12,6 +12,7 @@ import android.support.annotation.StringDef
 import android.support.v4.content.ContextCompat
 import android.util.Log
 import java.io.*
+import java.lang.NullPointerException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -53,8 +54,8 @@ sb.append("\n outer        publicStandardFile:${manager.outer().publicStandardFi
  */
 class FileManager(val app: Application) {
 
-    private val inner: Inner by lazy { Inner() }
-    private val outer: Outer by lazy { Outer() }
+    private val inner: Inner by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { Inner(app) }
+    private val outer: Outer by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { Outer(app) }
 
     fun inner(): Inner = inner
     fun outer(): Outer = outer
@@ -94,77 +95,37 @@ class FileManager(val app: Application) {
      */
     fun db(name: String = getName()): File? = inner.file(DB, name)
 
-
-    /**
-     * 如果文件已存在，直接返回
-     * @return
-     */
-    fun copyFromAsset(type: Type, source: String): File? {
-        val file = inner.file(type, source).also {
-            when {
-                it == null -> return null
-                it.exists() -> return it
-            }
-        }
-        return try {
-            app.assets.open(source).use { input -> FileOutputStream(file).use { fos -> copy(input, fos) } }
-            file
-        } catch (e: Exception) {
-            Log.e("FileManager", "copyFromAsset:  $e")
-            null
-        }
-    }
-
-    @Throws(IOException::class)
-    fun copy(input: InputStream, os: OutputStream) {
-        val bytes = ByteArray(1024)
-        var len: Int
-        do {
-            len = input.read(bytes)
-            os.write(bytes, 0, len)
-        } while (len != -1)
-    }
-
-    @Throws(IOException::class)
-    fun copy(input: InputStream, fos: FileOutputStream) {
-        val bytes = ByteArray(1024)
-        var len: Int
-        do {
-            len = input.read(bytes)
-            fos.write(bytes, 0, len)
-        } while (len != -1)
-    }
-
     /**
      * uri 转换为 地址
      */
     fun getPathFromUri(uri: Uri?): String? {
         if (null == uri) return null
         val scheme = uri.scheme
-        var data: String? = null
-        if (scheme == null)
-            data = uri.path
-        else if (ContentResolver.SCHEME_FILE == scheme) {
-            data = uri.path
-        } else if (ContentResolver.SCHEME_CONTENT == scheme) {
-            val cursor = app.contentResolver.query(uri, arrayOf(MediaStore.Images.ImageColumns.DATA), null, null, null)
-            if (null != cursor) {
-                if (cursor.moveToFirst()) {
-                    val index = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA)
-                    if (index > -1) {
-                        data = cursor.getString(index)
+        return when (scheme) {
+            null -> uri.path
+            ContentResolver.SCHEME_FILE -> uri.path
+            ContentResolver.SCHEME_CONTENT -> {
+                val cursor = app.contentResolver.query(uri, arrayOf(MediaStore.MediaColumns.DATA), null, null, null)
+                var path: String? = null
+                if (null != cursor) {
+                    if (cursor.moveToFirst()) {
+                        val index = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
+                        if (index > -1) {
+                            path = cursor.getString(index)
+                        }
                     }
+                    cursor.close()
                 }
-                cursor.close()
+                path
             }
+            else -> null
         }
-        return data
     }
 
     /**
      * 内部存储，（私有）
      */
-    inner class Inner {
+    class Inner(val app: Application) {
 
         /**
          * 私有目录（包名下面自定义文件夹）
@@ -208,7 +169,7 @@ class FileManager(val app: Application) {
     /**
      * 外部存储，（私有/公共）
      */
-    inner class Outer {
+    class Outer(val app: Application) {
 
         /**
          * 私有目录
@@ -356,18 +317,24 @@ class FileManager(val app: Application) {
         val APK = Type(CUSTOM_DIRECTORY_APK, SUFFIX_APK)
 
         @Volatile
-        private var fileManager: FileManager? = null
+        private var single: FileManager? = null
 
         @JvmStatic
-        fun getInstance(app: Application): FileManager {
-            if (fileManager == null) {
+        fun initManager(app: Application) {
+            if (single == null) {
                 synchronized(FileManager::class) {
-                    if (fileManager == null) {
-                        fileManager = FileManager(app)
+                    if (single == null) {
+                        single = FileManager(app)
                     }
                 }
             }
-            return fileManager!!
+        }
+
+        @JvmStatic
+        fun getInstance(): FileManager {
+            return single ?: let {
+                throw NullPointerException("must init in Application.onCreate() and after FileManager.initManager(app)")
+            }
         }
     }
 

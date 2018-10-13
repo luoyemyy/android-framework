@@ -2,9 +2,9 @@ package com.github.luoyemyy.framework.audio
 
 interface AudioCallback {
 
-    fun audioPlay(id: Long)
+    fun audioPlay(id: String)
 
-    fun audioStop(id: Long)
+    fun audioStop(id: String)
 
-    fun audioPlaying(id: Long, leftSecond: Int)
+    fun audioPlaying(id: String, leftSecond: Int)
 }

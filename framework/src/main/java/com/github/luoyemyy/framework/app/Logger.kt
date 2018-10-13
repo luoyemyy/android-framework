@@ -4,29 +4,32 @@ import android.util.Log
 
 object Logger {
 
-    private var enableLog: Boolean = false
-
-    fun setEnableLog(enableLog: Boolean) {
-        Logger.enableLog = enableLog
-    }
+    var enableFileLog: Boolean = false
+    var enableConsoleLog: Boolean = true
 
     fun e(tag: String, msg: String, e: Throwable? = null) {
-        Log.e(tag, msg, e)
+        if (enableConsoleLog) {
+            Log.e(tag, msg, e)
+        }
         log("E", tag, msg, e)
     }
 
     fun i(tag: String, msg: String, e: Throwable? = null) {
-        Log.i(tag, msg, e)
+        if (enableConsoleLog) {
+            Log.i(tag, msg, e)
+        }
         log("I", tag, msg, e)
     }
 
     fun d(tag: String, msg: String, e: Throwable? = null) {
-        Log.d(tag, msg, e)
+        if (enableConsoleLog) {
+            Log.d(tag, msg, e)
+        }
         log("D", tag, msg, e)
     }
 
     private fun log(level: String, tag: String, msg: String, e: Throwable?) {
-        if (enableLog) {
+        if (enableFileLog) {
             LogWriter.single().write(e, Thread.currentThread().name, level, tag, msg)
         }
     }

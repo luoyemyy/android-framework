@@ -10,15 +10,17 @@ object AppInfo {
     var logPath: String? = null
     var profile: Profile = Profile(Profile.DEV)
 
-    fun init(app: Application, enableLog: Boolean = true, spfName: String? = null, profileType: Int = Profile.DEV) {
+    fun init(app: Application, enableConsoleLog: Boolean = true, enableFileLog: Boolean = true, spfName: String? = null, profileType: Int = Profile.DEV) {
         app.registerActivityLifecycleCallbacks(ActivityLifecycleManager.instance)
 
+        FileManager.initManager(app)
         AppError.init(app)
         packageName = app.packageName
         preferencesName = spfName ?: "app_info"
-        logPath = FileManager.getInstance(app).inner().dir(FileManager.LOG)?.absolutePath
+        logPath = FileManager.getInstance().inner().dir(FileManager.LOG)?.absolutePath
         profile.setNewType(profileType)
 
-        Logger.setEnableLog(enableLog)
+        Logger.enableConsoleLog = enableConsoleLog
+        Logger.enableFileLog = enableFileLog
     }
 }

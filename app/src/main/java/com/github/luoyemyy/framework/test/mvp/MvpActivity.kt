@@ -3,7 +3,11 @@ package com.github.luoyemyy.framework.test.mvp
 import android.databinding.DataBindingUtil.setContentView
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.github.luoyemyy.framework.bus.BusRegistry
+import com.github.luoyemyy.framework.audio.AudioCallback
+import com.github.luoyemyy.framework.audio.AudioManager
+import com.github.luoyemyy.framework.bus.BusManager
+import com.github.luoyemyy.framework.bus.BusMsg
+import com.github.luoyemyy.framework.bus.BusResult
 import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityMvpBinding
@@ -21,9 +25,31 @@ class MvpActivity : AppCompatActivity() {
         mBinding.setLifecycleOwner(this)
         mBinding.presenter = presenter
 
-        BusRegistry.init(presenter, lifecycle, 1)
-
         mBinding.presenter?.load()
+
+        BusManager.setCallback(lifecycle, object : BusResult {
+            override fun busResult(event: String, msg: BusMsg) {
+
+            }
+        }, this::class.java.name)
+        BusManager.post(this::class.java.name, 0)
+
+        AudioManager.setCallback(lifecycle, "1", object : AudioCallback {
+            override fun audioPlay(id: String) {
+
+            }
+
+            override fun audioStop(id: String) {
+
+            }
+
+            override fun audioPlaying(id: String, leftSecond: Int) {
+
+            }
+
+        })
+        AudioManager.play(this, "1", "")
     }
+
 
 }
