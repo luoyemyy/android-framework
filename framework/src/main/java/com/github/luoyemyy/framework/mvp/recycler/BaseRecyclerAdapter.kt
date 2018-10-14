@@ -11,7 +11,7 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOw
      * 辅助类
      */
     private val helper by lazy {
-        RecyclerAdapterHelper(owner, this, this, presenter)
+        RecyclerAdapterDelegate(owner, this, this, presenter)
     }
 
     override fun onBindViewHolder(holder: VH<T, BIND>, position: Int) {
