@@ -15,7 +15,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import com.github.luoyemyy.framework.ext.dp2px
 
-class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, adapter: RecyclerView.Adapter<VH<T, BIND>>, private var op: RecyclerAdapterOp<T, BIND>, private var presenter: IRecyclerPresenter<T>) {
+class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, adapter: RecyclerView.Adapter<VH<BIND>>, private var op: RecyclerAdapterOp<T, BIND>, private var presenter: IRecyclerPresenter<T>) {
 
     init {
         presenter.getDataSet().enableMore = op.enableLoadMore()
@@ -29,7 +29,7 @@ class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, 
         })
     }
 
-    fun onBindViewHolder(holder: VH<T, BIND>, position: Int) {
+    fun onBindViewHolder(holder: VH<BIND>, position: Int) {
         val type = presenter.getDataSet().type(position)
         if (isContentByType(type)) {
             val item = getItem(position) ?: return
@@ -38,16 +38,19 @@ class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, 
         }
     }
 
-    fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<T, BIND> {
+    fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<BIND> {
         return if (isContentByType(viewType)) {
             val binding = op.createContentView(LayoutInflater.from(parent.context), parent, viewType)
-            VH(op, binding, binding.root).apply {
+            VH(binding, binding.root).apply {
+                op.bindItemListener(this)
                 op.getItemClickViews(binding).forEach {
-                    it.setOnClickListener(this)
+                    it.setOnClickListener { v ->
+                        op.onItemClickListener(this, v)
+                    }
                 }
             }
         } else {
-            VH(op, null, createExtraView(parent, viewType))
+            VH(null, createExtraView(parent, viewType))
         }
     }
 
@@ -60,7 +63,9 @@ class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, 
         }
     }
 
-    fun getItemCount(): Int = presenter.getDataSet().count()
+    fun getItemCount(): Int {
+        return presenter.getDataSet().count()
+    }
 
     fun getItem(position: Int): T? {
         if (position > getItemCount() - 3) {
@@ -71,7 +76,9 @@ class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, 
         return presenter.getDataSet().item(position)
     }
 
-    private fun isContentByType(type: Int): Boolean = type > 0
+    private fun isContentByType(type: Int): Boolean {
+        return type > 0
+    }
 
     private fun createExtraView(parent: ViewGroup, viewType: Int): View {
         return when (viewType) {

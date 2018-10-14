@@ -28,7 +28,6 @@ class DataSet<T> {
     internal var enableEmpty = true
     internal var enableMore = true
 
-
     private val mData: MutableList<T> = mutableListOf()
 
     private val mEmptyItem = ExtraItem(EMPTY)
@@ -48,12 +47,13 @@ class DataSet<T> {
     private var initLoad = false
 
     fun canLoadMore(): Boolean {
-        val enable = enableMore && !moreLoadingState && !flagMoreEnd
-        if (enable) {
+        return if (enableMore && !moreLoadingState && !flagMoreEnd) {
             moreLoadingState = true
             flagMoreEnd = false
+            true
+        } else {
+            false
         }
-        return enable
     }
 
     fun count(): Int {
@@ -191,19 +191,6 @@ class DataSet<T> {
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-//                val oldItem = oldList[oldItemPosition]
-//                val oldType = if (oldItem is ExtraItem) {
-//                    oldItem.type
-//                } else {
-//                    CONTENT
-//                }
-//                val newItem = newList[newItemPosition]
-//                val newType = if (newItem is ExtraItem) {
-//                    newItem.type
-//                } else {
-//                    CONTENT
-//                }
-//                return oldType == newType
                 return true
             }
         })
