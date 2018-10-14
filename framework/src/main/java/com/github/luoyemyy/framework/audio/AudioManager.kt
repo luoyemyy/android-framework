@@ -4,9 +4,7 @@ import android.arch.lifecycle.Lifecycle
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-
 import com.github.luoyemyy.framework.bus.BusManager
-import com.github.luoyemyy.framework.bus.BusMsg
 
 /**
  * example:
@@ -59,13 +57,6 @@ object AudioManager {
      */
     fun setCallback(lifecycle: Lifecycle, audioId: String, callback: AudioCallback) {
         AudioRegistry(lifecycle, audioId, callback)
-    }
-
-    /**
-     * callback会绑定到lifecycle上，自动销毁
-     */
-    fun setCallback(lifecycle: Lifecycle, group: Int, audioId: String, callback: AudioCallback) {
-        AudioRegistry(lifecycle, group, audioId, callback)
     }
 
 }

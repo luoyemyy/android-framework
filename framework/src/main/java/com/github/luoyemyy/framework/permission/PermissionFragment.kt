@@ -1,9 +1,9 @@
 package com.github.luoyemyy.framework.permission
 
+import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
-import com.github.luoyemyy.framework.ext.getPresenter
 
 internal class PermissionFragment : Fragment() {
 
@@ -31,11 +31,12 @@ internal class PermissionFragment : Fragment() {
         val requestCode = arguments?.getInt(REQUEST_CODE) ?: -1
         val requestPermission = arguments?.getStringArray(REQUEST_Permission)
         if (requestPermission != null) {
-            requireActivity().getPresenter<PermissionPresenter>().getFuture(requestCode)?.apply {
-                mPermissionFuture = this
-                requestPermissions(requestPermission, requestCode)
-                return
-            }
+            ViewModelProviders.of(requireActivity()).get(PermissionPresenter::class.java)
+                    .getFuture(requestCode)?.apply {
+                        mPermissionFuture = this
+                        requestPermissions(requestPermission, requestCode)
+                        return
+                    }
         }
         closeRequest()
     }
