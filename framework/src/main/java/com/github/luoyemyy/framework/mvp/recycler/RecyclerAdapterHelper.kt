@@ -15,62 +15,46 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import com.github.luoyemyy.framework.ext.dp2px
 
-class RecyclerAdapterHelper<T, BIND : ViewDataBinding>(owner: LifecycleOwner, private var presenter: IRecyclerPresenter<T>, private var adapter: BaseRecyclerAdapter<T, BIND>) : RecyclerAdapterOp {
+class RecyclerAdapterHelper<T, BIND : ViewDataBinding>(owner: LifecycleOwner, adapter: RecyclerView.Adapter<VH<T, BIND>>, private var op: RecyclerAdapterOp<T, BIND>, private var presenter: IRecyclerPresenter<T>) {
 
     init {
+        presenter.getDataSet().enableMore = op.enableLoadMore()
+        presenter.getDataSet().enableEmpty = op.enableEmpty()
+
         presenter.getDataSet().diffResultLiveData.observe(owner, Observer {
             it?.dispatchUpdatesTo(adapter)
         })
         presenter.getDataSet().refreshStateLiveData.observe(owner, Observer {
-            adapter.setRefreshState(it ?: false)
+            op.setRefreshState(it ?: false)
         })
     }
 
-    private var mFlagBindItemClick = false
-    private var mMoreLoadingLayoutId = 0
-    private var mMoreEndLayoutId = 0
-    private var mEmptyLayoutId = 0
-
-    override fun enableItemClickListener(enable: Boolean) {
-        mFlagBindItemClick = enable
-    }
-
-    override fun enableLoadMore(enable: Boolean) {
-        presenter.getDataSet().enableMore = enable
-    }
-
-    override fun enableEmpty(enable: Boolean) {
-        presenter.getDataSet().enableEmpty = enable
-    }
-
-    fun onBindViewHolder(holder: VH<BIND>, position: Int) {
+    fun onBindViewHolder(holder: VH<T, BIND>, position: Int) {
         val type = presenter.getDataSet().type(position)
         if (isContentByType(type)) {
             val item = getItem(position) ?: return
             val binding = holder.binding ?: return
-            adapter.bindContentViewHolder(binding, item, position)
+            op.bindContentViewHolder(binding, item, position)
         }
     }
 
-    fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<BIND> {
+    fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<T, BIND> {
         return if (isContentByType(viewType)) {
-            val binding = adapter.createContentView(parent, viewType)
-            VH(binding, binding.root).apply {
-                if (mFlagBindItemClick) {
-                    itemView.setOnClickListener {
-                        adapter.onItemClickListener(it, adapterPosition)
-                    }
+            val binding = op.createContentView(LayoutInflater.from(parent.context), parent, viewType)
+            VH(op, binding, binding.root).apply {
+                op.getItemClickViews(binding).forEach {
+                    it.setOnClickListener(this)
                 }
             }
         } else {
-            VH(null, createExtraView(parent, viewType))
+            VH(op, null, createExtraView(parent, viewType))
         }
     }
 
     fun getItemViewType(position: Int): Int {
         val type = presenter.getDataSet().type(position)
         return if (isContentByType(type)) {
-            adapter.getContentType(position, getItem(position))
+            op.getContentType(position, getItem(position))
         } else {
             type
         }
@@ -98,27 +82,6 @@ class RecyclerAdapterHelper<T, BIND : ViewDataBinding>(owner: LifecycleOwner, pr
         }
     }
 
-    /**
-     * 设置加载更多-加载中 布局文件
-     */
-    override fun setMoreLoadingLayout(layoutId: Int) {
-        mMoreLoadingLayoutId = layoutId
-    }
-
-    /**
-     * 设置加载更多-无更多数据 布局文件
-     */
-    override fun setMoreEndLayout(layoutId: Int) {
-        mMoreEndLayoutId = layoutId
-    }
-
-    /**
-     * 设置无数据 布局文件
-     */
-    override fun setEmptyLayout(layoutId: Int) {
-        mEmptyLayoutId = layoutId
-    }
-
     private fun createLayout(context: Context, text: String): LinearLayout {
         val padding = context.dp2px(16)
         val layout = LinearLayout(context)
@@ -133,23 +96,23 @@ class RecyclerAdapterHelper<T, BIND : ViewDataBinding>(owner: LifecycleOwner, pr
     }
 
     private fun createEmptyView(context: Context): View {
-        return if (mEmptyLayoutId == 0) {
+        return if (op.getEmptyLayout() == 0) {
             createLayout(context, "暂无数据")
         } else {
-            LayoutInflater.from(context).inflate(mEmptyLayoutId, null)
+            LayoutInflater.from(context).inflate(op.getEmptyLayout(), null)
         }
     }
 
     private fun createMoreEndView(context: Context): View {
-        return if (mMoreEndLayoutId == 0) {
+        return if (op.getMoreEndLayout() == 0) {
             createLayout(context, "暂无更多")
         } else {
-            LayoutInflater.from(context).inflate(mMoreEndLayoutId, null)
+            LayoutInflater.from(context).inflate(op.getMoreEndLayout(), null)
         }
     }
 
     private fun createMoreLoadingView(context: Context): View {
-        return if (mMoreLoadingLayoutId == 0) {
+        return if (op.getMoreLoadingLayout() == 0) {
             val layout = createLayout(context, "加载中...")
             val padding = context.dp2px(8)
             val progressSize = context.dp2px(20)
@@ -157,7 +120,7 @@ class RecyclerAdapterHelper<T, BIND : ViewDataBinding>(owner: LifecycleOwner, pr
             layout.addView(process, 0, LinearLayout.LayoutParams(progressSize, progressSize).apply { marginEnd = padding })
             layout
         } else {
-            LayoutInflater.from(context).inflate(mMoreLoadingLayoutId, null)
+            LayoutInflater.from(context).inflate(op.getMoreLoadingLayout(), null)
         }
     }
 }

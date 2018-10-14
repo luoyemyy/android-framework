@@ -16,13 +16,13 @@ class MvpPresenter(var app: Application) : AbstractPresenter<String>(app), BusRe
                     it
                 }
                 .success {
-                    data.value = it.data
+                    data.value = it?.data
                 }.failure {
-                    data.value = it.data
+                    data.value = it?.data
                 }
     }
 
-    override fun busResult(code: Long, msg: BusMsg) {
+    override fun busResult(event: String, msg: BusMsg) {
 
     }
 }

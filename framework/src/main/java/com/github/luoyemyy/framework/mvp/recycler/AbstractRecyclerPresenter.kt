@@ -21,36 +21,32 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
     open fun beforeLoadMore() {}
     open fun beforeLoadSearch(search: String) {}
 
-    private fun run(): AsyncRun.Call<RecyclerResult> {
-        return AsyncRun.single().Call(RecyclerResult(false))
-    }
-
-    inner class RecyclerResult(override var isSuccess: Boolean = false, var list: List<T>? = null) : AsyncRun.Result
-
     @MainThread
     override fun loadInit(bundle: Bundle?) {
         beforeLoadInit(bundle)
         page = 1
-        run().start {
-            mDataSet.notifyRefreshState(true)
-        }.create {
-            RecyclerResult(true, loadData(page))
-        }.success {
-            mDataSet.initData(it.list)
-            mDataSet.notifyRefreshState(false)
-        }
+        AsyncRun.newCall<List<T>>()
+                .start {
+                    mDataSet.notifyRefreshState(true)
+                }.create {
+                    loadData(page) ?: listOf()
+                }.result {
+                    mDataSet.initData(it)
+                    mDataSet.notifyRefreshState(false)
+                }
     }
 
     @MainThread
     override fun loadRefresh() {
         beforeLoadRefresh()
         page = 1
-        run().create {
-            RecyclerResult(true, loadData(page))
-        }.success {
-            mDataSet.setData(it.list)
-            mDataSet.notifyRefreshState(false)
-        }
+        AsyncRun.newCall<List<T>>()
+                .create {
+                    loadData(page) ?: listOf()
+                }.result {
+                    mDataSet.setData(it)
+                    mDataSet.notifyRefreshState(false)
+                }
     }
 
     @MainThread
@@ -58,11 +54,12 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         if (mDataSet.canLoadMore()) {
             beforeLoadMore()
             page++
-            run().create {
-                RecyclerResult(true, loadData(page))
-            }.success {
-                mDataSet.addData(it.list)
-            }
+            AsyncRun.newCall<List<T>>()
+                    .create {
+                        loadData(page) ?: listOf()
+                    }.result {
+                        mDataSet.addData(it)
+                    }
         }
     }
 
@@ -70,14 +67,15 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
     override fun loadSearch(search: String) {
         beforeLoadSearch(search)
         page = 1
-        run().start {
-            mDataSet.notifyRefreshState(true)
-        }.create {
-            RecyclerResult(true, loadData(page))
-        }.success {
-            mDataSet.setData(it.list)
-            mDataSet.notifyRefreshState(false)
-        }
+        AsyncRun.newCall<List<T>>()
+                .start {
+                    mDataSet.notifyRefreshState(true)
+                }.create {
+                    loadData(page) ?: listOf()
+                }.result {
+                    mDataSet.setData(it)
+                    mDataSet.notifyRefreshState(false)
+                }
     }
 
     @WorkerThread

@@ -18,20 +18,24 @@ internal class AppError private constructor(private val mApp: Application, priva
     private var deviceInfo: String? = null
 
     override fun uncaughtException(thread: Thread?, ex: Throwable?) {
-        if (!handleException(ex)) {
+        val log = handleException(ex)
+        if (log != null) {
             //如果用户没有处理则让系统默认的异常处理器来处理
             mDefaultHandler.uncaughtException(thread, ex)
 
-            mApp.toast("app error")
+            if (AppInfo.profile.isDev() && AppInfo.profile.isTest()) {
+                mApp.toast(string = log)
+            }
+
             Handler().postDelayed({
                 ActivityLifecycleManager.instance.exit()
             }, 3000)
         }
     }
 
-    private fun handleException(ex: Throwable?): Boolean {
+    private fun handleException(ex: Throwable?): String? {
         if (ex == null) {
-            return false
+            return null
         }
         if (deviceInfo == null) {
             //收集设备参数信息
@@ -41,7 +45,7 @@ internal class AppError private constructor(private val mApp: Application, priva
         val log = collectExceptionInfo(ex)
         FileOutputStream(FileManager.getInstance().log()).use { it.write(log.toByteArray()) }
         Log.e("AppError", "handleException:  $log")
-        return true
+        return log
     }
 
     @Suppress("DEPRECATION")

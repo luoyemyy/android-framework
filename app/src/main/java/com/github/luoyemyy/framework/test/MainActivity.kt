@@ -7,7 +7,9 @@ import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
@@ -50,10 +52,8 @@ class MainActivity : AppCompatActivity() {
 
     inner class Adapter(owner: LifecycleOwner, presenter: Presenter) : AbstractSingleRecyclerAdapter<String, ActivityMainRecyclerBinding>(owner, presenter) {
 
-        init {
-            setLayout(R.layout.activity_main_recycler)
-            enableItemClickListener()
-            enableLoadMore(false)
+        override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ActivityMainRecyclerBinding {
+            return ActivityMainRecyclerBinding.inflate(inflater, parent, false)
         }
 
         override fun bindContentViewHolder(binding: ActivityMainRecyclerBinding, content: String, position: Int) {
@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        override fun onItemClickListener(view: View, position: Int) {
+        override fun onItemClickListener(binding: ActivityMainRecyclerBinding?, view: View?, position: Int) {
             when (position) {
                 0 -> startActivity(Intent(this@MainActivity, StatusActivity::class.java))
                 1 -> startActivity(Intent(this@MainActivity, DrawerActivity::class.java))
@@ -73,6 +73,7 @@ class MainActivity : AppCompatActivity() {
                 5 -> startActivity(Intent(this@MainActivity, RecyclerActivity::class.java))
             }
         }
+
     }
 
     class Presenter(app: Application) : AbstractRecyclerPresenter<String>(app) {

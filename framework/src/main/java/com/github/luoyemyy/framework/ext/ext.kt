@@ -7,10 +7,13 @@ import android.app.AlertDialog
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
+import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.graphics.Color
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
 import android.support.annotation.StringRes
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
@@ -21,6 +24,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import com.github.luoyemyy.framework.app.AppInfo
 import com.github.luoyemyy.framework.app.Logger
+import com.github.luoyemyy.framework.async.AsyncRun
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import java.security.MessageDigest
@@ -29,16 +33,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * 比较两个数组元素，不分顺序
+ * thread run
  */
-fun LongArray?.compare(longs: LongArray?): Boolean {
-    if (this == null || longs == null) {
-        return false
-    }
-    Arrays.sort(this)
-    Arrays.sort(longs)
-    return longs.size == this.size && this.indices.none { longs[it] == this[it] }
-}
+fun runOnWorkerThread(run: () -> Unit) = AsyncRun.newCall<Any>().create { run() }
+
+fun runOnMainThread(run: () -> Unit) = Handler(Looper.getMainLooper()).post(run)
 
 /**
  * context
@@ -47,22 +46,25 @@ fun Context.dp2px(dp: Int) = Math.round(resources.displayMetrics.density * dp)
 
 fun Context.hasPermission(vararg permissions: String): Boolean = if (permissions.isEmpty()) false else permissions.none { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_DENIED }
 
-fun Activity.alert(string: String) = AlertDialog.Builder(this).setMessage(string).setPositiveButton("ok", null).create().show()
+fun Context.toast(stringId: Int = 0, string: String = "toast message") = Toast.makeText(this, if (stringId > 0) getString(stringId) else string, Toast.LENGTH_SHORT).show()
 
-fun Activity.alert(@StringRes stringRes: Int) = AlertDialog.Builder(this).setMessage(stringRes).setPositiveButton("ok", null).create().show()
+fun Activity.alert(messageId: Int = 0, message: String = "alert message", okButtonId: Int = 0, okButton: String = "ok") = AlertDialog.Builder(this).setMessage(if (messageId > 0) getString(messageId) else message).setPositiveButton(if (okButtonId > 0) getString(okButtonId) else okButton, null).create().show()
 
-fun Context.toast(string: String) = Toast.makeText(this, string, Toast.LENGTH_SHORT).show()
+fun Activity.confirm(messageId: Int = 0, message: String = "confirm message", cancelButtonId: Int = 0, cancelButton: String = "cancel", cancelCallback: () -> Unit = {}, okButtonId: Int = 0, okButton: String = "ok", okCallback: () -> Unit = {}) = AlertDialog.Builder(this).setMessage(if (messageId > 0) getString(messageId) else message).setNegativeButton(if (cancelButtonId > 0) getString(cancelButtonId) else cancelButton) { _, _ -> cancelCallback() }.setPositiveButton(if (okButtonId > 0) getString(okButtonId) else okButton) { _, _ -> okCallback() }.create().show()
 
-fun Context.toast(@StringRes stringRes: Int) = Toast.makeText(this, stringRes, Toast.LENGTH_SHORT).show()
-//浸入式状态栏
-//使用drawerLayout时可以在NavigationView中增加app:insetForeground="@android:color/transparent"，侧滑栏适配浸入式
+/**
+ * 浸入式状态栏
+ * 使用drawerLayout时可以在NavigationView中增加app:insetForeground="@android:color/transparent"，侧滑栏适配浸入式
+ */
 fun Activity.immerse() {
     window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN and View.SYSTEM_UI_FLAG_LAYOUT_STABLE
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.statusBarColor = Color.TRANSPARENT
 }
 
-//状态栏黑色字体
+/**
+ * 状态栏黑色字体
+ */
 fun Activity.lightStatusBar() {
     if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
         window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR

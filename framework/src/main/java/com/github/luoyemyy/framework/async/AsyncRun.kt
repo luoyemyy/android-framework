@@ -7,61 +7,99 @@ import android.util.Log
 
 class AsyncRun {
 
-    class Call<R : Result> {
+    companion object {
+
+        @JvmStatic
+        fun <T> newCall(): Call<T> {
+            return Delegate<T, Call<T>>().let {
+                Call(it).apply {
+                    it.call = this
+                }
+            }
+        }
+
+        @JvmStatic
+        fun <R : Result> newResultCall(): ResultCall<R> {
+            return Delegate<R, ResultCall<R>>().let {
+                ResultCall(it).apply {
+                    it.call = this
+                }
+            }
+        }
+    }
+
+    interface BaseCall<T, CALL> {
+        fun start(s: (CALL) -> Unit): CALL
+        fun create(c: (CALL) -> T?): CALL
+        fun result(r: (T?) -> Unit): CALL
+        fun cancel()
+    }
+
+    interface BaseResultCall<T, CALL> : BaseCall<T, CALL> {
+        fun success(success: (T?) -> Unit): CALL
+        fun failure(failure: (T?) -> Unit): CALL
+    }
+
+    class Call<T> internal constructor(delegate: BaseCall<T, Call<T>>) : BaseCall<T, Call<T>> by delegate
+
+    class ResultCall<R : Result> internal constructor(delegate: BaseResultCall<R, ResultCall<R>>) : BaseResultCall<R, ResultCall<R>> by delegate
+
+    private class Delegate<T, CALL : BaseCall<T, CALL>> : BaseResultCall<T, CALL> {
+
+        internal lateinit var call: CALL
 
         private val mMainHandler: Handler = Handler(Looper.getMainLooper())
-
         //back
-        private var back: R? = null
+        private var back: T? = null
 
         //start
-        private var s: (Call<R>) -> Unit = { }
+        private var s: (CALL) -> Unit = { }
 
         //create
-        private lateinit var c: (Call<R>) -> R
+        private lateinit var c: (CALL) -> T?
 
         //result
-        private var r: (R?) -> Unit = {}
-        private var ok: (R?) -> Unit = {}
-        private var fail: (R?) -> Unit = {}
+        private var r: (T?) -> Unit = {}
+        private var ok: (T?) -> Unit = {}
+        private var fail: (T?) -> Unit = {}
 
         //cancel
         private var cancel: Boolean = false
 
-        fun start(s: (Call<R>) -> Unit): Call<R> {
+        override fun start(s: (CALL) -> Unit): CALL {
             this.s = s
-            return this
+            return call
         }
 
-        fun create(c: (Call<R>) -> R): Call<R> {
+        override fun create(c: (CALL) -> T?): CALL {
             this.c = c
             mMainHandler.post(startRunnable)
-            return this
+            return call
         }
 
-        fun result(r: (R?) -> Unit = {}): Call<R> {
+        override fun result(r: (T?) -> Unit): CALL {
             this.r = r
-            return this
+            return call
         }
 
-        fun success(success: (R?) -> Unit): Call<R> {
+        override fun success(success: (T?) -> Unit): CALL {
             ok = success
-            return this
+            return call
         }
 
-        fun failure(failure: (R?) -> Unit): Call<R> {
+        override fun failure(failure: (T?) -> Unit): CALL {
             fail = failure
-            return this
+            return call
         }
 
-        fun cancel() {
+        override fun cancel() {
             this.cancel = true
         }
 
         //main thread
         private val startRunnable = {
             if (!cancel) {
-                s(this)
+                s(call)
                 AsyncTask.execute(createRunnable)
             }
         }
@@ -70,9 +108,9 @@ class AsyncRun {
         private val createRunnable = {
             if (!cancel) {
                 back = try {
-                    c(this)
+                    c(call)
                 } catch (e: Throwable) {
-                    Log.e("AsyncRun.Call", "execute", e)
+                    Log.e("AsyncRun.ResultCall", "execute", e)
                     null
                 }
                 if (!cancel) {
@@ -86,13 +124,18 @@ class AsyncRun {
             if (!cancel) {
                 r(back)
                 val result = back
-                if (result != null && result.isSuccess) {
-                    ok(result)
-                } else {
+                if (result == null) {
                     fail(result)
+                } else if (result is Result) {
+                    if (result.isSuccess) {
+                        ok(result)
+                    } else {
+                        fail(result)
+                    }
                 }
             }
         }
+
     }
 
     interface Result {

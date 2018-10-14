@@ -5,6 +5,9 @@ import android.arch.lifecycle.LifecycleOwner
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
 import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
@@ -32,8 +35,8 @@ class RecyclerActivity : AppCompatActivity() {
 
     inner class Adapter(owner: LifecycleOwner, presenter: Presenter) : AbstractSingleRecyclerAdapter<String, ActivityRecyclerRecyclerBinding>(owner, presenter) {
 
-        init {
-            setLayout(R.layout.activity_recycler_recycler)
+        override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ActivityRecyclerRecyclerBinding {
+            return ActivityRecyclerRecyclerBinding.inflate(inflater, parent, false)
         }
 
         override fun bindContentViewHolder(binding: ActivityRecyclerRecyclerBinding, content: String, position: Int) {
@@ -43,6 +46,10 @@ class RecyclerActivity : AppCompatActivity() {
 
         override fun setRefreshState(refreshing: Boolean) {
             mBinding.swipeRefreshLayout.isRefreshing = refreshing
+        }
+
+        override fun getItemClickViews(binding: ActivityRecyclerRecyclerBinding): Array<View> {
+            return arrayOf(binding.root)
         }
     }
 

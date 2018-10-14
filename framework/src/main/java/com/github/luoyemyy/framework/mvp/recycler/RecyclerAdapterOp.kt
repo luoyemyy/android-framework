@@ -1,34 +1,70 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
-interface RecyclerAdapterOp {
+import android.databinding.ViewDataBinding
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+
+interface RecyclerAdapterOp<T, BIND : ViewDataBinding> {
+
+    fun getItem(position: Int): T?
 
     /**
-     * 设置加载更多-加载中 布局文件
+     * 绑定数据
      */
-    fun setMoreLoadingLayout(layoutId: Int)
+    fun bindContentViewHolder(binding: BIND, content: T, position: Int)
 
     /**
-     * 设置加载更多-无更多数据 布局文件
+     * 创建内容view
      */
-    fun setMoreEndLayout(layoutId: Int)
+    fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): BIND
 
     /**
-     * 设置无数据 布局文件
+     * 获得内容类型id，如果是多类型需要重写该方法
      */
-    fun setEmptyLayout(layoutId: Int)
+    fun getContentType(position: Int, item: T?): Int
 
     /**
-     * 是否绑定点击item的事件
+     * 设置刷新控件样式
      */
-    fun enableItemClickListener(enable: Boolean = true)
+    fun setRefreshState(refreshing: Boolean) {
+
+    }
 
     /**
-     * 是否开启加载更过
+     * 如果绑定了item的点击事件，则需要重写该方法，
      */
-    fun enableLoadMore(enable: Boolean = true)
+    fun onItemClickListener(binding: BIND?, view: View?, position: Int) {
+
+    }
+
+    fun getItemClickViews(binding: BIND): Array<View> {
+        return arrayOf(binding.root)
+    }
 
     /**
-     * 是否显示空数据提示
+     * 是否需要加载更多样式
      */
-    fun enableEmpty(enable: Boolean = true)
+    fun enableLoadMore(): Boolean {
+        return true
+    }
+
+    /**
+     * 是否需要空数据样式
+     */
+    fun enableEmpty(): Boolean {
+        return true
+    }
+
+    fun getMoreLoadingLayout(): Int {
+        return 0
+    }
+
+    fun getMoreEndLayout(): Int {
+        return 0
+    }
+
+    fun getEmptyLayout(): Int {
+        return 0
+    }
 }
