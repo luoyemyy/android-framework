@@ -7,7 +7,7 @@ import android.util.SparseArray
 /**
  *  example:
  *
- *  fragmentActivity.getPresenter<PermissionPresenter>()
+ *  ViewModelProviders.of(fragmentActivity).get(PermissionPresenter::class.java)
  *      .create(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE))
  *      .withPass {
  *          alert("success")
