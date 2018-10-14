@@ -10,30 +10,30 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOw
     /**
      * 辅助类
      */
-    private val helper by lazy {
+    private val delegate by lazy {
         RecyclerAdapterDelegate(owner, this, this, presenter)
     }
 
     override fun onBindViewHolder(holder: VH<BIND>, position: Int) {
-        helper.onBindViewHolder(holder, position)
+        delegate.onBindViewHolder(holder, position)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<BIND> {
-        return helper.onCreateViewHolder(parent, viewType)
+        return delegate.onCreateViewHolder(parent, viewType)
     }
 
     override fun getItemViewType(position: Int): Int {
-        return helper.getItemViewType(position)
+        return delegate.getItemViewType(position)
     }
 
     override fun getItemCount(): Int {
-        return helper.getItemCount()
+        return delegate.getItemCount()
     }
 
     /**
      * 获得指定项内容实体
      */
     override fun getItem(position: Int): T? {
-        return helper.getItem(position)
+        return delegate.getItem(position)
     }
 }
