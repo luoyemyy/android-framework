@@ -24,7 +24,7 @@ internal class AppError private constructor(private val mApp: Application, priva
             mDefaultHandler.uncaughtException(thread, ex)
 
             if (AppInfo.profile.isDev() && AppInfo.profile.isTest()) {
-                mApp.toast(string = log)
+                mApp.toast(message = log)
             }
 
             Handler().postDelayed({

@@ -12,8 +12,9 @@ import android.util.SparseArray
  *      .withPass {
  *          alert("success")
  *      }
- *      .withDenied { _, _ ->
- *          alert("failure")
+ *      .withDenied { future, permissions ->
+ *          val msg = getDesc(permissions) // 获取未获得权限的描述
+ *          future.toSettings(fragmentActivity,msg)
  *      }
  *      .request(fragmentActivity)
  *

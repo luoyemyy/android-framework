@@ -131,7 +131,7 @@ class DataSet<T> {
             moreLoadingState = false
             initLoad = true
             mData.clear()
-            if (list != null) {
+            if (list != null && list.isNotEmpty()) {
                 mData.addAll(list)
             }
         }
@@ -142,7 +142,7 @@ class DataSet<T> {
             flagMoreEnd = false
             moreLoadingState = false
             mData.clear()
-            if (list != null) {
+            if (list != null && list.isNotEmpty()) {
                 mData.addAll(list)
             }
         }
@@ -151,7 +151,7 @@ class DataSet<T> {
     fun addData(list: List<T>?) {
         opData {
             moreLoadingState = false
-            if (list != null) {
+            if (list != null && list.isNotEmpty()) {
                 mData.addAll(list)
             } else {
                 flagMoreEnd = true

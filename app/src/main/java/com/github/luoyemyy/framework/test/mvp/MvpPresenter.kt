@@ -2,27 +2,17 @@ package com.github.luoyemyy.framework.test.mvp
 
 import android.app.Application
 import android.os.Bundle
+import com.github.luoyemyy.framework.bus.BusManager
 import com.github.luoyemyy.framework.bus.BusMsg
 import com.github.luoyemyy.framework.bus.BusResult
+import com.github.luoyemyy.framework.ext.runOnWorker
 import com.github.luoyemyy.framework.mvp.AbstractPresenter
-import com.github.luoyemyy.framework.test.helper.create
-import com.github.luoyemyy.framework.test.helper.getApi
 
-class MvpPresenter(var app: Application) : AbstractPresenter<String>(app), BusResult {
+class MvpPresenter(var app: Application) : AbstractPresenter<String>(app) {
 
     override fun load(bundle: Bundle?) {
-        getApi().login()
-                .create {
-                    it
-                }
-                .success {
-                    data.value = it?.data
-                }.failure {
-                    data.value = it?.data
-                }
-    }
-
-    override fun busResult(event: String, msg: BusMsg) {
-
+        runOnWorker {
+            BusManager.post(MvpActivity.EVENT_BUS)
+        }
     }
 }

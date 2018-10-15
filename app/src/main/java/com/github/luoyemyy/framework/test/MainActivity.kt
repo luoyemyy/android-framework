@@ -10,9 +10,14 @@ import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.github.luoyemyy.framework.bus.BusManager
+import com.github.luoyemyy.framework.bus.BusMsg
+import com.github.luoyemyy.framework.bus.BusResult
 import com.github.luoyemyy.framework.ext.getPresenter
+import com.github.luoyemyy.framework.ext.toast
 import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
+import com.github.luoyemyy.framework.mvp.recycler.VH
 import com.github.luoyemyy.framework.mvp.recycler.wrap
 import com.github.luoyemyy.framework.permission.PermissionPresenter
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
@@ -25,7 +30,7 @@ import com.github.luoyemyy.framework.test.recycler.RecyclerActivity
 import com.github.luoyemyy.framework.test.status.StatusActivity
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), BusResult {
 
     private lateinit var mBinding: ActivityMainBinding
     private lateinit var mPresenter: Presenter
@@ -48,6 +53,16 @@ class MainActivity : AppCompatActivity() {
                 }
                 .request(this)
 
+        BusManager.setCallback(lifecycle, this, BUS_EVENT)
+
+    }
+
+    override fun busResult(event: String, msg: BusMsg) {
+        toast(message = event)
+    }
+
+    companion object {
+        const val BUS_EVENT = "com.github.luoyemyy.framework.test.MainActivity"
     }
 
     inner class Adapter(owner: LifecycleOwner, presenter: Presenter) : AbstractSingleRecyclerAdapter<String, ActivityMainRecyclerBinding>(owner, presenter) {
@@ -63,8 +78,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        override fun onItemClickListener(binding: ActivityMainRecyclerBinding?, view: View?, position: Int) {
-            when (position) {
+        override fun enableLoadMore(): Boolean {
+            return false
+        }
+
+        override fun onItemClickListener(vh: VH<ActivityMainRecyclerBinding>, view: View?) {
+            when (vh.adapterPosition) {
                 0 -> startActivity(Intent(this@MainActivity, StatusActivity::class.java))
                 1 -> startActivity(Intent(this@MainActivity, DrawerActivity::class.java))
                 2 -> startActivity(Intent(this@MainActivity, MvpActivity::class.java))
@@ -79,14 +98,14 @@ class MainActivity : AppCompatActivity() {
     class Presenter(app: Application) : AbstractRecyclerPresenter<String>(app) {
 
         override fun loadData(page: Int): List<String>? {
-            return listOf(
+            return if (page == 1) listOf(
                     "浸入状态栏",
                     "drawer",
                     "mvp",
                     "navigation",
                     "paging",
                     "recycler"
-            )
+            ) else listOf()
         }
     }
 
