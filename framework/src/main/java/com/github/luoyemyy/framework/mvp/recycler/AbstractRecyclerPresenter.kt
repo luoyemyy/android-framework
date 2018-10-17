@@ -3,6 +3,7 @@ package com.github.luoyemyy.framework.mvp.recycler
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.os.Bundle
+import android.support.annotation.CallSuper
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
 import com.github.luoyemyy.framework.async.AsyncRun
@@ -10,10 +11,14 @@ import com.github.luoyemyy.framework.async.AsyncRun
 abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), IRecyclerPresenter<T> {
 
     private val mDataSet by lazy { DataSet<T>() }
-    private var page = 1
+    private val mPaging: Paging by lazy { getPaging() }
 
     override fun getDataSet(): DataSet<T> {
         return mDataSet
+    }
+
+    open fun getPaging(): Paging {
+        return Paging.Page()
     }
 
     open fun beforeLoadInit(bundle: Bundle?) {}
@@ -21,63 +26,86 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
     open fun beforeLoadMore() {}
     open fun beforeLoadSearch(search: String) {}
 
+    @CallSuper
+    open fun afterLoadInit(list: List<T>?) {
+        mDataSet.initData(list)
+    }
+
+    @CallSuper
+    open fun afterLoadRefresh(list: List<T>?) {
+        mDataSet.setData(list)
+    }
+
+    @CallSuper
+    open fun afterLoadMore(list: List<T>?) {
+        mDataSet.addData(list)
+    }
+
+    @CallSuper
+    open fun afterLoadSearch(list: List<T>?) {
+        mDataSet.setData(list)
+    }
+
     @MainThread
     override fun loadInit(bundle: Bundle?) {
-        beforeLoadInit(bundle)
-        page = 1
         AsyncRun.newCall<List<T>>()
                 .start {
+                    beforeLoadInit(bundle)
+                    mPaging.reset()
                     mDataSet.notifyRefreshState(true)
                 }.create {
-                    loadData(page) ?: listOf()
+                    loadData(mPaging)
                 }.result {
-                    mDataSet.initData(it)
+                    afterLoadInit(it)
                     mDataSet.notifyRefreshState(false)
                 }
     }
 
     @MainThread
     override fun loadRefresh() {
-        beforeLoadRefresh()
-        page = 1
         AsyncRun.newCall<List<T>>()
-                .create {
-                    loadData(page) ?: listOf()
+                .start {
+                    beforeLoadRefresh()
+                    mPaging.reset()
+                }.create {
+                    loadData(mPaging)
                 }.result {
-                    mDataSet.setData(it)
+                    afterLoadRefresh(it)
                     mDataSet.notifyRefreshState(false)
                 }
     }
 
     @MainThread
     override fun loadMore() {
-        if (mDataSet.canLoadMore()) {
-            beforeLoadMore()
-            page++
-            AsyncRun.newCall<List<T>>()
-                    .create {
-                        loadData(page) ?: listOf()
-                    }.result {
-                        mDataSet.addData(it)
-                    }
+        if (!mDataSet.canLoadMore()) {
+            return
         }
+        AsyncRun.newCall<List<T>>()
+                .start {
+                    beforeLoadMore()
+                    mPaging.next()
+                }.create {
+                    loadData(mPaging)
+                }.result {
+                    afterLoadMore(it)
+                }
     }
 
     @MainThread
     override fun loadSearch(search: String) {
-        beforeLoadSearch(search)
-        page = 1
         AsyncRun.newCall<List<T>>()
                 .start {
+                    beforeLoadSearch(search)
+                    mPaging.reset()
                     mDataSet.notifyRefreshState(true)
                 }.create {
-                    loadData(page) ?: listOf()
+                    loadData(mPaging)
                 }.result {
-                    mDataSet.setData(it)
+                    afterLoadSearch(it)
                     mDataSet.notifyRefreshState(false)
                 }
     }
 
     @WorkerThread
-    abstract fun loadData(page: Int): List<T>?
+    abstract fun loadData(paging: Paging): List<T>?
 }
