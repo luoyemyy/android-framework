@@ -24,7 +24,10 @@ object PermissionManager {
         private var mDeniedRunnable: ((future: Future, permissions: Array<String>) -> Unit)? = null
 
         override fun onChanged(deniedArray: Array<String>?) {
-            if (deniedArray == null || deniedArray.isEmpty()) {
+            if (deniedArray == null) {
+                return
+            }
+            if (deniedArray.isEmpty()) {
                 mPassRunnable?.invoke()
             } else {
                 mDeniedRunnable?.invoke(this, deniedArray)

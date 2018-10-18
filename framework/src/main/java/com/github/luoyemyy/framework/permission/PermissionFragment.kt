@@ -44,7 +44,7 @@ internal class PermissionFragment : Fragment() {
                     deniedList.add(permissions[index])
                 }
             }
-            mPresenter.data.value = deniedList.toTypedArray()
+            mPresenter.data.postValue(deniedList.toTypedArray())
         }
         closeRequest()
     }
