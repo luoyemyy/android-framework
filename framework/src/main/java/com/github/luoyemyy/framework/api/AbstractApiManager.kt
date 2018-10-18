@@ -1,7 +1,9 @@
 package com.github.luoyemyy.framework.api
 
 import com.github.luoyemyy.framework.app.AppInfo
+import com.github.luoyemyy.framework.async.AsyncRun
 import okhttp3.OkHttpClient
+import retrofit2.Call
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -34,4 +36,15 @@ abstract class AbstractApiManager {
     }
 }
 
+fun <T : AsyncRun.Result> Call<T>.create(): AsyncRun.ResultCall<T> {
+    return AsyncRun.newResultCall<T>().create {
+        execute().body()
+    }
+}
+
+fun <T, R : AsyncRun.Result> Call<T>.create(map: (T?) -> R): AsyncRun.Call<R> {
+    return AsyncRun.newCall<R>().create {
+        map(execute().body())
+    }
+}
 

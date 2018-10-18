@@ -31,13 +31,13 @@ class AsyncRun {
     interface BaseCall<T, CALL> {
         fun start(s: (CALL) -> Unit): CALL
         fun create(c: (CALL) -> T?): CALL
-        fun result(r: (T?) -> Unit): CALL
+        fun result(r: (T?, Throwable?) -> Unit): CALL
         fun cancel()
     }
 
     interface BaseResultCall<T, CALL> : BaseCall<T, CALL> {
         fun success(success: (T?) -> Unit): CALL
-        fun failure(failure: (T?) -> Unit): CALL
+        fun failure(failure: (T?, Throwable?) -> Unit): CALL
     }
 
     class Call<T> internal constructor(delegate: BaseCall<T, Call<T>>) : BaseCall<T, Call<T>> by delegate
@@ -51,6 +51,8 @@ class AsyncRun {
         private val mMainHandler: Handler = Handler(Looper.getMainLooper())
         //back
         private var back: T? = null
+        //back exception
+        private var throwable: Throwable? = null
 
         //start
         private var s: (CALL) -> Unit = { }
@@ -59,9 +61,9 @@ class AsyncRun {
         private lateinit var c: (CALL) -> T?
 
         //result
-        private var r: (T?) -> Unit = {}
+        private var r: (T?, Throwable?) -> Unit = { _, _ -> }
         private var ok: (T?) -> Unit = {}
-        private var fail: (T?) -> Unit = {}
+        private var fail: (T?, Throwable?) -> Unit = { _, _ -> }
 
         //cancel
         private var cancel: Boolean = false
@@ -77,7 +79,7 @@ class AsyncRun {
             return call
         }
 
-        override fun result(r: (T?) -> Unit): CALL {
+        override fun result(r: (T?, Throwable?) -> Unit): CALL {
             this.r = r
             return call
         }
@@ -87,7 +89,7 @@ class AsyncRun {
             return call
         }
 
-        override fun failure(failure: (T?) -> Unit): CALL {
+        override fun failure(failure: (T?, Throwable?) -> Unit): CALL {
             fail = failure
             return call
         }
@@ -111,6 +113,7 @@ class AsyncRun {
                     c(call)
                 } catch (e: Throwable) {
                     Log.e("AsyncRun.ResultCall", "execute", e)
+                    throwable = e
                     null
                 }
                 if (!cancel) {
@@ -122,15 +125,15 @@ class AsyncRun {
         //main thread
         private val resultRunnable = {
             if (!cancel) {
-                r(back)
+                r(back, throwable)
                 val result = back
                 if (result == null) {
-                    fail(result)
+                    fail(result, throwable)
                 } else if (result is Result) {
                     if (result.isSuccess) {
                         ok(result)
                     } else {
-                        fail(result)
+                        fail(result, throwable)
                     }
                 }
             }
