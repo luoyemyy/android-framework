@@ -19,7 +19,7 @@ object PermissionManager {
 
     class Future internal constructor() : Observer<Array<String>> {
 
-        private var mActivity: FragmentActivity? = null
+        private var mPresenter: PermissionPresenter? = null
         private var mPassRunnable: (() -> Unit)? = null
         private var mDeniedRunnable: ((future: Future, permissions: Array<String>) -> Unit)? = null
 
@@ -31,15 +31,10 @@ object PermissionManager {
             }
 
             //clear
-            getPresenter()?.data?.removeObserver(this)
+            mPresenter?.data?.removeObserver(this)
+            mPresenter = null
             mPassRunnable = null
             mDeniedRunnable = null
-            mActivity = null
-        }
-
-        private fun getPresenter(): PermissionPresenter? {
-            val activity = mActivity ?: return null
-            return ViewModelProviders.of(activity).get(PermissionPresenter::class.java)
         }
 
         fun withPass(pass: (() -> Unit)): Future {
@@ -57,10 +52,8 @@ object PermissionManager {
 
         fun request(activity: FragmentActivity, permissions: Array<String>) {
 
-            mActivity = activity
-            getPresenter()?.data?.observe(activity, this) ?: let {
-                mActivity = null
-                return
+            mPresenter = ViewModelProviders.of(activity).get(PermissionPresenter::class.java).also {
+                it.data.observe(activity, this)
             }
 
             if (permissions.isEmpty()) {
