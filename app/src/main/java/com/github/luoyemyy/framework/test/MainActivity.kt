@@ -15,11 +15,8 @@ import com.github.luoyemyy.framework.bus.BusMsg
 import com.github.luoyemyy.framework.bus.BusResult
 import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.ext.toast
-import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
-import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
-import com.github.luoyemyy.framework.mvp.recycler.VH
-import com.github.luoyemyy.framework.mvp.recycler.wrap
-import com.github.luoyemyy.framework.permission.PermissionPresenter
+import com.github.luoyemyy.framework.mvp.recycler.*
+import com.github.luoyemyy.framework.permission.PermissionManager
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
 import com.github.luoyemyy.framework.test.drawer.DrawerActivity
@@ -43,15 +40,14 @@ class MainActivity : AppCompatActivity(), BusResult {
 
         mBinding.recyclerView.wrap(Adapter(this, mPresenter))
 
-        getPresenter<PermissionPresenter>()
-                .create(arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE))
+        PermissionManager.newFuture()
                 .withPass {
                     mPresenter.loadInit()
                 }
                 .withDenied { future, _ ->
                     future.toSettings(this, "需要设置一些权限")
                 }
-                .request(this)
+                .request(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE))
 
         BusManager.setCallback(lifecycle, this, BUS_EVENT)
 
@@ -97,8 +93,8 @@ class MainActivity : AppCompatActivity(), BusResult {
 
     class Presenter(app: Application) : AbstractRecyclerPresenter<String>(app) {
 
-        override fun loadData(page: Int): List<String>? {
-            return if (page == 1) listOf(
+        override fun loadData(paging: Paging): List<String>? {
+            return if (paging.current() == 1L) listOf(
                     "浸入状态栏",
                     "drawer",
                     "mvp",

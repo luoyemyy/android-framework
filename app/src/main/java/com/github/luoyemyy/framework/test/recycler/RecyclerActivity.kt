@@ -14,6 +14,7 @@ import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.ext.toast
 import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
+import com.github.luoyemyy.framework.mvp.recycler.Paging
 import com.github.luoyemyy.framework.mvp.recycler.wrap
 import com.github.luoyemyy.framework.test.MainActivity
 import com.github.luoyemyy.framework.test.R
@@ -70,10 +71,10 @@ class RecyclerActivity : AppCompatActivity(), BusResult {
             BusManager.post(MainActivity.BUS_EVENT)
         }
 
-        override fun loadData(page: Int): List<String>? {
+        override fun loadData(paging: Paging): List<String>? {
             Thread.sleep(1000)
-            return if (page < 3) {
-                (0..9).map { ((page - 1) * 10 + it).toString() }
+            return if (paging.current() < 3) {
+                (0..9).map { ((paging.current() - 1) * 10 + it).toString() }
             } else {
                 null
             }

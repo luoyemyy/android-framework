@@ -1,25 +1,23 @@
 package com.github.luoyemyy.framework.permission
 
 import android.arch.lifecycle.ViewModelProviders
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 
 internal class PermissionFragment : Fragment() {
 
-    private var mPermissionFuture: PermissionFuture? = null
+    private lateinit var mPresenter: PermissionPresenter
 
     companion object {
 
-        const val REQUEST_CODE = "requestCode"
-        const val REQUEST_Permission = "requestPermission"
+        const val REQUEST_PERMISSION = "requestPermission"
 
         fun startPermissionFragment(requestCode: Int, requestPermission: Array<String>, activity: FragmentActivity) {
             val permissionFragment = PermissionFragment().apply {
                 arguments = Bundle().apply {
-                    putInt(REQUEST_CODE, requestCode)
-                    putStringArray(REQUEST_Permission, requestPermission)
-
+                    putStringArray(REQUEST_PERMISSION, requestPermission)
                 }
             }
             activity.supportFragmentManager.beginTransaction().add(permissionFragment, null).commit()
@@ -28,21 +26,26 @@ internal class PermissionFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val requestCode = arguments?.getInt(REQUEST_CODE) ?: -1
-        val requestPermission = arguments?.getStringArray(REQUEST_Permission)
-        if (requestPermission != null) {
-            ViewModelProviders.of(requireActivity()).get(PermissionPresenter::class.java)
-                    .getFuture(requestCode)?.apply {
-                        mPermissionFuture = this
-                        requestPermissions(requestPermission, requestCode)
-                        return
-                    }
+        mPresenter = ViewModelProviders.of(requireActivity()).get(PermissionPresenter::class.java)
+
+        val permissions = arguments?.getStringArray(REQUEST_PERMISSION)
+        if (permissions != null) {
+            requestPermissions(permissions, PermissionManager.REQUEST_CODE)
+        } else {
+            closeRequest()
         }
-        closeRequest()
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        mPermissionFuture?.result(requestCode, permissions, grantResults)
+        if (requestCode == PermissionManager.REQUEST_CODE) {
+            val deniedList = mutableListOf<String>()
+            grantResults.forEachIndexed { index, i ->
+                if (i == PackageManager.PERMISSION_DENIED) {
+                    deniedList.add(permissions[index])
+                }
+            }
+            mPresenter.data.value = deniedList.toTypedArray()
+        }
         closeRequest()
     }
 
