@@ -34,7 +34,7 @@ object PermissionManager {
             }
 
             //clear
-            mPresenter?.data?.removeObserver(this)
+            mPresenter?.removeObserver(this)
             mPresenter = null
             mPassRunnable = null
             mDeniedRunnable = null
@@ -56,7 +56,7 @@ object PermissionManager {
         fun request(activity: FragmentActivity, permissions: Array<String>) {
 
             mPresenter = ViewModelProviders.of(activity).get(PermissionPresenter::class.java).also {
-                it.data.observe(activity, this)
+                it.addObserver(activity, this)
             }
 
             if (permissions.isEmpty()) {

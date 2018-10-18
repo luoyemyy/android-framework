@@ -10,7 +10,6 @@ import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.github.luoyemyy.framework.bus.BusManager
 import com.github.luoyemyy.framework.bus.BusMsg
 import com.github.luoyemyy.framework.bus.BusResult
 import com.github.luoyemyy.framework.ext.getPresenter
@@ -31,7 +30,6 @@ class MainActivity : AppCompatActivity(), BusResult {
 
     private lateinit var mBinding: ActivityMainBinding
     private lateinit var mPresenter: Presenter
-    private lateinit var mAdapter: Adapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,17 +38,7 @@ class MainActivity : AppCompatActivity(), BusResult {
 
         mBinding.recyclerView.wrap(Adapter(this, mPresenter))
 
-        PermissionManager.newFuture()
-                .withPass {
-                    mPresenter.loadInit()
-                }
-                .withDenied { future, _ ->
-                    future.toSettings(this, "需要设置一些权限")
-                }
-                .request(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE))
-
-        BusManager.setCallback(lifecycle, this, BUS_EVENT)
-
+        mPresenter.loadInit()
     }
 
     override fun busResult(event: String, msg: BusMsg) {
@@ -86,6 +74,13 @@ class MainActivity : AppCompatActivity(), BusResult {
                 3 -> startActivity(Intent(this@MainActivity, NavigationActivity::class.java))
                 4 -> startActivity(Intent(this@MainActivity, PagingActivity::class.java))
                 5 -> startActivity(Intent(this@MainActivity, RecyclerActivity::class.java))
+                6 -> {
+                    PermissionManager.newFuture().withPass {
+                        toast(message = "ok")
+                    }.withDenied { _, _ ->
+                        toast(message = "fail")
+                    }.request(this@MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                }
             }
         }
 
@@ -100,7 +95,8 @@ class MainActivity : AppCompatActivity(), BusResult {
                     "mvp",
                     "navigation",
                     "paging",
-                    "recycler"
+                    "recycler",
+                    "permission"
             ) else listOf()
         }
     }
