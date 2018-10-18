@@ -73,7 +73,7 @@ object PermissionManager {
                 return
             }
 
-            PermissionFragment.startPermissionFragment(REQUEST_CODE, requestPermission, activity)
+            PermissionFragment.startPermissionFragment(requestPermission, activity)
         }
 
         fun toSettings(activity: Activity, msg: String, cancel: String = "取消", sure: String = "去设置") {
