@@ -10,8 +10,7 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.support.annotation.StringDef
 import android.support.v4.content.ContextCompat
-import android.util.Log
-import java.io.*
+import java.io.File
 import java.lang.NullPointerException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -248,7 +247,7 @@ class FileManager(val app: Application) {
          * /storage/emulated/0/${type}
          */
         fun publicStandardDir(@StandardType dir: String): File? =
-                if (isMounted() && hasPermission()) {
+                if (isMounted()) {
                     Environment.getExternalStoragePublicDirectory(dir).takeIf { it.exists() || it.mkdirs() }
                 } else null
 
