@@ -1,9 +1,10 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
-import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.*
 import android.support.v7.util.DiffUtil
+import android.support.v7.widget.RecyclerView
 
-class DataSet<T> {
+class DataSet<T>(var adapter: RecyclerView.Adapter<*>? = null) : LifecycleObserver {
 
     companion object {
         const val EMPTY = -1
@@ -17,10 +18,12 @@ class DataSet<T> {
      */
     private class ExtraItem(var type: Int)
 
-    /**
-     * 通知更新item
-     */
-    internal val diffResultLiveData = MutableLiveData<DiffUtil.DiffResult>()
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onDestroy(source: LifecycleOwner?) {
+        adapter = null
+        source?.lifecycle?.removeObserver(this)
+    }
+
     /**
      * 通知更新刷新样式
      */
@@ -42,6 +45,8 @@ class DataSet<T> {
      */
     private var flagMoreEnd = false
 
+    private var initLoad = false
+
     fun canLoadMore(): Boolean {
         return if (enableMore && !moreLoadingState && !flagMoreEnd) {
             moreLoadingState = true
@@ -55,7 +60,7 @@ class DataSet<T> {
     fun count(): Int {
         var count = mData.size
         if (count == 0) {
-            if (enableEmpty) {
+            if (enableEmpty && initLoad) {
                 count++
             }
         } else {
@@ -83,7 +88,7 @@ class DataSet<T> {
     private fun itemListWithoutExtra(): List<T?> {
         val list = mutableListOf<T?>()
         if (mData.isEmpty()) {
-            if (enableEmpty) {
+            if (enableEmpty && initLoad) {
                 list.add(null)
             }
         } else {
@@ -101,7 +106,7 @@ class DataSet<T> {
     private fun itemList(): List<Any?> {
         val list = mutableListOf<Any?>()
         if (mData.isEmpty()) {
-            if (enableEmpty) {
+            if (enableEmpty && initLoad) {
                 list.add(mEmptyItem)
             }
         } else {
@@ -158,6 +163,7 @@ class DataSet<T> {
     fun opData(op: () -> Unit) {
         val oldList = itemList()
         op()
+        initLoad = true
         val newList = itemList()
         notifyAdapter(oldList, newList)
     }
@@ -168,7 +174,9 @@ class DataSet<T> {
 
     private fun notifyAdapter(oldList: List<Any?>, newList: List<Any?>) {
 
-        val result = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+        val adapter = this.adapter ?: return
+
+        DiffUtil.calculateDiff(object : DiffUtil.Callback() {
 
             override fun getOldListSize(): Int = oldList.size
 
@@ -181,7 +189,6 @@ class DataSet<T> {
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                 return true
             }
-        })
-        diffResultLiveData.postValue(result)
+        }).dispatchUpdatesTo(adapter)
     }
 }

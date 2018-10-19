@@ -23,6 +23,8 @@ interface RecyclerAdapterOp<T, BIND : ViewDataBinding> {
      */
     fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): BIND
 
+    fun attachToRecyclerView()
+
     /**
      * 获得内容类型id，如果是多类型需要重写该方法
      */
