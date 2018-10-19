@@ -1,19 +1,18 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
-import android.arch.lifecycle.LifecycleOwner
 import android.databinding.ViewDataBinding
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 
-abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding> : RecyclerView.Adapter<VH<BIND>>(), RecyclerAdapterOp<T, BIND> {
+abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyclerView: RecyclerView) : RecyclerView.Adapter<VH<BIND>>(), RecyclerAdapterExt<T, BIND>, RecyclerAdapterBridge<T> {
 
     /**
      * 辅助类
      */
     private lateinit var delegate: RecyclerAdapterDelegate<T, BIND>
 
-    override fun init(owner: LifecycleOwner, recyclerView: RecyclerView, presenter: IRecyclerPresenter<T>) {
-        delegate = RecyclerAdapterDelegate(owner, recyclerView, this, this, presenter)
+    override fun setup(presenter: IRecyclerPresenter<T>) {
+        delegate = RecyclerAdapterDelegate(this, presenter)
     }
 
     override fun onBindViewHolder(holder: VH<BIND>, position: Int) {
@@ -37,5 +36,15 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding> : RecyclerView.Ada
      */
     override fun getItem(position: Int): T? {
         return delegate.getItem(position)
+    }
+
+    override fun getAdapter(): RecyclerView.Adapter<*> {
+        return this
+    }
+
+    override fun attachToRecyclerView() {
+        if (mRecyclerView.adapter == null) {
+            mRecyclerView.adapter = this
+        }
     }
 }

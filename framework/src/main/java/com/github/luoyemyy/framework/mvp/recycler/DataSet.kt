@@ -1,9 +1,9 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
-import android.arch.lifecycle.*
+import android.arch.lifecycle.MutableLiveData
 import android.support.v7.util.DiffUtil
 
-class DataSet<T>(var brige: AdapterBridge? = null) : LifecycleObserver {
+class DataSet<T> {
 
     companion object {
         const val EMPTY = -1
@@ -16,12 +16,6 @@ class DataSet<T>(var brige: AdapterBridge? = null) : LifecycleObserver {
      * 额外的数据项（加载更多，无数据）
      */
     private class ExtraItem(var type: Int)
-
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
-    fun onDestroy(source: LifecycleOwner?) {
-        brige = null
-        source?.lifecycle?.removeObserver(this)
-    }
 
     /**
      * 通知更新刷新样式
@@ -125,12 +119,12 @@ class DataSet<T>(var brige: AdapterBridge? = null) : LifecycleObserver {
 
     fun dataList(): List<T> = mData
 
-    fun initData(list: List<T>?) {
-        setData(list)
+    fun initData(list: List<T>?): DiffUtil.DiffResult {
+        return setData(list)
     }
 
-    fun setData(list: List<T>?) {
-        postData {
+    fun setData(list: List<T>?): DiffUtil.DiffResult {
+        return postData {
             flagMoreEnd = false
             moreLoadingState = false
             mData.clear()
@@ -140,8 +134,8 @@ class DataSet<T>(var brige: AdapterBridge? = null) : LifecycleObserver {
         }
     }
 
-    fun addData(list: List<T>?) {
-        postData {
+    fun addData(list: List<T>?): DiffUtil.DiffResult {
+        return postData {
             moreLoadingState = false
             if (list != null && list.isNotEmpty()) {
                 mData.addAll(list)
@@ -151,35 +145,28 @@ class DataSet<T>(var brige: AdapterBridge? = null) : LifecycleObserver {
         }
     }
 
-    fun remove(list: List<T>?) {
-        postData {
+    fun remove(list: List<T>?): DiffUtil.DiffResult {
+        return postData {
             list?.forEach {
                 mData.remove(it)
             }
         }
     }
 
-    fun change(position: Int, changeView: Any?) {
-        brige?.getAdapter()?.notifyItemChanged(position, changeView)
-    }
-
-    fun postData(post: () -> Unit) {
+    fun postData(post: () -> Unit): DiffUtil.DiffResult {
         val oldList = itemList()
         post()
         initLoad = true
         val newList = itemList()
-        notifyAdapter(oldList, newList)
+        return notifyAdapter(oldList, newList)
     }
 
     fun notifyRefreshState(refreshing: Boolean) {
         refreshStateLiveData.postValue(refreshing)
     }
 
-    private fun notifyAdapter(oldList: List<Any?>, newList: List<Any?>) {
-
-        val adapter = brige?.getAdapter() ?: return
-
-        DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+    private fun notifyAdapter(oldList: List<Any?>, newList: List<Any?>): DiffUtil.DiffResult {
+        return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
 
             override fun getOldListSize(): Int = oldList.size
 
@@ -192,8 +179,6 @@ class DataSet<T>(var brige: AdapterBridge? = null) : LifecycleObserver {
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
                 return true
             }
-        }).dispatchUpdatesTo(adapter)
-
-        brige?.attachToRecyclerView()
+        })
     }
 }

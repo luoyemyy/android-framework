@@ -1,17 +1,18 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
+import android.arch.lifecycle.*
 import android.os.Bundle
 import android.support.annotation.CallSuper
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
 import com.github.luoyemyy.framework.async.AsyncRun
 
-abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), IRecyclerPresenter<T> {
+abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), IRecyclerPresenter<T>, LifecycleObserver {
 
     private val mDataSet by lazy { DataSet<T>() }
     private val mPaging: Paging by lazy { getPaging() }
+    private var mBridge: RecyclerAdapterBridge<T>? = null
 
     override fun getDataSet(): DataSet<T> {
         return mDataSet
@@ -21,29 +22,82 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         return Paging.Page()
     }
 
-    open fun beforeLoadInit(bundle: Bundle?) {}
-    open fun beforeLoadRefresh() {}
-    open fun beforeLoadMore() {}
-    open fun beforeLoadSearch(search: String) {}
+    override fun setup(owner: LifecycleOwner, adapterBridge: RecyclerAdapterBridge<T>) {
+        mBridge = adapterBridge
+        adapterBridge.setup(this)
+        owner.lifecycle.addObserver(this)
+        mDataSet.enableEmpty = adapterBridge.enableEmpty()
+        mDataSet.enableMore = adapterBridge.enableLoadMore()
+        mDataSet.refreshStateLiveData.observe(owner, Observer {
+            mBridge?.setRefreshState(it ?: false)
+        })
+    }
 
-    @CallSuper
-    open fun afterLoadInit(list: List<T>?) {
-        mDataSet.initData(list)
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    fun onDestroy(source: LifecycleOwner?) {
+        mBridge = null
+        source?.lifecycle?.removeObserver(this)
     }
 
     @CallSuper
-    open fun afterLoadRefresh(list: List<T>?) {
-        mDataSet.setData(list)
+    override fun beforeLoadInit(bundle: Bundle?) {
+        mBridge?.beforeLoadInit(bundle)
     }
 
     @CallSuper
-    open fun afterLoadMore(list: List<T>?) {
-        mDataSet.addData(list)
+    override fun beforeLoadRefresh() {
+        mBridge?.beforeLoadRefresh()
     }
 
     @CallSuper
-    open fun afterLoadSearch(list: List<T>?) {
-        mDataSet.setData(list)
+    override fun beforeLoadMore() {
+        mBridge?.beforeLoadMore()
+    }
+
+    @CallSuper
+    override fun beforeLoadSearch(search: String) {
+        mBridge?.beforeLoadSearch(search)
+    }
+
+    @CallSuper
+    override fun afterLoadInit(list: List<T>?) {
+        mBridge?.apply {
+            getAdapter().apply {
+                mDataSet.initData(list).dispatchUpdatesTo(this)
+            }
+            afterLoadInit(list)
+            attachToRecyclerView()
+        }
+    }
+
+    @CallSuper
+    override fun afterLoadRefresh(list: List<T>?) {
+        mBridge?.apply {
+            getAdapter().apply {
+                mDataSet.setData(list).dispatchUpdatesTo(this)
+            }
+            afterLoadRefresh(list)
+        }
+    }
+
+    @CallSuper
+    override fun afterLoadMore(list: List<T>?) {
+        mBridge?.apply {
+            getAdapter().apply {
+                mDataSet.addData(list).dispatchUpdatesTo(this)
+            }
+            afterLoadMore(list)
+        }
+    }
+
+    @CallSuper
+    override fun afterLoadSearch(list: List<T>?) {
+        mBridge?.apply {
+            getAdapter().apply {
+                mDataSet.setData(list).dispatchUpdatesTo(this)
+            }
+            afterLoadSearch(list)
+        }
     }
 
     @MainThread

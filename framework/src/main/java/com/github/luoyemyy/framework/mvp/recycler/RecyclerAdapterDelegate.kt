@@ -1,7 +1,5 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.Observer
 import android.content.Context
 import android.databinding.ViewDataBinding
 import android.os.Handler
@@ -15,39 +13,25 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import com.github.luoyemyy.framework.ext.dp2px
 
-internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, private val recyclerView: RecyclerView, private val adapter: RecyclerView.Adapter<VH<BIND>>, private var op: RecyclerAdapterOp<T, BIND>, private var presenter: IRecyclerPresenter<T>) : AdapterBridge {
-
-
-    init {
-        owner.lifecycle.addObserver(presenter.getDataSet())
-
-        presenter.getDataSet().enableMore = op.enableLoadMore()
-        presenter.getDataSet().enableEmpty = op.enableEmpty()
-
-        presenter.getDataSet().brige = this
-
-        presenter.getDataSet().refreshStateLiveData.observe(owner, Observer {
-            op.setRefreshState(it ?: false)
-        })
-    }
+internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mExt: RecyclerAdapterExt<T, BIND>, private var mPresenter: IRecyclerPresenter<T>) {
 
     fun onBindViewHolder(holder: VH<BIND>, position: Int) {
-        val type = presenter.getDataSet().type(position)
+        val type = mPresenter.getDataSet().type(position)
         if (isContentByType(type)) {
             val item = getItem(position) ?: return
             val binding = holder.binding ?: return
-            op.bindContentViewHolder(binding, item, position)
+            mExt.bindContentViewHolder(binding, item, position)
         }
     }
 
     fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<BIND> {
         return if (isContentByType(viewType)) {
-            val binding = op.createContentView(LayoutInflater.from(parent.context), parent, viewType)
+            val binding = mExt.createContentView(LayoutInflater.from(parent.context), parent, viewType)
             VH(binding, binding.root).apply {
-                op.bindItemListener(this)
-                op.getItemClickViews(binding).forEach {
+                mExt.bindItemListener(this)
+                mExt.getItemClickViews(binding).forEach {
                     it.setOnClickListener { v ->
-                        op.onItemClickListener(this, v)
+                        mExt.onItemClickListener(this, v)
                     }
                 }
             }
@@ -57,35 +41,25 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: Lifecyc
     }
 
     fun getItemViewType(position: Int): Int {
-        val type = presenter.getDataSet().type(position)
+        val type = mPresenter.getDataSet().type(position)
         return if (isContentByType(type)) {
-            op.getContentType(position, getItem(position))
+            mExt.getContentType(position, getItem(position))
         } else {
             type
         }
     }
 
     fun getItemCount(): Int {
-        return presenter.getDataSet().count()
+        return mPresenter.getDataSet().count()
     }
 
     fun getItem(position: Int): T? {
         if (position > getItemCount() - 3) {
             Handler().post {
-                presenter.loadMore()
+                mPresenter.loadMore()
             }
         }
-        return presenter.getDataSet().item(position)
-    }
-
-    override fun attachToRecyclerView() {
-        if (recyclerView.adapter == null) {
-            recyclerView.adapter = adapter
-        }
-    }
-
-    override fun getAdapter(): RecyclerView.Adapter<*> {
-        return adapter
+        return mPresenter.getDataSet().item(position)
     }
 
     private fun isContentByType(type: Int): Boolean {
@@ -115,23 +89,23 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: Lifecyc
     }
 
     private fun createEmptyView(context: Context): View {
-        return if (op.getEmptyLayout() == 0) {
+        return if (mExt.getEmptyLayout() == 0) {
             createLayout(context, "暂无数据")
         } else {
-            LayoutInflater.from(context).inflate(op.getEmptyLayout(), null)
+            LayoutInflater.from(context).inflate(mExt.getEmptyLayout(), null)
         }
     }
 
     private fun createMoreEndView(context: Context): View {
-        return if (op.getMoreEndLayout() == 0) {
+        return if (mExt.getMoreEndLayout() == 0) {
             createLayout(context, "暂无更多")
         } else {
-            LayoutInflater.from(context).inflate(op.getMoreEndLayout(), null)
+            LayoutInflater.from(context).inflate(mExt.getMoreEndLayout(), null)
         }
     }
 
     private fun createMoreLoadingView(context: Context): View {
-        return if (op.getMoreLoadingLayout() == 0) {
+        return if (mExt.getMoreLoadingLayout() == 0) {
             val layout = createLayout(context, "加载中...")
             val padding = context.dp2px(8)
             val progressSize = context.dp2px(20)
@@ -139,7 +113,7 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: Lifecyc
             layout.addView(process, 0, LinearLayout.LayoutParams(progressSize, progressSize).apply { marginEnd = padding })
             layout
         } else {
-            LayoutInflater.from(context).inflate(op.getMoreLoadingLayout(), null)
+            LayoutInflater.from(context).inflate(mExt.getMoreLoadingLayout(), null)
         }
     }
 }
