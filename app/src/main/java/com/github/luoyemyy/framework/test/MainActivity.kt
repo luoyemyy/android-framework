@@ -2,7 +2,6 @@ package com.github.luoyemyy.framework.test
 
 import android.Manifest
 import android.app.Application
-import android.arch.lifecycle.LifecycleOwner
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
@@ -36,7 +35,7 @@ class MainActivity : AppCompatActivity(), BusResult {
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         mPresenter = getPresenter()
 
-        mBinding.recyclerView.wrap(Adapter(this, mPresenter))
+        mBinding.recyclerView.setLinearManager()
 
         mPresenter.loadInit()
     }
@@ -49,7 +48,7 @@ class MainActivity : AppCompatActivity(), BusResult {
         const val BUS_EVENT = "com.github.luoyemyy.framework.test.MainActivity"
     }
 
-    inner class Adapter(owner: LifecycleOwner, presenter: Presenter) : AbstractSingleRecyclerAdapter<String, ActivityMainRecyclerBinding>(owner, presenter) {
+    inner class Adapter() : AbstractSingleRecyclerAdapter<String, ActivityMainRecyclerBinding>(this, mBinding.recyclerView, mPresenter) {
 
         override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ActivityMainRecyclerBinding {
             return ActivityMainRecyclerBinding.inflate(inflater, parent, false)
@@ -88,7 +87,7 @@ class MainActivity : AppCompatActivity(), BusResult {
 
     class Presenter(app: Application) : AbstractRecyclerPresenter<String>(app) {
 
-        override fun loadData(paging: Paging): List<String>? {
+        override fun loadData(loadType: Int, paging: Paging): List<String>? {
             return if (paging.current() == 1L) listOf(
                     "浸入状态栏",
                     "drawer",

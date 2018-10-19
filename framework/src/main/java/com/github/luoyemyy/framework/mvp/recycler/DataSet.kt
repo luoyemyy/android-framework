@@ -41,10 +41,6 @@ class DataSet<T> {
      * 标记加载更多没有更多数据
      */
     private var flagMoreEnd = false
-    /**
-     * 是否加过数据，如果没有加载过数据，则不会出现空数据提示样式
-     */
-    private var initLoad = false
 
     fun canLoadMore(): Boolean {
         return if (enableMore && !moreLoadingState && !flagMoreEnd) {
@@ -59,7 +55,7 @@ class DataSet<T> {
     fun count(): Int {
         var count = mData.size
         if (count == 0) {
-            if (enableEmpty && initLoad) {
+            if (enableEmpty) {
                 count++
             }
         } else {
@@ -87,7 +83,7 @@ class DataSet<T> {
     private fun itemListWithoutExtra(): List<T?> {
         val list = mutableListOf<T?>()
         if (mData.isEmpty()) {
-            if (enableEmpty && initLoad) {
+            if (enableEmpty) {
                 list.add(null)
             }
         } else {
@@ -105,7 +101,7 @@ class DataSet<T> {
     private fun itemList(): List<Any?> {
         val list = mutableListOf<Any?>()
         if (mData.isEmpty()) {
-            if (enableEmpty && initLoad) {
+            if (enableEmpty) {
                 list.add(mEmptyItem)
             }
         } else {
@@ -133,7 +129,6 @@ class DataSet<T> {
         opData {
             flagMoreEnd = false
             moreLoadingState = false
-            initLoad = true
             mData.clear()
             if (list != null && list.isNotEmpty()) {
                 mData.addAll(list)

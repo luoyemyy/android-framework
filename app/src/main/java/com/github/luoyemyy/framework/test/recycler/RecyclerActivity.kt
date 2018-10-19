@@ -1,7 +1,6 @@
 package com.github.luoyemyy.framework.test.recycler
 
 import android.app.Application
-import android.arch.lifecycle.LifecycleOwner
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -12,10 +11,7 @@ import com.github.luoyemyy.framework.bus.BusMsg
 import com.github.luoyemyy.framework.bus.BusResult
 import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.ext.toast
-import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
-import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
-import com.github.luoyemyy.framework.mvp.recycler.Paging
-import com.github.luoyemyy.framework.mvp.recycler.wrap
+import com.github.luoyemyy.framework.mvp.recycler.*
 import com.github.luoyemyy.framework.test.MainActivity
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityRecyclerBinding
@@ -32,7 +28,7 @@ class RecyclerActivity : AppCompatActivity(), BusResult {
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_recycler)
         mPresenter = getPresenter()
 
-        mBinding.recyclerView.wrap(Adapter(this, mPresenter))
+        mBinding.recyclerView.setLinearManager()
         mBinding.swipeRefreshLayout.wrap(mPresenter)
 
         BusManager.setCallback(lifecycle, this, BUS_EVENT)
@@ -48,7 +44,7 @@ class RecyclerActivity : AppCompatActivity(), BusResult {
         const val BUS_EVENT = "com.github.luoyemyy.framework.test.recycler.RecyclerActivity"
     }
 
-    inner class Adapter(owner: LifecycleOwner, presenter: Presenter) : AbstractSingleRecyclerAdapter<String, ActivityRecyclerRecyclerBinding>(owner, presenter) {
+    inner class Adapter() : AbstractSingleRecyclerAdapter<String, ActivityRecyclerRecyclerBinding>(this, mBinding.recyclerView, mPresenter) {
 
         override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ActivityRecyclerRecyclerBinding {
             return ActivityRecyclerRecyclerBinding.inflate(inflater, parent, false)
@@ -71,7 +67,7 @@ class RecyclerActivity : AppCompatActivity(), BusResult {
             BusManager.post(MainActivity.BUS_EVENT)
         }
 
-        override fun loadData(paging: Paging): List<String>? {
+        override fun loadData(loadType: Int, paging: Paging): List<String>? {
             Thread.sleep(1000)
             return if (paging.current() < 3) {
                 (0..9).map { ((paging.current() - 1) * 10 + it).toString() }

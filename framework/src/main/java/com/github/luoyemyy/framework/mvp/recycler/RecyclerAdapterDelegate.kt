@@ -15,14 +15,19 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import com.github.luoyemyy.framework.ext.dp2px
 
-class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, adapter: RecyclerView.Adapter<VH<BIND>>, private var op: RecyclerAdapterOp<T, BIND>, private var presenter: IRecyclerPresenter<T>) {
+class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, recyclerView: RecyclerView, adapter: RecyclerView.Adapter<VH<BIND>>, private var op: RecyclerAdapterOp<T, BIND>, private var presenter: IRecyclerPresenter<T>) {
 
     init {
         presenter.getDataSet().enableMore = op.enableLoadMore()
         presenter.getDataSet().enableEmpty = op.enableEmpty()
 
         presenter.getDataSet().diffResultLiveData.observe(owner, Observer {
-            it?.dispatchUpdatesTo(adapter)
+            if (!recyclerView.isComputingLayout) {
+                it?.dispatchUpdatesTo(adapter)
+            }
+            if (recyclerView.adapter == null) {
+                recyclerView.adapter = adapter
+            }
         })
         presenter.getDataSet().refreshStateLiveData.observe(owner, Observer {
             op.setRefreshState(it ?: false)
