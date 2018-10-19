@@ -187,6 +187,6 @@ class DataSet<T> {
                 return true
             }
         })
-        diffResultLiveData.postValue(result)
+        diffResultLiveData.value = result
     }
 }
