@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.github.luoyemyy.framework.bus.BusManager
 import com.github.luoyemyy.framework.bus.BusMsg
 import com.github.luoyemyy.framework.bus.BusResult
 import com.github.luoyemyy.framework.ext.getPresenter
@@ -37,6 +38,8 @@ class MainActivity : AppCompatActivity(), BusResult {
 
         Adapter().init(this, mBinding.recyclerView, mPresenter)
         mBinding.recyclerView.setLinearManager()
+
+        BusManager.setCallback(lifecycle, this, BUS_EVENT)
 
         mPresenter.loadInit()
     }
