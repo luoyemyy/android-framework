@@ -130,7 +130,7 @@ class DataSet<T>(var brige: AdapterBridge? = null) : LifecycleObserver {
     }
 
     fun setData(list: List<T>?) {
-        opData {
+        postData {
             flagMoreEnd = false
             moreLoadingState = false
             mData.clear()
@@ -141,7 +141,7 @@ class DataSet<T>(var brige: AdapterBridge? = null) : LifecycleObserver {
     }
 
     fun addData(list: List<T>?) {
-        opData {
+        postData {
             moreLoadingState = false
             if (list != null && list.isNotEmpty()) {
                 mData.addAll(list)
@@ -152,16 +152,20 @@ class DataSet<T>(var brige: AdapterBridge? = null) : LifecycleObserver {
     }
 
     fun remove(list: List<T>?) {
-        opData {
+        postData {
             list?.forEach {
                 mData.remove(it)
             }
         }
     }
 
-    fun opData(op: () -> Unit) {
+    fun change(position: Int, changeView: Any?) {
+        brige?.getAdapter()?.notifyItemChanged(position, changeView)
+    }
+
+    fun postData(post: () -> Unit) {
         val oldList = itemList()
-        op()
+        post()
         initLoad = true
         val newList = itemList()
         notifyAdapter(oldList, newList)
