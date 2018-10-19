@@ -30,10 +30,6 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOw
         return delegate.getItemCount()
     }
 
-    override fun attachToRecyclerView() {
-        delegate.attachToRecyclerView()
-    }
-
     /**
      * 获得指定项内容实体
      */

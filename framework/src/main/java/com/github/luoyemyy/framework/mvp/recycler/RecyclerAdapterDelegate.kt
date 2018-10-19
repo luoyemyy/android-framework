@@ -15,7 +15,7 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import com.github.luoyemyy.framework.ext.dp2px
 
-class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, private val recyclerView: RecyclerView, private val adapter: RecyclerView.Adapter<VH<BIND>>, private var op: RecyclerAdapterOp<T, BIND>, private var presenter: IRecyclerPresenter<T>) {
+internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, private val recyclerView: RecyclerView, private val adapter: RecyclerView.Adapter<VH<BIND>>, private var op: RecyclerAdapterOp<T, BIND>, private var presenter: IRecyclerPresenter<T>) : AdapterBridge {
 
 
     init {
@@ -24,7 +24,7 @@ class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, 
         presenter.getDataSet().enableMore = op.enableLoadMore()
         presenter.getDataSet().enableEmpty = op.enableEmpty()
 
-        presenter.getDataSet().adapter = adapter
+        presenter.getDataSet().brige = this
 
         presenter.getDataSet().refreshStateLiveData.observe(owner, Observer {
             op.setRefreshState(it ?: false)
@@ -78,10 +78,14 @@ class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(owner: LifecycleOwner, 
         return presenter.getDataSet().item(position)
     }
 
-    fun attachToRecyclerView() {
+    override fun attachToRecyclerView() {
         if (recyclerView.adapter == null) {
             recyclerView.adapter = adapter
         }
+    }
+
+    override fun getAdapter(): RecyclerView.Adapter<*> {
+        return adapter
     }
 
     private fun isContentByType(type: Int): Boolean {

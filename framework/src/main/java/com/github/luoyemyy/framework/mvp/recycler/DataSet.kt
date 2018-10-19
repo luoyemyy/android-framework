@@ -2,9 +2,8 @@ package com.github.luoyemyy.framework.mvp.recycler
 
 import android.arch.lifecycle.*
 import android.support.v7.util.DiffUtil
-import android.support.v7.widget.RecyclerView
 
-class DataSet<T>(var adapter: RecyclerView.Adapter<*>? = null) : LifecycleObserver {
+class DataSet<T>(var brige: AdapterBridge? = null) : LifecycleObserver {
 
     companion object {
         const val EMPTY = -1
@@ -20,7 +19,7 @@ class DataSet<T>(var adapter: RecyclerView.Adapter<*>? = null) : LifecycleObserv
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroy(source: LifecycleOwner?) {
-        adapter = null
+        brige = null
         source?.lifecycle?.removeObserver(this)
     }
 
@@ -174,7 +173,7 @@ class DataSet<T>(var adapter: RecyclerView.Adapter<*>? = null) : LifecycleObserv
 
     private fun notifyAdapter(oldList: List<Any?>, newList: List<Any?>) {
 
-        val adapter = this.adapter ?: return
+        val adapter = brige?.getAdapter() ?: return
 
         DiffUtil.calculateDiff(object : DiffUtil.Callback() {
 
@@ -190,5 +189,7 @@ class DataSet<T>(var adapter: RecyclerView.Adapter<*>? = null) : LifecycleObserv
                 return true
             }
         }).dispatchUpdatesTo(adapter)
+
+        brige?.attachToRecyclerView()
     }
 }
