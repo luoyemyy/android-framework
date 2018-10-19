@@ -1,5 +1,6 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
+import android.arch.lifecycle.LifecycleOwner
 import android.databinding.ViewDataBinding
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -7,6 +8,11 @@ import android.view.View
 import android.view.ViewGroup
 
 interface RecyclerAdapterOp<T, BIND : ViewDataBinding> {
+
+    /**
+     * 初始化adapter
+     */
+    fun init(owner: LifecycleOwner, recyclerView: RecyclerView, presenter: IRecyclerPresenter<T>)
 
     /**
      * 获得指定位置的数据，如果是加载更多或空数据项，则为null

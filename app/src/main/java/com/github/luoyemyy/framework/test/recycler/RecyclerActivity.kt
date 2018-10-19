@@ -31,6 +31,8 @@ class RecyclerActivity : AppCompatActivity(), BusResult {
         mBinding.recyclerView.setLinearManager()
         mBinding.swipeRefreshLayout.wrap(mPresenter)
 
+        Adapter().init(this, mBinding.recyclerView, mPresenter)
+
         BusManager.setCallback(lifecycle, this, BUS_EVENT)
 
         mPresenter.loadInit()
@@ -44,7 +46,7 @@ class RecyclerActivity : AppCompatActivity(), BusResult {
         const val BUS_EVENT = "com.github.luoyemyy.framework.test.recycler.RecyclerActivity"
     }
 
-    inner class Adapter() : AbstractSingleRecyclerAdapter<String, ActivityRecyclerRecyclerBinding>(this, mBinding.recyclerView, mPresenter) {
+    inner class Adapter : AbstractSingleRecyclerAdapter<String, ActivityRecyclerRecyclerBinding>() {
 
         override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ActivityRecyclerRecyclerBinding {
             return ActivityRecyclerRecyclerBinding.inflate(inflater, parent, false)

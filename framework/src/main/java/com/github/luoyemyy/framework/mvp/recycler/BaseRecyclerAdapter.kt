@@ -5,13 +5,15 @@ import android.databinding.ViewDataBinding
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 
-abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(owner: LifecycleOwner, recyclerView: RecyclerView, presenter: IRecyclerPresenter<T>) : RecyclerView.Adapter<VH<BIND>>(), RecyclerAdapterOp<T, BIND> {
+abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding> : RecyclerView.Adapter<VH<BIND>>(), RecyclerAdapterOp<T, BIND> {
 
     /**
      * 辅助类
      */
-    private val delegate by lazy {
-        RecyclerAdapterDelegate(owner, recyclerView, this, this, presenter)
+    private lateinit var delegate: RecyclerAdapterDelegate<T, BIND>
+
+    override fun init(owner: LifecycleOwner, recyclerView: RecyclerView, presenter: IRecyclerPresenter<T>) {
+        delegate = RecyclerAdapterDelegate(owner, recyclerView, this, this, presenter)
     }
 
     override fun onBindViewHolder(holder: VH<BIND>, position: Int) {

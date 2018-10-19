@@ -35,6 +35,7 @@ class MainActivity : AppCompatActivity(), BusResult {
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         mPresenter = getPresenter()
 
+        Adapter().init(this, mBinding.recyclerView, mPresenter)
         mBinding.recyclerView.setLinearManager()
 
         mPresenter.loadInit()
@@ -48,7 +49,7 @@ class MainActivity : AppCompatActivity(), BusResult {
         const val BUS_EVENT = "com.github.luoyemyy.framework.test.MainActivity"
     }
 
-    inner class Adapter() : AbstractSingleRecyclerAdapter<String, ActivityMainRecyclerBinding>(this, mBinding.recyclerView, mPresenter) {
+    inner class Adapter : AbstractSingleRecyclerAdapter<String, ActivityMainRecyclerBinding>() {
 
         override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ActivityMainRecyclerBinding {
             return ActivityMainRecyclerBinding.inflate(inflater, parent, false)
