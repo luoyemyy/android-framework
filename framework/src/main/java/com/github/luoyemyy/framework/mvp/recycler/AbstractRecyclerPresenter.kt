@@ -54,7 +54,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                     mPaging.reset()
                     mDataSet.notifyRefreshState(true)
                 }.create {
-                    loadData(mPaging)
+                    loadData(1, mPaging)
                 }.result { it, _ ->
                     afterLoadInit(it)
                     mDataSet.notifyRefreshState(false)
@@ -68,7 +68,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                     beforeLoadRefresh()
                     mPaging.reset()
                 }.create {
-                    loadData(mPaging)
+                    loadData(2, mPaging)
                 }.result { it, _ ->
                     afterLoadRefresh(it)
                     mDataSet.notifyRefreshState(false)
@@ -85,7 +85,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                     beforeLoadMore()
                     mPaging.next()
                 }.create {
-                    loadData(mPaging)
+                    loadData(3, mPaging)
                 }.result { it, _ ->
                     afterLoadMore(it)
                 }
@@ -99,7 +99,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                     mPaging.reset()
                     mDataSet.notifyRefreshState(true)
                 }.create {
-                    loadData(mPaging)
+                    loadData(4, mPaging)
                 }.result { it, _ ->
                     afterLoadSearch(it)
                     mDataSet.notifyRefreshState(false)
@@ -107,5 +107,5 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
     }
 
     @WorkerThread
-    abstract fun loadData(paging: Paging): List<T>?
+    abstract fun loadData(loadType: Int, paging: Paging): List<T>?
 }

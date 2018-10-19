@@ -126,21 +126,14 @@ class DataSet<T> {
     fun dataList(): List<T> = mData
 
     fun initData(list: List<T>?) {
-        opData {
-            flagMoreEnd = false
-            moreLoadingState = false
-            initLoad = true
-            mData.clear()
-            if (list != null && list.isNotEmpty()) {
-                mData.addAll(list)
-            }
-        }
+        setData(list)
     }
 
     fun setData(list: List<T>?) {
         opData {
             flagMoreEnd = false
             moreLoadingState = false
+            initLoad = true
             mData.clear()
             if (list != null && list.isNotEmpty()) {
                 mData.addAll(list)
