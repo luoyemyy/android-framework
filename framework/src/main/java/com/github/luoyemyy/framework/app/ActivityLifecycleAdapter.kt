@@ -5,7 +5,7 @@ import android.app.Application
 import android.os.Bundle
 import android.os.Process
 
-class ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
+internal class ActivityLifecycleAdapter : Application.ActivityLifecycleCallbacks {
 
     private val activities = mutableListOf<Activity?>()
 
@@ -17,8 +17,8 @@ class ActivityLifecycleManager : Application.ActivityLifecycleCallbacks {
     }
 
     companion object {
-        val instance: ActivityLifecycleManager by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
-            ActivityLifecycleManager()
+        val instance: ActivityLifecycleAdapter by lazy(LazyThreadSafetyMode.SYNCHRONIZED) {
+            ActivityLifecycleAdapter()
         }
     }
 

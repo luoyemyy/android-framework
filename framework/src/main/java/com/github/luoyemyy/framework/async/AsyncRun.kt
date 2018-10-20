@@ -1,10 +1,15 @@
 package com.github.luoyemyy.framework.async
 
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
+import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.OnLifecycleEvent
 import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import android.support.annotation.MainThread
 import android.util.Log
+import com.github.luoyemyy.framework.bus.BusManager
 
 class AsyncRun {
 
@@ -35,6 +40,7 @@ class AsyncRun {
         fun result(r: (T?) -> Unit): CALL
         fun error(e: (Throwable?) -> Unit): CALL
         fun cancel()
+        fun completed()
     }
 
     interface BaseResultCall<T, CALL> : BaseCall<T, CALL> {
@@ -45,6 +51,24 @@ class AsyncRun {
     class Call<T> internal constructor(delegate: BaseCall<T, Call<T>>) : BaseCall<T, Call<T>> by delegate
 
     class ResultCall<R : Result> internal constructor(delegate: BaseResultCall<R, ResultCall<R>>) : BaseResultCall<R, ResultCall<R>> by delegate
+
+    class LifecycleCall<R : Result> internal constructor(val lifecycle: Lifecycle, delegate: BaseResultCall<R, ResultCall<R>>) : LifecycleObserver, BaseResultCall<R, ResultCall<R>> by delegate {
+
+        init {
+            lifecycle.addObserver(this)
+        }
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+        fun onDestroy(source: LifecycleOwner?) {
+            cancel()
+            source?.lifecycle?.removeObserver(this)
+        }
+
+        override fun completed() {
+
+        }
+
+    }
 
     private class Delegate<T, CALL : BaseCall<T, CALL>> : BaseResultCall<T, CALL> {
 
@@ -104,6 +128,10 @@ class AsyncRun {
 
         override fun cancel() {
             this.cancel = true
+        }
+
+        override fun completed() {
+
         }
 
         //main thread

@@ -11,7 +11,7 @@ object AppInfo {
     var profile: Profile = Profile(Profile.DEV)
 
     fun init(app: Application, enableConsoleLog: Boolean = true, enableFileLog: Boolean = true, spfName: String? = null, profileType: Int = Profile.DEV) {
-        app.registerActivityLifecycleCallbacks(ActivityLifecycleManager.instance)
+        app.registerActivityLifecycleCallbacks(ActivityLifecycleAdapter.instance)
 
         FileManager.initManager(app)
         AppError.init(app)
