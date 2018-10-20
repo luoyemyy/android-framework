@@ -11,10 +11,6 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyc
      */
     private lateinit var delegate: RecyclerAdapterDelegate<T, BIND>
 
-    override fun setup(presenter: IRecyclerPresenter<T>) {
-        delegate = RecyclerAdapterDelegate(this, presenter)
-    }
-
     override fun onBindViewHolder(holder: VH<BIND>, position: Int) {
         delegate.onBindViewHolder(holder, position)
     }
@@ -36,6 +32,10 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyc
      */
     override fun getItem(position: Int): T? {
         return delegate.getItem(position)
+    }
+
+    override fun setup(presenter: IRecyclerPresenter<T>) {
+        delegate = RecyclerAdapterDelegate(this, presenter)
     }
 
     override fun getAdapter(): RecyclerView.Adapter<*> {

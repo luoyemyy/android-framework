@@ -3,6 +3,7 @@ package com.github.luoyemyy.framework.async
 import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
+import android.support.annotation.MainThread
 import android.util.Log
 
 class AsyncRun {
@@ -31,13 +32,14 @@ class AsyncRun {
     interface BaseCall<T, CALL> {
         fun start(s: (CALL) -> Unit): CALL
         fun create(c: (CALL) -> T?): CALL
-        fun result(r: (T?, Throwable?) -> Unit): CALL
+        fun result(r: (T?) -> Unit): CALL
+        fun error(e: (Throwable?) -> Unit): CALL
         fun cancel()
     }
 
     interface BaseResultCall<T, CALL> : BaseCall<T, CALL> {
         fun success(success: (T?) -> Unit): CALL
-        fun failure(failure: (T?, Throwable?) -> Unit): CALL
+        fun failure(failure: (T?) -> Unit): CALL
     }
 
     class Call<T> internal constructor(delegate: BaseCall<T, Call<T>>) : BaseCall<T, Call<T>> by delegate
@@ -61,9 +63,10 @@ class AsyncRun {
         private lateinit var c: (CALL) -> T?
 
         //result
-        private var r: (T?, Throwable?) -> Unit = { _, _ -> }
+        private var r: (T?) -> Unit = { }
+        private var e: (Throwable?) -> Unit = { }
         private var ok: (T?) -> Unit = {}
-        private var fail: (T?, Throwable?) -> Unit = { _, _ -> }
+        private var fail: (T?) -> Unit = { }
 
         //cancel
         private var cancel: Boolean = false
@@ -79,8 +82,13 @@ class AsyncRun {
             return call
         }
 
-        override fun result(r: (T?, Throwable?) -> Unit): CALL {
+        override fun result(r: (T?) -> Unit): CALL {
             this.r = r
+            return call
+        }
+
+        override fun error(e: (Throwable?) -> Unit): CALL {
+            this.e = e
             return call
         }
 
@@ -89,7 +97,7 @@ class AsyncRun {
             return call
         }
 
-        override fun failure(failure: (T?, Throwable?) -> Unit): CALL {
+        override fun failure(failure: (T?) -> Unit): CALL {
             fail = failure
             return call
         }
@@ -125,20 +133,22 @@ class AsyncRun {
         //main thread
         private val resultRunnable = {
             if (!cancel) {
-                r(back, throwable)
+                r(back)
+                if (throwable != null) {
+                    e(throwable)
+                }
                 val result = back
                 if (result == null) {
-                    fail(result, throwable)
+                    fail(result)
                 } else if (result is Result) {
                     if (result.isSuccess) {
                         ok(result)
                     } else {
-                        fail(result, throwable)
+                        fail(result)
                     }
                 }
             }
         }
-
     }
 
     interface Result {

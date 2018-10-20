@@ -1,5 +1,6 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
 import android.databinding.ViewDataBinding
+import android.support.v7.widget.RecyclerView
 
-abstract class AbstractMutliRecyclerAdapter() : BaseRecyclerAdapter<Any, ViewDataBinding>()
+abstract class AbstractMutliRecyclerAdapter(recyclerView: RecyclerView) : BaseRecyclerAdapter<Any, ViewDataBinding>(recyclerView)

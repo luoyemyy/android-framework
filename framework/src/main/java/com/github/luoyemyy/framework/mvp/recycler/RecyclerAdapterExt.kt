@@ -42,7 +42,7 @@ interface RecyclerAdapterExt<T, BIND : ViewDataBinding> {
     /**
      * 增加绑定除了点击事件之外的其他事件
      */
-    fun bindItemListener(vh: VH<BIND>) {}
+    fun bindItemEvents(vh: VH<BIND>) {}
 
     /**
      * 获得加载更多-加载中样式

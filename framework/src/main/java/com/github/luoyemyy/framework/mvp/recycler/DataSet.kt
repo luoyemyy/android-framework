@@ -75,7 +75,13 @@ class DataSet<T> {
 
 
     fun item(position: Int): T? {
-        return itemListWithoutExtra()[position]
+        return itemListWithoutExtra().let {
+            if (position >= 0 && position < it.size) {
+                it[position]
+            } else {
+                null
+            }
+        }
     }
 
     private fun itemListWithoutExtra(): List<T?> {

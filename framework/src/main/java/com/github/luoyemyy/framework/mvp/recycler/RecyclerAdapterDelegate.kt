@@ -55,8 +55,10 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mE
 
     fun getItem(position: Int): T? {
         if (position > getItemCount() - 3) {
-            Handler().post {
-                mPresenter.loadMore()
+            if (!mPresenter.getDataSet().canLoadMore()) {
+                Handler().post {
+                    mPresenter.loadMore()
+                }
             }
         }
         return mPresenter.getDataSet().item(position)

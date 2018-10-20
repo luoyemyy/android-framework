@@ -1,9 +1,7 @@
-package com.github.luoyemyy.framework.app
+package com.github.luoyemyy.framework.logger
 
 import android.os.*
 import android.util.Log
-import com.github.luoyemyy.framework.ext.formatDate
-import com.github.luoyemyy.framework.ext.formatDateTime
 import java.io.File
 import java.io.FileWriter
 import java.io.PrintWriter
@@ -19,15 +17,16 @@ internal class LogWriter private constructor() {
         mWriterHandler = WriterHandler(handlerThread.looper)
     }
 
-    fun write(throwable: Throwable?, threadName: String, level: String, tag: String, msg: String) {
+    fun write(throwable: Throwable?, threadName: String, level: String, tag: String, msg: String, path: String) {
 
         val message = mWriterHandler.obtainMessage(1)
         message.obj = throwable
         val bundle = Bundle()
-        bundle.putString("threadName", threadName)
+        bundle.putString("thread", threadName)
         bundle.putString("level", level)
         bundle.putString("tag", tag)
         bundle.putString("msg", msg)
+        bundle.putString("path", path)
         message.data = bundle
 
         mWriterHandler.sendMessage(message)
@@ -35,9 +34,18 @@ internal class LogWriter private constructor() {
         mWriterHandler.sendEmptyMessageDelayed(2, mFreeTime)
     }
 
+    data class Time(val year: Int, val month: Int, val day: Int, val hour: Int, val minute: Int, val second: Int)
+
     private inner class WriterHandler internal constructor(looper: Looper) : Handler(looper) {
 
+
         private var mDestroyTime: Long = 0
+
+        fun time(): Time {
+            val now = Calendar.getInstance()
+            return Time(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH),
+                    now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), now.get(Calendar.SECOND))
+        }
 
         override fun handleMessage(msg: Message) {
             if (msg.what == 2) {
@@ -50,28 +58,28 @@ internal class LogWriter private constructor() {
 
             var throwable: Throwable? = msg.obj as? Throwable
             val bundle = msg.data
-            val threadName = bundle.getString("threadName")
+            val thread = bundle.getString("thread")
             val level = bundle.getString("level")
             val tag = bundle.getString("tag")
             val text = bundle.getString("msg")
-            val logPath = AppInfo.logPath
+            val path = bundle.getString("path")
 
-            val now = Date()
-            val logFileName = now.formatDate()
-            val logDateTime = now.formatDateTime()
+            val time = time()
+            val logFileName = "${time.year}-${time.month}-${time.day}"
+            val logDateTime = "$logFileName-${time.hour}-${time.minute}-${time.second}"
 
 
-            if (logPath == null || logFileName == null || logDateTime == null) {
-                Log.e("WriterHandler", "handleMessage:  logPath=$logPath, logFileName=$logFileName, logDateTime=$logDateTime")
+            if (path == null) {
+                Log.e("WriterHandler", "handleMessage:  logPath=$path, logFileName=$logFileName, logDateTime=$logDateTime")
                 return
             }
-            val file = File(logPath, "$logFileName.log.txt")
+            val file = File(path, "$logFileName.log.txt")
 
             try {
                 FileWriter(file, true).use { fileWriter ->
                     PrintWriter(fileWriter, true).use { writer ->
                         writer.println()
-                        writer.println("$logDateTime [$threadName]-$level/$tag:$text")
+                        writer.println("$logDateTime [$thread]-$level/$tag:$text")
                         while (throwable != null) {
                             throwable!!.printStackTrace(writer)
                             throwable = throwable!!.cause

@@ -17,6 +17,10 @@ object PermissionManager {
 
     fun newFuture(): Future = Future()
 
+    fun withPass(pass: (() -> Unit)): Future {
+        return Future().withPass(pass)
+    }
+
     class Future internal constructor() : Observer<Array<String>> {
 
         private var mPresenter: PermissionPresenter? = null

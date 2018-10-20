@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package com.github.luoyemyy.framework.manager
 
 import android.Manifest
@@ -247,7 +249,7 @@ class FileManager(val app: Application) {
          * /storage/emulated/0/${type}
          */
         fun publicStandardDir(@StandardType dir: String): File? =
-                if (isMounted()) {
+                if (isMounted() && hasPermission()) {
                     Environment.getExternalStoragePublicDirectory(dir).takeIf { it.exists() || it.mkdirs() }
                 } else null
 
@@ -278,42 +280,28 @@ class FileManager(val app: Application) {
         const val SUFFIX_APK = ".apk"
         const val SUFFIX_EMPTY = ""
 
-        /**
-         * 外部存储的公共目录，与Environment中定义的一致
-         * @see Environment
-         */
-        const val PUBLIC_DIRECTORY_MUSIC = "Music"
-        const val PUBLIC_DIRECTORY_PODCASTS = "Podcasts"
-        const val PUBLIC_DIRECTORY_ALARMS = "Alarms"
-        const val PUBLIC_DIRECTORY_RINGTONES = "Ringtones"
-        const val PUBLIC_DIRECTORY_NOTIFICATIONS = "Notifications"
-        const val PUBLIC_DIRECTORY_PICTURES = "Pictures"
-        const val PUBLIC_DIRECTORY_MOVIES = "Movies"
-        const val PUBLIC_DIRECTORY_DOWNLOADS = "Download"
-        const val PUBLIC_DIRECTORY_DCIM = "DCIM"
-        const val PUBLIC_DIRECTORY_DOCUMENTS = "Documents"
 
         /**
          * 自定义的目录名称
          */
-        const val CUSTOM_DIRECTORY_FIle = "file"
-        const val CUSTOM_DIRECTORY_LOG = "log"
-        const val CUSTOM_DIRECTORY_VOICE = "voice"
-        const val CUSTOM_DIRECTORY_DATABASE = "database"
-        const val CUSTOM_DIRECTORY_APK = "apk"
-        const val CUSTOM_DIRECTORY_PICTURES = "Pictures"
-        const val CUSTOM_DIRECTORY_MOVIES = "Movies"
+        const val DIRECTORY_FIle = "file"
+        const val DIRECTORY_LOG = "log"
+        const val DIRECTORY_VOICE = "voice"
+        const val DIRECTORY_DATABASE = "database"
+        const val DIRECTORY_APK = "apk"
+        const val DIRECTORY_IMAGE = "image"
+        const val DIRECTORY_VIDEO = "video"
 
         /**
          * 定义的一些常用文件保存的目录和文件类型关系
          */
-        val FILE = Type(CUSTOM_DIRECTORY_FIle, SUFFIX_EMPTY)
-        val LOG = Type(CUSTOM_DIRECTORY_LOG, SUFFIX_LOG)
-        val VIDEO = Type(CUSTOM_DIRECTORY_MOVIES, SUFFIX_VIDEO)
-        val IMAGE = Type(CUSTOM_DIRECTORY_PICTURES, SUFFIX_IMAGE)
-        val VOICE = Type(CUSTOM_DIRECTORY_VOICE, SUFFIX_VOICE)
-        val DB = Type(CUSTOM_DIRECTORY_DATABASE, SUFFIX_DB)
-        val APK = Type(CUSTOM_DIRECTORY_APK, SUFFIX_APK)
+        val FILE = Type(DIRECTORY_FIle, SUFFIX_EMPTY)
+        val LOG = Type(DIRECTORY_LOG, SUFFIX_LOG)
+        val VIDEO = Type(DIRECTORY_VIDEO, SUFFIX_VIDEO)
+        val IMAGE = Type(DIRECTORY_IMAGE, SUFFIX_IMAGE)
+        val VOICE = Type(DIRECTORY_VOICE, SUFFIX_VOICE)
+        val DB = Type(DIRECTORY_DATABASE, SUFFIX_DB)
+        val APK = Type(DIRECTORY_APK, SUFFIX_APK)
 
         @Volatile
         private var single: FileManager? = null
@@ -332,17 +320,18 @@ class FileManager(val app: Application) {
         @JvmStatic
         fun getInstance(): FileManager {
             return single ?: let {
-                throw NullPointerException("must init in Application.onCreate() and after FileManager.initManager(app)")
+                throw NullPointerException("call after FileManager.initManager(app)")
             }
         }
     }
 
 
+    @Suppress("ANNOTATION_ARGUMENT_IS_NON_CONST")
     @StringDef(value = [
-        PUBLIC_DIRECTORY_MUSIC, PUBLIC_DIRECTORY_PODCASTS, PUBLIC_DIRECTORY_ALARMS,
-        PUBLIC_DIRECTORY_RINGTONES, PUBLIC_DIRECTORY_NOTIFICATIONS, PUBLIC_DIRECTORY_PICTURES,
-        PUBLIC_DIRECTORY_PICTURES, PUBLIC_DIRECTORY_MOVIES, PUBLIC_DIRECTORY_DOWNLOADS,
-        PUBLIC_DIRECTORY_DCIM, PUBLIC_DIRECTORY_DOCUMENTS])
+        Environment.DIRECTORY_MUSIC, Environment.DIRECTORY_PODCASTS, Environment.DIRECTORY_ALARMS,
+        Environment.DIRECTORY_RINGTONES, Environment.DIRECTORY_NOTIFICATIONS, Environment.DIRECTORY_PICTURES,
+        Environment.DIRECTORY_PICTURES, Environment.DIRECTORY_MOVIES, Environment.DIRECTORY_DOWNLOADS,
+        Environment.DIRECTORY_DCIM, Environment.DIRECTORY_DOCUMENTS])
     @Retention(AnnotationRetention.SOURCE)
     annotation class StandardType
 

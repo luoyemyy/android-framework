@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.annotation.CallSuper
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
+import android.support.v7.widget.RecyclerView
 import com.github.luoyemyy.framework.async.AsyncRun
 
 abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), IRecyclerPresenter<T>, LifecycleObserver {
@@ -20,6 +21,10 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     open fun getPaging(): Paging {
         return Paging.Page()
+    }
+
+    fun getAdapter(): RecyclerView.Adapter<*>? {
+        return mBridge?.getAdapter()
     }
 
     override fun setup(owner: LifecycleOwner, adapterBridge: RecyclerAdapterBridge<T>) {
@@ -131,9 +136,6 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @MainThread
     override fun loadMore() {
-        if (!mDataSet.canLoadMore()) {
-            return
-        }
         AsyncRun.newCall<List<T>>()
                 .start {
                     beforeLoadMore()

@@ -1,10 +1,8 @@
 package com.github.luoyemyy.framework.api
 
-import android.util.Log
-import com.github.luoyemyy.framework.app.Logger
+import com.github.luoyemyy.framework.logger.Logger
 import okhttp3.*
 import okio.Buffer
-import java.lang.StringBuilder
 
 /**
  * 日志拦截器
@@ -30,7 +28,7 @@ class LogInterceptor : Interceptor {
             "GET" -> logBuilder.append(">>>>>>:get,${request.url()}")
             "POST" -> logBuilder.append(">>>>>>:post,${request.url()},${postBodyParam(request.body())}")
         }
-        Log.e("LogInterceptor", "preLog:  $logBuilder")
+        Logger.i("LogInterceptor", "preLog:  $logBuilder")
         return request
     }
 
