@@ -11,27 +11,26 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import com.github.luoyemyy.framework.ext.dp2px
 
-internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mExt: RecyclerAdapterExt<T, BIND>, private var mPresenter: IRecyclerPresenter<T>) {
+internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mWrapper: RecyclerAdapterWrapper<T, BIND>, private var mPresenter: RecyclerPresenterBridge<T>) {
 
     fun onBindViewHolder(holder: VH<BIND>, position: Int) {
         val type = mPresenter.getDataSet().type(position)
         if (isContentByType(type)) {
             val item = getItem(position) ?: return
             val binding = holder.binding ?: return
-            mExt.bindContentViewHolder(binding, item, position)
+            mWrapper.bindContentViewHolder(binding, item, position)
         }
     }
 
     fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<BIND> {
         return if (isContentByType(viewType)) {
-            val binding = mExt.createContentView(LayoutInflater.from(parent.context), parent, viewType)
+            val binding = mWrapper.createContentView(LayoutInflater.from(parent.context), parent, viewType)
             VH(binding, binding.root).apply {
-                mExt.bindItemListener(this)
-                mExt.getItemClickViews(binding).forEach {
+                mWrapper.bindItemEvents(this)
+                mWrapper.getItemClickViews(binding).forEach {
                     it.setOnClickListener { v ->
-                        mExt.onItemClickListener(this, v)
+                        mWrapper.onItemClickListener(this, v)
                     }
                 }
             }
@@ -43,7 +42,7 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mE
     fun getItemViewType(position: Int): Int {
         val type = mPresenter.getDataSet().type(position)
         return if (isContentByType(type)) {
-            mExt.getContentType(position, getItem(position))
+            mWrapper.getContentType(position, getItem(position))
         } else {
             type
         }
@@ -77,8 +76,12 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mE
         }
     }
 
+    private fun dp2px(context: Context, dp: Int): Int {
+        return Math.round(context.resources.displayMetrics.density * dp)
+    }
+
     private fun createLayout(context: Context, text: String): LinearLayout {
-        val padding = context.dp2px(16)
+        val padding = dp2px(context, 16)
         val layout = LinearLayout(context)
         layout.orientation = LinearLayout.HORIZONTAL
         layout.gravity = Gravity.CENTER
@@ -91,31 +94,31 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mE
     }
 
     private fun createEmptyView(context: Context): View {
-        return if (mExt.getEmptyLayout() == 0) {
+        return if (mWrapper.getEmptyLayout() == 0) {
             createLayout(context, "暂无数据")
         } else {
-            LayoutInflater.from(context).inflate(mExt.getEmptyLayout(), null)
+            LayoutInflater.from(context).inflate(mWrapper.getEmptyLayout(), null)
         }
     }
 
     private fun createMoreEndView(context: Context): View {
-        return if (mExt.getMoreEndLayout() == 0) {
+        return if (mWrapper.getMoreEndLayout() == 0) {
             createLayout(context, "暂无更多")
         } else {
-            LayoutInflater.from(context).inflate(mExt.getMoreEndLayout(), null)
+            LayoutInflater.from(context).inflate(mWrapper.getMoreEndLayout(), null)
         }
     }
 
     private fun createMoreLoadingView(context: Context): View {
-        return if (mExt.getMoreLoadingLayout() == 0) {
+        return if (mWrapper.getMoreLoadingLayout() == 0) {
             val layout = createLayout(context, "加载中...")
-            val padding = context.dp2px(8)
-            val progressSize = context.dp2px(20)
+            val padding = dp2px(context, 8)
+            val progressSize = dp2px(context, 20)
             val process = ProgressBar(context)
             layout.addView(process, 0, LinearLayout.LayoutParams(progressSize, progressSize).apply { marginEnd = padding })
             layout
         } else {
-            LayoutInflater.from(context).inflate(mExt.getMoreLoadingLayout(), null)
+            LayoutInflater.from(context).inflate(mWrapper.getMoreLoadingLayout(), null)
         }
     }
 }

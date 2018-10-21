@@ -1,4 +1,4 @@
-package com.github.luoyemyy.framework.manager
+package com.github.luoyemyy.framework.file
 
 import android.app.Application
 import android.util.Log

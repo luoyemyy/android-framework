@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView
 
 interface RecyclerAdapterBridge<T> : LoadCallback<T> {
 
-    fun setup(presenter: IRecyclerPresenter<T>)
+    fun setup(presenterBridge: RecyclerPresenterBridge<T>)
 
     fun getAdapter(): RecyclerView.Adapter<*>
 

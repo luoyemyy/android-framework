@@ -2,7 +2,7 @@ package com.github.luoyemyy.framework.app
 
 import android.app.Application
 import com.github.luoyemyy.framework.logger.Logger
-import com.github.luoyemyy.framework.manager.FileManager
+import com.github.luoyemyy.framework.file.FileManager
 
 object AppInfo {
 

@@ -6,7 +6,7 @@ import android.os.Build
 import android.os.Handler
 import android.util.Log
 import com.github.luoyemyy.framework.ext.toast
-import com.github.luoyemyy.framework.manager.FileManager
+import com.github.luoyemyy.framework.file.FileManager
 import java.io.FileOutputStream
 import java.io.PrintWriter
 import java.io.StringWriter

@@ -5,7 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 
-interface RecyclerAdapterExt<T, BIND : ViewDataBinding> {
+interface RecyclerAdapterWrapper<T, BIND : ViewDataBinding> {
 
     /**
      * 获得指定位置的数据，如果是加载更多或空数据项，则为null

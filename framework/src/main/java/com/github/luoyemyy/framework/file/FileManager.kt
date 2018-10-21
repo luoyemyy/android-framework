@@ -1,6 +1,6 @@
 @file:Suppress("MemberVisibilityCanBePrivate")
 
-package com.github.luoyemyy.framework.manager
+package com.github.luoyemyy.framework.file
 
 import android.Manifest
 import android.app.Application

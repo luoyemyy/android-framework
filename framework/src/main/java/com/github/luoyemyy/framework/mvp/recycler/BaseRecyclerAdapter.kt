@@ -4,7 +4,7 @@ import android.databinding.ViewDataBinding
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 
-abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyclerView: RecyclerView) : RecyclerView.Adapter<VH<BIND>>(), RecyclerAdapterExt<T, BIND>, RecyclerAdapterBridge<T> {
+abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyclerView: RecyclerView) : RecyclerView.Adapter<VH<BIND>>(), RecyclerAdapterWrapper<T, BIND>, RecyclerAdapterBridge<T> {
 
     /**
      * 辅助类
@@ -34,8 +34,8 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyc
         return delegate.getItem(position)
     }
 
-    override fun setup(presenter: IRecyclerPresenter<T>) {
-        delegate = RecyclerAdapterDelegate(this, presenter)
+    override fun setup(presenterBridge: RecyclerPresenterBridge<T>) {
+        delegate = RecyclerAdapterDelegate(this, presenterBridge)
     }
 
     override fun getAdapter(): RecyclerView.Adapter<*> {
@@ -43,8 +43,6 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyc
     }
 
     override fun attachToRecyclerView() {
-        if (mRecyclerView.adapter == null) {
-            mRecyclerView.adapter = this
-        }
+        mRecyclerView.adapter = this
     }
 }

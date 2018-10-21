@@ -9,7 +9,7 @@ import android.support.annotation.WorkerThread
 import android.support.v7.widget.RecyclerView
 import com.github.luoyemyy.framework.async.AsyncRun
 
-abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), IRecyclerPresenter<T>, LifecycleObserver {
+abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), RecyclerPresenterWrapper<T>, RecyclerPresenterBridge<T>, LifecycleObserver {
 
     private val mDataSet by lazy { DataSet<T>() }
     private val mPaging: Paging by lazy { getPaging() }
@@ -27,12 +27,12 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         return mBridge?.getAdapter()
     }
 
-    override fun setup(owner: LifecycleOwner, adapterBridge: RecyclerAdapterBridge<T>) {
-        mBridge = adapterBridge
-        adapterBridge.setup(this)
+    override fun setup(owner: LifecycleOwner, adapter: RecyclerAdapterBridge<T>) {
+        mBridge = adapter
+        adapter.setup(this)
         owner.lifecycle.addObserver(this)
-        mDataSet.enableEmpty = adapterBridge.enableEmpty()
-        mDataSet.enableMore = adapterBridge.enableLoadMore()
+        mDataSet.enableEmpty = adapter.enableEmpty()
+        mDataSet.enableMore = adapter.enableLoadMore()
         mDataSet.refreshStateLiveData.observe(owner, Observer {
             mBridge?.setRefreshState(it ?: false)
         })
@@ -114,7 +114,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                     mDataSet.notifyRefreshState(true)
                 }.create {
                     loadData(1, mPaging)
-                }.result { it, _ ->
+                }.result {
                     afterLoadInit(it)
                     mDataSet.notifyRefreshState(false)
                 }
@@ -128,7 +128,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                     mPaging.reset()
                 }.create {
                     loadData(2, mPaging)
-                }.result { it, _ ->
+                }.result {
                     afterLoadRefresh(it)
                     mDataSet.notifyRefreshState(false)
                 }
@@ -142,7 +142,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                     mPaging.next()
                 }.create {
                     loadData(3, mPaging)
-                }.result { it, _ ->
+                }.result {
                     afterLoadMore(it)
                 }
     }
@@ -156,7 +156,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                     mDataSet.notifyRefreshState(true)
                 }.create {
                     loadData(4, mPaging)
-                }.result { it, _ ->
+                }.result {
                     afterLoadSearch(it)
                     mDataSet.notifyRefreshState(false)
                 }
