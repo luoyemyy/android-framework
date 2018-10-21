@@ -7,17 +7,15 @@ import android.arch.lifecycle.OnLifecycleEvent
 import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
-import android.support.annotation.MainThread
 import android.util.Log
-import com.github.luoyemyy.framework.bus.BusManager
 
 class AsyncRun {
 
     companion object {
 
         @JvmStatic
-        fun <T> newCall(): Call<T> {
-            return Delegate<T, Call<T>>().let {
+        fun <T> newCall(lifecycle: Lifecycle? = null): Call<T> {
+            return Delegate<T, Call<T>>(lifecycle).let {
                 Call(it).apply {
                     it.call = this
                 }
@@ -25,8 +23,8 @@ class AsyncRun {
         }
 
         @JvmStatic
-        fun <R : Result> newResultCall(): ResultCall<R> {
-            return Delegate<R, ResultCall<R>>().let {
+        fun <R : Result> newResultCall(lifecycle: Lifecycle? = null): ResultCall<R> {
+            return Delegate<R, ResultCall<R>>(lifecycle).let {
                 ResultCall(it).apply {
                     it.call = this
                 }
@@ -40,7 +38,6 @@ class AsyncRun {
         fun result(r: (T?) -> Unit): CALL
         fun error(e: (Throwable?) -> Unit): CALL
         fun cancel()
-        fun completed()
     }
 
     interface BaseResultCall<T, CALL> : BaseCall<T, CALL> {
@@ -52,25 +49,17 @@ class AsyncRun {
 
     class ResultCall<R : Result> internal constructor(delegate: BaseResultCall<R, ResultCall<R>>) : BaseResultCall<R, ResultCall<R>> by delegate
 
-    class LifecycleCall<R : Result> internal constructor(val lifecycle: Lifecycle, delegate: BaseResultCall<R, ResultCall<R>>) : LifecycleObserver, BaseResultCall<R, ResultCall<R>> by delegate {
+    private class Delegate<T, CALL : BaseCall<T, CALL>>(var lifecycle: Lifecycle? = null) : BaseResultCall<T, CALL>, LifecycleObserver {
 
         init {
-            lifecycle.addObserver(this)
+            lifecycle?.addObserver(this)
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
         fun onDestroy(source: LifecycleOwner?) {
             cancel()
-            source?.lifecycle?.removeObserver(this)
+            lifecycle?.removeObserver(this)
         }
-
-        override fun completed() {
-
-        }
-
-    }
-
-    private class Delegate<T, CALL : BaseCall<T, CALL>> : BaseResultCall<T, CALL> {
 
         internal lateinit var call: CALL
 
@@ -130,21 +119,31 @@ class AsyncRun {
             this.cancel = true
         }
 
-        override fun completed() {
+        private fun isRunning(): Boolean {
+            if (cancel) {
+                completed()
+            }
+            return !cancel
+        }
 
+        private fun completed() {
+            lifecycle?.removeObserver(this)
+            lifecycle = null
         }
 
         //main thread
         private val startRunnable = {
-            if (!cancel) {
+            if (isRunning()) {
                 s(call)
                 AsyncTask.execute(createRunnable)
+            } else {
+                completed()
             }
         }
 
         //work thread
         private val createRunnable = {
-            if (!cancel) {
+            if (isRunning()) {
                 back = try {
                     c(call)
                 } catch (e: Throwable) {
@@ -152,7 +151,7 @@ class AsyncRun {
                     throwable = e
                     null
                 }
-                if (!cancel) {
+                if (isRunning()) {
                     mMainHandler.post(resultRunnable)
                 }
             }
@@ -160,7 +159,7 @@ class AsyncRun {
 
         //main thread
         private val resultRunnable = {
-            if (!cancel) {
+            if (isRunning()) {
                 r(back)
                 if (throwable != null) {
                     e(throwable)
@@ -175,6 +174,7 @@ class AsyncRun {
                         fail(result)
                     }
                 }
+                completed()
             }
         }
     }
