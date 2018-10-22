@@ -116,7 +116,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                     mPaging.reset()
                     mLiveDataRefreshState.value = true
                 }.create {
-                    loadData(1, mPaging)
+                    loadData(1, mPaging, bundle)
                 }.result {
                     afterLoadInit(it)
                     mLiveDataRefreshState.value = false
@@ -171,5 +171,5 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
     }
 
     @WorkerThread
-    abstract fun loadData(loadType: Int, paging: Paging): List<T>?
+    abstract fun loadData(loadType: Int, paging: Paging, bundle: Bundle? = null): List<T>?
 }
