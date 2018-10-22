@@ -1,6 +1,5 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
-import android.arch.lifecycle.MutableLiveData
 import android.support.v7.util.DiffUtil
 
 class DataSet<T> {
@@ -17,10 +16,6 @@ class DataSet<T> {
      */
     private class ExtraItem(var type: Int)
 
-    /**
-     * 通知更新刷新样式
-     */
-    internal val refreshStateLiveData = MutableLiveData<Boolean>()
     internal var enableEmpty = true
     internal var enableMore = true
 
@@ -42,12 +37,35 @@ class DataSet<T> {
 
     fun canLoadMore(): Boolean {
         return if (enableMore && !moreLoadingState && !flagMoreEnd) {
-            moreLoadingState = true
-            flagMoreEnd = false
+            loadingMore()
             true
         } else {
             false
         }
+    }
+
+    /**
+     * 开始加载更多
+     */
+    fun loadingMore() {
+        moreLoadingState = true
+        flagMoreEnd = false
+    }
+
+    /**
+     * 加载更多结束，无更多数据
+     */
+    fun loadMoreEnd() {
+        moreLoadingState = false
+        flagMoreEnd = true
+    }
+
+    /**
+     * 加载更多结束
+     */
+    fun loadMoreCompleted() {
+        moreLoadingState = false
+        flagMoreEnd = false
     }
 
     fun count(): Int {
@@ -131,8 +149,7 @@ class DataSet<T> {
 
     fun setData(list: List<T>?): DiffUtil.DiffResult {
         return postData {
-            flagMoreEnd = false
-            moreLoadingState = false
+            loadMoreCompleted()
             mData.clear()
             if (list != null && list.isNotEmpty()) {
                 mData.addAll(list)
@@ -142,11 +159,11 @@ class DataSet<T> {
 
     fun addData(list: List<T>?): DiffUtil.DiffResult {
         return postData {
-            moreLoadingState = false
             if (list != null && list.isNotEmpty()) {
                 mData.addAll(list)
+                loadMoreCompleted()
             } else {
-                flagMoreEnd = true
+                loadMoreEnd()
             }
         }
     }
@@ -165,10 +182,6 @@ class DataSet<T> {
         initLoad = true
         val newList = itemList()
         return notifyAdapter(oldList, newList)
-    }
-
-    fun notifyRefreshState(refreshing: Boolean) {
-        refreshStateLiveData.postValue(refreshing)
     }
 
     private fun notifyAdapter(oldList: List<Any?>, newList: List<Any?>): DiffUtil.DiffResult {

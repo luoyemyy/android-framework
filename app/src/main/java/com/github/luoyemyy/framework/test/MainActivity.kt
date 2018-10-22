@@ -14,7 +14,11 @@ import com.github.luoyemyy.framework.bus.BusMsg
 import com.github.luoyemyy.framework.bus.BusResult
 import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.ext.toast
-import com.github.luoyemyy.framework.mvp.recycler.*
+import com.github.luoyemyy.framework.mvp.recycler.Paging
+import com.github.luoyemyy.framework.mvp.recycler.VH
+import com.github.luoyemyy.framework.mvp.recycler.adapter.AbstractSingleRecyclerAdapter
+import com.github.luoyemyy.framework.mvp.recycler.presenter.AbstractRecyclerPresenter
+import com.github.luoyemyy.framework.mvp.recycler.setLinearManager
 import com.github.luoyemyy.framework.permission.PermissionManager
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
@@ -35,8 +39,8 @@ class MainActivity : AppCompatActivity(), BusResult {
         super.onCreate(savedInstanceState)
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         mPresenter = getPresenter()
+        mPresenter.setup(this, Adapter())
 
-        Adapter().init(this, mBinding.recyclerView, mPresenter)
         mBinding.recyclerView.setLinearManager()
 
         BusManager.setCallback(lifecycle, this, BUS_EVENT)
@@ -52,7 +56,7 @@ class MainActivity : AppCompatActivity(), BusResult {
         const val BUS_EVENT = "com.github.luoyemyy.framework.test.MainActivity"
     }
 
-    inner class Adapter : AbstractSingleRecyclerAdapter<String, ActivityMainRecyclerBinding>() {
+    inner class Adapter : AbstractSingleRecyclerAdapter<String, ActivityMainRecyclerBinding>(mBinding.recyclerView) {
 
         override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ActivityMainRecyclerBinding {
             return ActivityMainRecyclerBinding.inflate(inflater, parent, false)

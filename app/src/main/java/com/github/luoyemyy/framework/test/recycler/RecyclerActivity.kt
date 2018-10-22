@@ -11,7 +11,11 @@ import com.github.luoyemyy.framework.bus.BusMsg
 import com.github.luoyemyy.framework.bus.BusResult
 import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.ext.toast
-import com.github.luoyemyy.framework.mvp.recycler.*
+import com.github.luoyemyy.framework.mvp.recycler.Paging
+import com.github.luoyemyy.framework.mvp.recycler.adapter.AbstractSingleRecyclerAdapter
+import com.github.luoyemyy.framework.mvp.recycler.presenter.AbstractRecyclerPresenter
+import com.github.luoyemyy.framework.mvp.recycler.setLinearManager
+import com.github.luoyemyy.framework.mvp.recycler.wrap
 import com.github.luoyemyy.framework.test.MainActivity
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityRecyclerBinding
@@ -27,11 +31,10 @@ class RecyclerActivity : AppCompatActivity(), BusResult {
         super.onCreate(savedInstanceState)
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_recycler)
         mPresenter = getPresenter()
+        mPresenter.setup(this, Adapter())
 
         mBinding.recyclerView.setLinearManager()
         mBinding.swipeRefreshLayout.wrap(mPresenter)
-
-        Adapter().init(this, mBinding.recyclerView, mPresenter)
 
         BusManager.setCallback(lifecycle, this, BUS_EVENT)
 
@@ -46,7 +49,7 @@ class RecyclerActivity : AppCompatActivity(), BusResult {
         const val BUS_EVENT = "com.github.luoyemyy.framework.test.recycler.RecyclerActivity"
     }
 
-    inner class Adapter : AbstractSingleRecyclerAdapter<String, ActivityRecyclerRecyclerBinding>() {
+    inner class Adapter : AbstractSingleRecyclerAdapter<String, ActivityRecyclerRecyclerBinding>(mBinding.recyclerView) {
 
         override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ActivityRecyclerRecyclerBinding {
             return ActivityRecyclerRecyclerBinding.inflate(inflater, parent, false)
@@ -65,6 +68,7 @@ class RecyclerActivity : AppCompatActivity(), BusResult {
     class Presenter(app: Application) : AbstractRecyclerPresenter<String>(app) {
 
         override fun beforeLoadRefresh() {
+            super.beforeLoadRefresh()
             BusManager.post(BUS_EVENT)
             BusManager.post(MainActivity.BUS_EVENT)
         }

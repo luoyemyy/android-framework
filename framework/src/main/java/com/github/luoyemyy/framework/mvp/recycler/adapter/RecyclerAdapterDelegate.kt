@@ -1,4 +1,4 @@
-package com.github.luoyemyy.framework.mvp.recycler
+package com.github.luoyemyy.framework.mvp.recycler.adapter
 
 import android.content.Context
 import android.databinding.ViewDataBinding
@@ -11,8 +11,11 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
+import com.github.luoyemyy.framework.mvp.recycler.DataSet
+import com.github.luoyemyy.framework.mvp.recycler.VH
+import com.github.luoyemyy.framework.mvp.recycler.presenter.RecyclerPresenterSupport
 
-internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mWrapper: RecyclerAdapterWrapper<T, BIND>, private var mPresenter: RecyclerPresenterBridge<T>) {
+internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mWrapper: RecyclerAdapterWrapper<T, BIND>, private var mPresenter: RecyclerPresenterSupport<T>) {
 
     fun onBindViewHolder(holder: VH<BIND>, position: Int) {
         val type = mPresenter.getDataSet().type(position)
@@ -54,10 +57,8 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mW
 
     fun getItem(position: Int): T? {
         if (position > getItemCount() - 3) {
-            if (!mPresenter.getDataSet().canLoadMore()) {
-                Handler().post {
-                    mPresenter.loadMore()
-                }
+            Handler().post {
+                mPresenter.loadMore()
             }
         }
         return mPresenter.getDataSet().item(position)

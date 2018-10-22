@@ -8,6 +8,8 @@ interface Paging {
 
     fun current(): Long
 
+    fun nextError()
+
     class Page : Paging {
 
         var pageNumber: Long = 1
@@ -18,6 +20,10 @@ interface Paging {
 
         override fun next() {
             pageNumber++
+        }
+
+        override fun nextError() {
+            pageNumber--
         }
 
         override fun current(): Long {

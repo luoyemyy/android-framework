@@ -1,10 +1,12 @@
-package com.github.luoyemyy.framework.mvp.recycler
+package com.github.luoyemyy.framework.mvp.recycler.adapter
 
 import android.support.v7.widget.RecyclerView
+import com.github.luoyemyy.framework.mvp.recycler.LoadCallback
+import com.github.luoyemyy.framework.mvp.recycler.presenter.RecyclerPresenterSupport
 
-interface RecyclerAdapterBridge<T> : LoadCallback<T> {
+interface RecyclerAdapterSupport<T> : LoadCallback<T> {
 
-    fun setup(presenterBridge: RecyclerPresenterBridge<T>)
+    fun setup(presenterSupport: RecyclerPresenterSupport<T>)
 
     fun getAdapter(): RecyclerView.Adapter<*>
 

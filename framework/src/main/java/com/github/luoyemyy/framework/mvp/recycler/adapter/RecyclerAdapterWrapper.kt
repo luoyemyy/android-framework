@@ -1,9 +1,10 @@
-package com.github.luoyemyy.framework.mvp.recycler
+package com.github.luoyemyy.framework.mvp.recycler.adapter
 
 import android.databinding.ViewDataBinding
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.github.luoyemyy.framework.mvp.recycler.VH
 
 interface RecyclerAdapterWrapper<T, BIND : ViewDataBinding> {
 

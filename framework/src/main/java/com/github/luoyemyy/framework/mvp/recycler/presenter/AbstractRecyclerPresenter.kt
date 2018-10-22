@@ -1,4 +1,4 @@
-package com.github.luoyemyy.framework.mvp.recycler
+package com.github.luoyemyy.framework.mvp.recycler.presenter
 
 import android.app.Application
 import android.arch.lifecycle.*
@@ -6,14 +6,17 @@ import android.os.Bundle
 import android.support.annotation.CallSuper
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
-import android.support.v7.widget.RecyclerView
 import com.github.luoyemyy.framework.async.AsyncRun
+import com.github.luoyemyy.framework.mvp.recycler.DataSet
+import com.github.luoyemyy.framework.mvp.recycler.Paging
+import com.github.luoyemyy.framework.mvp.recycler.adapter.RecyclerAdapterSupport
 
-abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), RecyclerPresenterWrapper<T>, RecyclerPresenterBridge<T>, LifecycleObserver {
+abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), RecyclerPresenterWrapper<T>, RecyclerPresenterSupport<T>, LifecycleObserver {
 
     private val mDataSet by lazy { DataSet<T>() }
     private val mPaging: Paging by lazy { getPaging() }
-    private var mBridge: RecyclerAdapterBridge<T>? = null
+    private var mSupport: RecyclerAdapterSupport<T>? = null
+    private val mLiveDataRefreshState = MutableLiveData<Boolean>()
 
     override fun getDataSet(): DataSet<T> {
         return mDataSet
@@ -23,50 +26,50 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         return Paging.Page()
     }
 
-    fun getAdapter(): RecyclerView.Adapter<*>? {
-        return mBridge?.getAdapter()
+    fun getAdapterSupport(): RecyclerAdapterSupport<T>? {
+        return mSupport
     }
 
-    override fun setup(owner: LifecycleOwner, adapter: RecyclerAdapterBridge<T>) {
-        mBridge = adapter
+    override fun setup(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>) {
+        mSupport = adapter
         adapter.setup(this)
         owner.lifecycle.addObserver(this)
         mDataSet.enableEmpty = adapter.enableEmpty()
         mDataSet.enableMore = adapter.enableLoadMore()
-        mDataSet.refreshStateLiveData.observe(owner, Observer {
-            mBridge?.setRefreshState(it ?: false)
+        mLiveDataRefreshState.observe(owner, Observer {
+            mSupport?.setRefreshState(it ?: false)
         })
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroy(source: LifecycleOwner?) {
-        mBridge = null
+        mSupport = null
         source?.lifecycle?.removeObserver(this)
     }
 
     @CallSuper
     override fun beforeLoadInit(bundle: Bundle?) {
-        mBridge?.beforeLoadInit(bundle)
+        mSupport?.beforeLoadInit(bundle)
     }
 
     @CallSuper
     override fun beforeLoadRefresh() {
-        mBridge?.beforeLoadRefresh()
+        mSupport?.beforeLoadRefresh()
     }
 
     @CallSuper
     override fun beforeLoadMore() {
-        mBridge?.beforeLoadMore()
+        mSupport?.beforeLoadMore()
     }
 
     @CallSuper
     override fun beforeLoadSearch(search: String) {
-        mBridge?.beforeLoadSearch(search)
+        mSupport?.beforeLoadSearch(search)
     }
 
     @CallSuper
     override fun afterLoadInit(list: List<T>?) {
-        mBridge?.apply {
+        mSupport?.apply {
             getAdapter().apply {
                 mDataSet.initData(list).dispatchUpdatesTo(this)
             }
@@ -77,7 +80,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @CallSuper
     override fun afterLoadRefresh(list: List<T>?) {
-        mBridge?.apply {
+        mSupport?.apply {
             getAdapter().apply {
                 mDataSet.setData(list).dispatchUpdatesTo(this)
             }
@@ -87,7 +90,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @CallSuper
     override fun afterLoadMore(list: List<T>?) {
-        mBridge?.apply {
+        mSupport?.apply {
             getAdapter().apply {
                 mDataSet.addData(list).dispatchUpdatesTo(this)
             }
@@ -97,7 +100,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @CallSuper
     override fun afterLoadSearch(list: List<T>?) {
-        mBridge?.apply {
+        mSupport?.apply {
             getAdapter().apply {
                 mDataSet.setData(list).dispatchUpdatesTo(this)
             }
@@ -111,12 +114,12 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                 .start {
                     beforeLoadInit(bundle)
                     mPaging.reset()
-                    mDataSet.notifyRefreshState(true)
+                    mLiveDataRefreshState.value = true
                 }.create {
                     loadData(1, mPaging)
                 }.result {
                     afterLoadInit(it)
-                    mDataSet.notifyRefreshState(false)
+                    mLiveDataRefreshState.value = false
                 }
     }
 
@@ -130,12 +133,15 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                     loadData(2, mPaging)
                 }.result {
                     afterLoadRefresh(it)
-                    mDataSet.notifyRefreshState(false)
+                    mLiveDataRefreshState.value = true
                 }
     }
 
     @MainThread
     override fun loadMore() {
+        if (!mDataSet.canLoadMore()) {
+            return
+        }
         AsyncRun.newCall<List<T>>()
                 .start {
                     beforeLoadMore()
@@ -144,6 +150,8 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                     loadData(3, mPaging)
                 }.result {
                     afterLoadMore(it)
+                }.error {
+                    mPaging.nextError()
                 }
     }
 
@@ -153,12 +161,12 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
                 .start {
                     beforeLoadSearch(search)
                     mPaging.reset()
-                    mDataSet.notifyRefreshState(true)
+                    mLiveDataRefreshState.value = true
                 }.create {
                     loadData(4, mPaging)
                 }.result {
                     afterLoadSearch(it)
-                    mDataSet.notifyRefreshState(false)
+                    mLiveDataRefreshState.value = false
                 }
     }
 
