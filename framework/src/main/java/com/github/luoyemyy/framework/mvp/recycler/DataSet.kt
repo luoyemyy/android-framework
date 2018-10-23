@@ -84,18 +84,24 @@ class DataSet<T> {
     }
 
     fun type(position: Int): Int {
-        val item = itemList()[position]
-        return if (item is ExtraItem) {
-            item.type
-        } else {
-            CONTENT
+        val item = itemList().let {
+            if (position in 0 until it.size) {
+                it[position]
+            } else {
+                null
+            }
+        }
+        return when (item) {
+            null -> 0
+            is ExtraItem -> item.type
+            else -> CONTENT
         }
     }
 
 
     fun item(position: Int): T? {
         return itemListWithoutExtra().let {
-            if (position >= 0 && position < it.size) {
+            if (position in 0 until it.size) {
                 it[position]
             } else {
                 null
