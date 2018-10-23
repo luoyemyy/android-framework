@@ -1,6 +1,9 @@
+@file:Suppress("MemberVisibilityCanBePrivate", "unused")
+
 package com.github.luoyemyy.framework.mvp.recycler
 
 import android.support.v7.util.DiffUtil
+import com.github.luoyemyy.framework.ext.toJsonString
 
 class DataSet<T> {
 
@@ -27,16 +30,14 @@ class DataSet<T> {
     /**
      * 加载更多状态
      */
-    private var moreLoadingState = false
+    private var mMoreLoadingState = false
     /**
      * 标记加载更多没有更多数据
      */
-    private var flagMoreEnd = false
-
-    private var initLoad = false
+    private var mFlagMoreEnd = false
 
     fun canLoadMore(): Boolean {
-        return if (enableMore && !moreLoadingState && !flagMoreEnd) {
+        return if (enableMore && !mMoreLoadingState && !mFlagMoreEnd) {
             loadingMore()
             true
         } else {
@@ -48,30 +49,30 @@ class DataSet<T> {
      * 开始加载更多
      */
     fun loadingMore() {
-        moreLoadingState = true
-        flagMoreEnd = false
+        mMoreLoadingState = true
+        mFlagMoreEnd = false
     }
 
     /**
      * 加载更多结束，无更多数据
      */
     fun loadMoreEnd() {
-        moreLoadingState = false
-        flagMoreEnd = true
+        mMoreLoadingState = false
+        mFlagMoreEnd = true
     }
 
     /**
      * 加载更多结束
      */
     fun loadMoreCompleted() {
-        moreLoadingState = false
-        flagMoreEnd = false
+        mMoreLoadingState = false
+        mFlagMoreEnd = false
     }
 
     fun count(): Int {
         var count = mData.size
         if (count == 0) {
-            if (enableEmpty && initLoad) {
+            if (enableEmpty) {
                 count++
             }
         } else {
@@ -105,7 +106,7 @@ class DataSet<T> {
     private fun itemListWithoutExtra(): List<T?> {
         val list = mutableListOf<T?>()
         if (mData.isEmpty()) {
-            if (enableEmpty && initLoad) {
+            if (enableEmpty) {
                 list.add(null)
             }
         } else {
@@ -123,7 +124,7 @@ class DataSet<T> {
     private fun itemList(): List<Any?> {
         val list = mutableListOf<Any?>()
         if (mData.isEmpty()) {
-            if (enableEmpty && initLoad) {
+            if (enableEmpty) {
                 list.add(mEmptyItem)
             }
         } else {
@@ -131,7 +132,7 @@ class DataSet<T> {
                 list.add(it)
             }
             if (enableMore) {
-                if (flagMoreEnd) {
+                if (mFlagMoreEnd) {
                     list.add(mMoreEndItem)
                 } else {
                     list.add(mMoreLoadingItem)
@@ -149,11 +150,11 @@ class DataSet<T> {
 
     fun setData(list: List<T>?): DiffUtil.DiffResult {
         return postData {
-            loadMoreCompleted()
             mData.clear()
             if (list != null && list.isNotEmpty()) {
                 mData.addAll(list)
             }
+            loadMoreCompleted()
         }
     }
 
@@ -176,15 +177,26 @@ class DataSet<T> {
         }
     }
 
-    fun postData(post: () -> Unit): DiffUtil.DiffResult {
-        val oldList = itemList()
-        post()
-        initLoad = true
-        val newList = itemList()
-        return notifyAdapter(oldList, newList)
+    fun change(position: Int, change: (value: T) -> Unit): DiffUtil.DiffResult {
+        return postData(false, position) {
+            item(position)?.let {
+                change(it)
+            }
+        }
     }
 
-    private fun notifyAdapter(oldList: List<Any?>, newList: List<Any?>): DiffUtil.DiffResult {
+    fun postData(post: () -> Unit): DiffUtil.DiffResult {
+        return postData(true, 0, post)
+    }
+
+    fun postData(skipContent: Boolean, comparePosition: Int = 0, post: () -> Unit): DiffUtil.DiffResult {
+        val oldList = itemList()
+        post()
+        val newList = itemList()
+        return diff(oldList, newList, skipContent, comparePosition)
+    }
+
+    private fun diff(oldList: List<Any?>, newList: List<Any?>, skipContent: Boolean = true, comparePosition: Int = 0): DiffUtil.DiffResult {
         return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
 
             override fun getOldListSize(): Int = oldList.size
@@ -196,7 +208,9 @@ class DataSet<T> {
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return true
+                return skipContent || (oldItemPosition == comparePosition
+                        && newItemPosition == comparePosition
+                        && oldList[oldItemPosition].toJsonString() == newList[newItemPosition].toJsonString())
             }
         })
     }

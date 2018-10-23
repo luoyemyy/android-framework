@@ -36,6 +36,11 @@
                     android:layout_height="match_parent" />
             </android.support.v4.widget.SwipeRefreshLayout>
 
+            <include
+                android:id="@+id/stick"
+                layout="@layout/activity_recycler_stick"
+                android:visibility="gone" />
+
         </android.support.constraint.ConstraintLayout>
 
 

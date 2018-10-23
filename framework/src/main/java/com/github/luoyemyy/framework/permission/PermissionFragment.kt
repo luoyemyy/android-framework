@@ -14,7 +14,7 @@ internal class PermissionFragment : Fragment() {
 
         const val REQUEST_PERMISSION = "requestPermission"
 
-        fun startPermissionFragment(requestPermission: Array<String>, activity: FragmentActivity) {
+        fun startPermissionFragment(activity: FragmentActivity, requestPermission: Array<String>) {
             val permissionFragment = PermissionFragment().apply {
                 arguments = Bundle().apply {
                     putStringArray(REQUEST_PERMISSION, requestPermission)

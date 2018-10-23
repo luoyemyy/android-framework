@@ -25,6 +25,9 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyc
         return delegate.onCreateViewHolder(parent, viewType)
     }
 
+    /**
+     * @return 如果没有匹配的类型则返回0 内容视图的类型必须大于0
+     */
     override fun getItemViewType(position: Int): Int {
         return delegate.getItemViewType(position)
     }

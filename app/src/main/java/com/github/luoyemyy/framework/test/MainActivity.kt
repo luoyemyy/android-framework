@@ -28,6 +28,7 @@ import com.github.luoyemyy.framework.test.navigation.NavigationActivity
 import com.github.luoyemyy.framework.test.paging.PagingActivity
 import com.github.luoyemyy.framework.test.recycler.RecyclerActivity
 import com.github.luoyemyy.framework.test.status.StatusActivity
+import com.github.luoyemyy.framework.test.transition.TransitionActivity
 
 
 class MainActivity : AppCompatActivity(), BusResult {
@@ -88,6 +89,7 @@ class MainActivity : AppCompatActivity(), BusResult {
                         toast(message = "fail")
                     }.request(this@MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE))
                 }
+                7 -> startActivity(Intent(this@MainActivity, TransitionActivity::class.java))
             }
         }
 
@@ -95,7 +97,7 @@ class MainActivity : AppCompatActivity(), BusResult {
 
     class Presenter(app: Application) : AbstractRecyclerPresenter<String>(app) {
 
-        override fun loadData(loadType: Int, paging: Paging): List<String>? {
+        override fun loadData(loadType: Int, paging: Paging, bundle: Bundle?): List<String>? {
             return if (paging.current() == 1L) listOf(
                     "浸入状态栏",
                     "drawer",
@@ -103,7 +105,8 @@ class MainActivity : AppCompatActivity(), BusResult {
                     "navigation",
                     "paging",
                     "recycler",
-                    "permission"
+                    "permission",
+                    "transition"
             ) else listOf()
         }
     }

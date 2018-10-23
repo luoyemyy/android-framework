@@ -29,6 +29,7 @@
         <activity android:name=".navigation.NavigationActivity" />
         <activity android:name=".paging.PagingActivity" />
         <activity android:name=".recycler.RecyclerActivity" />
+        <activity android:name=".transition.TransitionActivity" />
     </application>
 
 </manifest>

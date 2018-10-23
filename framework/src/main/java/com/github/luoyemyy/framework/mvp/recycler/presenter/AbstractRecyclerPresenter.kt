@@ -3,7 +3,6 @@ package com.github.luoyemyy.framework.mvp.recycler.presenter
 import android.app.Application
 import android.arch.lifecycle.*
 import android.os.Bundle
-import android.support.annotation.CallSuper
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
 import com.github.luoyemyy.framework.async.AsyncRun
@@ -26,9 +25,10 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         return Paging.Page()
     }
 
-    fun getAdapterSupport(): RecyclerAdapterSupport<T>? {
+    fun getAdapterSupport(): RecyclerAdapterSupport<*>? {
         return mSupport
     }
+
 
     override fun setup(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>) {
         mSupport = adapter
@@ -47,64 +47,28 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         source?.lifecycle?.removeObserver(this)
     }
 
-    @CallSuper
-    override fun beforeLoadInit(bundle: Bundle?) {
-        mSupport?.beforeLoadInit(bundle)
-    }
-
-    @CallSuper
-    override fun beforeLoadRefresh() {
-        mSupport?.beforeLoadRefresh()
-    }
-
-    @CallSuper
-    override fun beforeLoadMore() {
-        mSupport?.beforeLoadMore()
-    }
-
-    @CallSuper
-    override fun beforeLoadSearch(search: String) {
-        mSupport?.beforeLoadSearch(search)
-    }
-
-    @CallSuper
     override fun afterLoadInit(list: List<T>?) {
         mSupport?.apply {
-            getAdapter().apply {
-                mDataSet.initData(list).dispatchUpdatesTo(this)
-            }
-            afterLoadInit(list)
+            mDataSet.initData(list).dispatchUpdatesTo(getAdapter())
             attachToRecyclerView()
         }
     }
 
-    @CallSuper
     override fun afterLoadRefresh(list: List<T>?) {
         mSupport?.apply {
-            getAdapter().apply {
-                mDataSet.setData(list).dispatchUpdatesTo(this)
-            }
-            afterLoadRefresh(list)
+            mDataSet.setData(list).dispatchUpdatesTo(getAdapter())
         }
     }
 
-    @CallSuper
     override fun afterLoadMore(list: List<T>?) {
         mSupport?.apply {
-            getAdapter().apply {
-                mDataSet.addData(list).dispatchUpdatesTo(this)
-            }
-            afterLoadMore(list)
+            mDataSet.addData(list).dispatchUpdatesTo(getAdapter())
         }
     }
 
-    @CallSuper
     override fun afterLoadSearch(list: List<T>?) {
         mSupport?.apply {
-            getAdapter().apply {
-                mDataSet.setData(list).dispatchUpdatesTo(this)
-            }
-            afterLoadSearch(list)
+            mDataSet.setData(list).dispatchUpdatesTo(getAdapter())
         }
     }
 
@@ -113,12 +77,14 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         AsyncRun.newCall<List<T>>()
                 .start {
                     beforeLoadInit(bundle)
+                    mSupport?.beforeLoadInit(bundle)
                     mPaging.reset()
                     mLiveDataRefreshState.value = true
                 }.create {
                     loadData(1, mPaging, bundle)
                 }.result {
                     afterLoadInit(it)
+                    mSupport?.afterLoadInit(it)
                     mLiveDataRefreshState.value = false
                 }
     }
@@ -128,12 +94,14 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         AsyncRun.newCall<List<T>>()
                 .start {
                     beforeLoadRefresh()
+                    mSupport?.beforeLoadRefresh()
                     mPaging.reset()
                 }.create {
                     loadData(2, mPaging)
                 }.result {
                     afterLoadRefresh(it)
-                    mLiveDataRefreshState.value = true
+                    mSupport?.afterLoadRefresh(it)
+                    mLiveDataRefreshState.value = false
                 }
     }
 
@@ -145,11 +113,13 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         AsyncRun.newCall<List<T>>()
                 .start {
                     beforeLoadMore()
+                    mSupport?.beforeLoadMore()
                     mPaging.next()
                 }.create {
                     loadData(3, mPaging)
                 }.result {
                     afterLoadMore(it)
+                    mSupport?.afterLoadMore(it)
                 }.error {
                     mPaging.nextError()
                 }
@@ -160,12 +130,14 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         AsyncRun.newCall<List<T>>()
                 .start {
                     beforeLoadSearch(search)
+                    mSupport?.beforeLoadSearch(search)
                     mPaging.reset()
                     mLiveDataRefreshState.value = true
                 }.create {
                     loadData(4, mPaging)
                 }.result {
                     afterLoadSearch(it)
+                    mSupport?.afterLoadSearch(it)
                     mLiveDataRefreshState.value = false
                 }
     }
