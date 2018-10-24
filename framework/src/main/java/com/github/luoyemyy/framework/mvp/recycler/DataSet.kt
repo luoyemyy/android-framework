@@ -3,7 +3,6 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
 import android.support.v7.util.DiffUtil
-import com.github.luoyemyy.framework.logger.loge
 
 class DataSet<T> {
 
@@ -17,7 +16,7 @@ class DataSet<T> {
     /**
      * 额外的item（加载更多，无数据）
      */
-    private class ExtraItem(val type: Int)
+    private data class ExtraItem(val type: Int)
 
     internal var enableEmpty = true
     internal var enableMore = true
