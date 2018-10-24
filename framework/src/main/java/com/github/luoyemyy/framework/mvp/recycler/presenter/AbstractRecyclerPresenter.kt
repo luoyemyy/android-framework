@@ -5,6 +5,7 @@ import android.arch.lifecycle.*
 import android.os.Bundle
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
+import android.util.Log
 import com.github.luoyemyy.framework.async.AsyncRun
 import com.github.luoyemyy.framework.mvp.recycler.DataSet
 import com.github.luoyemyy.framework.mvp.recycler.Paging
@@ -48,14 +49,16 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     override fun afterLoadInit(list: List<T>?) {
         mSupport?.apply {
-            mDataSet.initData(list).dispatchUpdatesTo(getAdapter())
+            mDataSet.initData(list)
+            getAdapter().notifyDataSetChanged()
             attachToRecyclerView()
         }
     }
 
     override fun afterLoadRefresh(list: List<T>?) {
         mSupport?.apply {
-            mDataSet.setData(list).dispatchUpdatesTo(getAdapter())
+            mDataSet.setData(list)
+            getAdapter().notifyDataSetChanged()
         }
     }
 
@@ -67,7 +70,8 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     override fun afterLoadSearch(list: List<T>?) {
         mSupport?.apply {
-            mDataSet.setData(list).dispatchUpdatesTo(getAdapter())
+            mDataSet.setData(list)
+            getAdapter().notifyDataSetChanged()
         }
     }
 

@@ -3,6 +3,7 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
 import android.support.v7.util.DiffUtil
+import com.github.luoyemyy.framework.logger.loge
 
 class DataSet<T> {
 
@@ -173,23 +174,21 @@ class DataSet<T> {
     fun dataList(): List<T> = mData
 
     /**
-     * 初始化内容列表，返回数据集的变化结果
+     * 初始化内容列表
      */
-    fun initData(list: List<T>?): DiffUtil.DiffResult {
-        return setData(list)
+    fun initData(list: List<T>?) {
+        setData(list)
     }
 
     /**
-     * 重置内容列表，返回数据集的变化结果
+     * 重置内容列表
      */
-    fun setData(list: List<T>?): DiffUtil.DiffResult {
-        return postData {
-            mData.clear()
-            if (list != null && list.isNotEmpty()) {
-                mData.addAll(list)
-            }
-            loadMoreCompleted()
+    fun setData(list: List<T>?) {
+        mData.clear()
+        if (list != null && list.isNotEmpty()) {
+            mData.addAll(list)
         }
+        loadMoreCompleted()
     }
 
     /**

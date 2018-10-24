@@ -4,6 +4,7 @@ import android.content.Context
 import android.databinding.ViewDataBinding
 import android.os.Handler
 import android.support.v7.widget.RecyclerView
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -19,7 +20,7 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mW
 
     fun onBindViewHolder(holder: VH<BIND>, position: Int) {
         if (isContentByType(mPresenter.getDataSet().type(position))) {
-            val item = getItem(position) ?: return
+            val item = getItem(position, true) ?: return
             val binding = holder.binding ?: return
             mWrapper.bindContentViewHolder(binding, item, position)
         }
@@ -54,13 +55,17 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mW
         return mPresenter.getDataSet().count()
     }
 
-    fun getItem(position: Int): T? {
-        if (position > getItemCount() - mWrapper.startLoadMorePosition()) {
+    private fun getItem(position: Int, triggerLoadMore: Boolean): T? {
+        if (triggerLoadMore && (position > getItemCount() - mWrapper.startLoadMorePosition())) {
             Handler().post {
                 mPresenter.loadMore()
             }
         }
         return mPresenter.getDataSet().item(position)
+    }
+
+    fun getItem(position: Int): T? {
+        return getItem(position, false)
     }
 
     private fun isContentByType(type: Int): Boolean {
