@@ -4,7 +4,6 @@ import android.content.Context
 import android.databinding.ViewDataBinding
 import android.os.Handler
 import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -56,7 +55,7 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mW
     }
 
     fun getItem(position: Int): T? {
-        if (position > getItemCount() - 3) {
+        if (position > getItemCount() - mWrapper.startLoadMorePosition()) {
             Handler().post {
                 mPresenter.loadMore()
             }

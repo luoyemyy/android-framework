@@ -71,37 +71,39 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         }
     }
 
+    open fun asyncRun(s: () -> Unit, c: () -> List<T>?, r: (List<T>?) -> Unit, e: (Throwable?) -> Unit = {}) {
+        AsyncRun.newCall<List<T>>().start { s() }.create { c() }.result(r).error(e)
+    }
+
     @MainThread
     override fun loadInit(bundle: Bundle?) {
-        AsyncRun.newCall<List<T>>()
-                .start {
-                    beforeLoadInit(bundle)
-                    mSupport?.beforeLoadInit(bundle)
-                    mPaging.reset()
-                    mLiveDataRefreshState.value = true
-                }.create {
-                    loadData(1, mPaging, bundle)
-                }.result {
-                    afterLoadInit(it)
-                    mSupport?.afterLoadInit(it)
-                    mLiveDataRefreshState.value = false
-                }
+        asyncRun({
+            beforeLoadInit(bundle)
+            mSupport?.beforeLoadInit(bundle)
+            mPaging.reset()
+            mLiveDataRefreshState.value = true
+        }, {
+            loadData(1, mPaging, bundle)
+        }, {
+            afterLoadInit(it)
+            mSupport?.afterLoadInit(it)
+            mLiveDataRefreshState.value = false
+        })
     }
 
     @MainThread
     override fun loadRefresh() {
-        AsyncRun.newCall<List<T>>()
-                .start {
-                    beforeLoadRefresh()
-                    mSupport?.beforeLoadRefresh()
-                    mPaging.reset()
-                }.create {
-                    loadData(2, mPaging)
-                }.result {
-                    afterLoadRefresh(it)
-                    mSupport?.afterLoadRefresh(it)
-                    mLiveDataRefreshState.value = false
-                }
+        asyncRun({
+            beforeLoadRefresh()
+            mSupport?.beforeLoadRefresh()
+            mPaging.reset()
+        }, {
+            loadData(2, mPaging)
+        }, {
+            afterLoadRefresh(it)
+            mSupport?.afterLoadRefresh(it)
+            mLiveDataRefreshState.value = false
+        })
     }
 
     @MainThread
@@ -109,36 +111,34 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         if (!mDataSet.canLoadMore()) {
             return
         }
-        AsyncRun.newCall<List<T>>()
-                .start {
-                    beforeLoadMore()
-                    mSupport?.beforeLoadMore()
-                    mPaging.next()
-                }.create {
-                    loadData(3, mPaging)
-                }.result {
-                    afterLoadMore(it)
-                    mSupport?.afterLoadMore(it)
-                }.error {
-                    mPaging.nextError()
-                }
+        asyncRun({
+            beforeLoadMore()
+            mSupport?.beforeLoadMore()
+            mPaging.next()
+        }, {
+            loadData(3, mPaging)
+        }, {
+            afterLoadMore(it)
+            mSupport?.afterLoadMore(it)
+        }, {
+            mPaging.nextError()
+        })
     }
 
     @MainThread
     override fun loadSearch(search: String) {
-        AsyncRun.newCall<List<T>>()
-                .start {
-                    beforeLoadSearch(search)
-                    mSupport?.beforeLoadSearch(search)
-                    mPaging.reset()
-                    mLiveDataRefreshState.value = true
-                }.create {
-                    loadData(4, mPaging)
-                }.result {
-                    afterLoadSearch(it)
-                    mSupport?.afterLoadSearch(it)
-                    mLiveDataRefreshState.value = false
-                }
+        asyncRun({
+            beforeLoadSearch(search)
+            mSupport?.beforeLoadSearch(search)
+            mPaging.reset()
+            mLiveDataRefreshState.value = true
+        }, {
+            loadData(4, mPaging)
+        }, {
+            afterLoadSearch(it)
+            mSupport?.afterLoadSearch(it)
+            mLiveDataRefreshState.value = false
+        })
     }
 
     @WorkerThread

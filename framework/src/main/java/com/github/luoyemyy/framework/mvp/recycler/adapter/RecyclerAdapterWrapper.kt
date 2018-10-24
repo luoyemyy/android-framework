@@ -60,4 +60,11 @@ interface RecyclerAdapterWrapper<T, BIND : ViewDataBinding> {
     fun getEmptyLayout(): Int {
         return 0
     }
+
+    /**
+     * 当展示到倒数第N个的时候就开始加载更多
+     */
+    fun startLoadMorePosition(): Int {
+        return 3
+    }
 }
