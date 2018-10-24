@@ -17,6 +17,21 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyc
         delegate = RecyclerAdapterDelegate(this, presenterSupport)
     }
 
+    /**
+     * 获得指定项内容实体
+     */
+    override fun getItem(position: Int): T? {
+        return delegate.getItem(position)
+    }
+
+    override fun getAdapter(): RecyclerView.Adapter<*> {
+        return this
+    }
+
+    override fun attachToRecyclerView() {
+        mRecyclerView.adapter = this
+    }
+
     override fun onBindViewHolder(holder: VH<BIND>, position: Int) {
         delegate.onBindViewHolder(holder, position)
     }
@@ -34,20 +49,5 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyc
 
     override fun getItemCount(): Int {
         return delegate.getItemCount()
-    }
-
-    /**
-     * 获得指定项内容实体
-     */
-    override fun getItem(position: Int): T? {
-        return delegate.getItem(position)
-    }
-
-    override fun getAdapter(): RecyclerView.Adapter<*> {
-        return this
-    }
-
-    override fun attachToRecyclerView() {
-        mRecyclerView.adapter = this
     }
 }

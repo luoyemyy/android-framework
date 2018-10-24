@@ -18,20 +18,8 @@ import com.github.luoyemyy.framework.mvp.recycler.presenter.RecyclerPresenterSup
 
 internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mWrapper: RecyclerAdapterWrapper<T, BIND>, private var mPresenter: RecyclerPresenterSupport<T>) {
 
-//    private val mItemTouchHelper = ItemTouchHelper(object :ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN,){
-//        override fun onMove(p0: RecyclerView, p1: RecyclerView.ViewHolder, p2: RecyclerView.ViewHolder): Boolean {
-//
-//        }
-//
-//        override fun onSwiped(p0: RecyclerView.ViewHolder, p1: Int) {
-//
-//        }
-//
-//    })
-//
     fun onBindViewHolder(holder: VH<BIND>, position: Int) {
-        val type = mPresenter.getDataSet().type(position)
-        if (isContentByType(type)) {
+        if (isContentByType(mPresenter.getDataSet().type(position))) {
             val item = getItem(position) ?: return
             val binding = holder.binding ?: return
             mWrapper.bindContentViewHolder(binding, item, position)

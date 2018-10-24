@@ -3,7 +3,6 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
 import android.support.v7.util.DiffUtil
-import com.github.luoyemyy.framework.ext.toJsonString
 
 class DataSet<T> {
 
@@ -15,29 +14,36 @@ class DataSet<T> {
     }
 
     /**
-     * 额外的数据项（加载更多，无数据）
+     * 额外的item（加载更多，无数据）
      */
-    private class ExtraItem(var type: Int)
+    private class ExtraItem(val type: Int)
 
     internal var enableEmpty = true
     internal var enableMore = true
 
+    /**
+     * 内容列表
+     */
     private val mData: MutableList<T> = mutableListOf()
 
-    private val mEmptyItem = ExtraItem(EMPTY)
-    private val mMoreLoadingItem = ExtraItem(MORE_LOADING)
-    private val mMoreEndItem = ExtraItem(MORE_END)
+    private val mEmptyItem by lazy { ExtraItem(EMPTY) }
+    private val mMoreLoadingItem by lazy { ExtraItem(MORE_LOADING) }
+    private val mMoreEndItem by lazy { ExtraItem(MORE_END) }
     /**
-     * 加载更多状态
+     * 加载更多状态： true 加载中； false 不在加载中
      */
     private var mMoreLoadingState = false
     /**
-     * 标记加载更多没有更多数据
+     * 标记加载更多有没有更多数据： true 没有更多数据； false 还有数据可加载
      */
-    private var mFlagMoreEnd = false
+    private var mMoreEndState = false
 
+    /**
+     * 判断是否可以加载更多
+     * @return true 会将状态调整为加载中
+     */
     fun canLoadMore(): Boolean {
-        return if (enableMore && !mMoreLoadingState && !mFlagMoreEnd) {
+        return if (enableMore && !mMoreLoadingState && !mMoreEndState) {
             loadingMore()
             true
         } else {
@@ -46,29 +52,32 @@ class DataSet<T> {
     }
 
     /**
-     * 开始加载更多
+     * 设置加载中状态
      */
     fun loadingMore() {
         mMoreLoadingState = true
-        mFlagMoreEnd = false
+        mMoreEndState = false
     }
 
     /**
-     * 加载更多结束，无更多数据
+     * 设置加载结束，无更多数据
      */
     fun loadMoreEnd() {
         mMoreLoadingState = false
-        mFlagMoreEnd = true
+        mMoreEndState = true
     }
 
     /**
-     * 加载更多结束
+     * 设置加载结束，还有数据可加载
      */
     fun loadMoreCompleted() {
         mMoreLoadingState = false
-        mFlagMoreEnd = false
+        mMoreEndState = false
     }
 
+    /**
+     * 统计所有的item数量
+     */
     fun count(): Int {
         var count = mData.size
         if (count == 0) {
@@ -83,6 +92,9 @@ class DataSet<T> {
         return count
     }
 
+    /**
+     * item 的类型
+     */
     fun type(position: Int): Int {
         val item = itemList().let {
             if (position in 0 until it.size) {
@@ -98,7 +110,9 @@ class DataSet<T> {
         }
     }
 
-
+    /**
+     * 取出item 如果不是内容类型则为null
+     */
     fun item(position: Int): T? {
         return itemListWithoutExtra().let {
             if (position in 0 until it.size) {
@@ -109,6 +123,9 @@ class DataSet<T> {
         }
     }
 
+    /**
+     * item列表 不包含额外的item
+     */
     private fun itemListWithoutExtra(): List<T?> {
         val list = mutableListOf<T?>()
         if (mData.isEmpty()) {
@@ -126,7 +143,9 @@ class DataSet<T> {
         return list
     }
 
-
+    /**
+     * item 列表 包含额外的item
+     */
     private fun itemList(): List<Any?> {
         val list = mutableListOf<Any?>()
         if (mData.isEmpty()) {
@@ -138,7 +157,7 @@ class DataSet<T> {
                 list.add(it)
             }
             if (enableMore) {
-                if (mFlagMoreEnd) {
+                if (mMoreEndState) {
                     list.add(mMoreEndItem)
                 } else {
                     list.add(mMoreLoadingItem)
@@ -148,12 +167,21 @@ class DataSet<T> {
         return list
     }
 
+    /**
+     * 内容列表
+     */
     fun dataList(): List<T> = mData
 
+    /**
+     * 初始化内容列表，返回数据集的变化结果
+     */
     fun initData(list: List<T>?): DiffUtil.DiffResult {
         return setData(list)
     }
 
+    /**
+     * 重置内容列表，返回数据集的变化结果
+     */
     fun setData(list: List<T>?): DiffUtil.DiffResult {
         return postData {
             mData.clear()
@@ -164,6 +192,9 @@ class DataSet<T> {
         }
     }
 
+    /**
+     * 增加内容列表，返回数据集的变化结果
+     */
     fun addData(list: List<T>?): DiffUtil.DiffResult {
         return postData {
             if (list != null && list.isNotEmpty()) {
@@ -175,6 +206,9 @@ class DataSet<T> {
         }
     }
 
+    /**
+     * 删除内容列表，返回数据集的变化结果
+     */
     fun remove(list: List<T>?): DiffUtil.DiffResult {
         return postData {
             list?.forEach {
@@ -183,6 +217,9 @@ class DataSet<T> {
         }
     }
 
+    /**
+     * 修改某一项数据，返回数据集的变化结果
+     */
     fun change(position: Int, change: (value: T) -> Unit): DiffUtil.DiffResult {
         return postData(false, position) {
             item(position)?.let {
@@ -191,18 +228,24 @@ class DataSet<T> {
         }
     }
 
+    /**
+     * 比较数据集前后变化，返回数据集的变化结果
+     */
     fun postData(post: () -> Unit): DiffUtil.DiffResult {
-        return postData(true, 0, post)
+        return postData(true, -1, post)
     }
 
-    fun postData(skipContent: Boolean, comparePosition: Int = 0, post: () -> Unit): DiffUtil.DiffResult {
+    /**
+     * 比较数据集前后变化，返回数据集的变化结果
+     */
+    fun postData(skipContent: Boolean, changePosition: Int = -1, post: () -> Unit): DiffUtil.DiffResult {
         val oldList = itemList()
         post()
         val newList = itemList()
-        return diff(oldList, newList, skipContent, comparePosition)
+        return diff(oldList, newList, skipContent, changePosition)
     }
 
-    private fun diff(oldList: List<Any?>, newList: List<Any?>, skipContent: Boolean = true, comparePosition: Int = 0): DiffUtil.DiffResult {
+    private fun diff(oldList: List<Any?>, newList: List<Any?>, skipContent: Boolean = true, changePosition: Int = -1): DiffUtil.DiffResult {
         return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
 
             override fun getOldListSize(): Int = oldList.size
@@ -214,9 +257,7 @@ class DataSet<T> {
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return skipContent || (oldItemPosition == comparePosition
-                        && newItemPosition == comparePosition
-                        && oldList[oldItemPosition].toJsonString() == newList[newItemPosition].toJsonString())
+                return skipContent || newItemPosition != changePosition
             }
         })
     }

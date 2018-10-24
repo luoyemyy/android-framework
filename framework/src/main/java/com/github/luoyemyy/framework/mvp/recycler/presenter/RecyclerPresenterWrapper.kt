@@ -1,11 +1,15 @@
 package com.github.luoyemyy.framework.mvp.recycler.presenter
 
-import android.arch.lifecycle.LifecycleOwner
+import com.github.luoyemyy.framework.mvp.recycler.Paging
 import com.github.luoyemyy.framework.mvp.recycler.adapter.RecyclerAdapterSupport
 
-interface RecyclerPresenterWrapper<T> {
+/**
+ * 子类调用的一些方法
+ */
+interface RecyclerPresenterWrapper {
 
-    fun setup(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>)
+    fun getPaging(): Paging
+    fun getAdapterSupport(): RecyclerAdapterSupport<*>?
     fun isLoadInit(loadType: Int) = loadType == 1
     fun isLoadRefresh(loadType: Int) = loadType == 2
     fun isLoadMore(loadType: Int) = loadType == 3

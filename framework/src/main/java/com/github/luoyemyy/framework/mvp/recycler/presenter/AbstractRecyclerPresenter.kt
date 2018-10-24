@@ -10,35 +10,34 @@ import com.github.luoyemyy.framework.mvp.recycler.DataSet
 import com.github.luoyemyy.framework.mvp.recycler.Paging
 import com.github.luoyemyy.framework.mvp.recycler.adapter.RecyclerAdapterSupport
 
-abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), RecyclerPresenterWrapper<T>, RecyclerPresenterSupport<T>, LifecycleObserver {
+abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), RecyclerPresenterWrapper, RecyclerPresenterSupport<T>, LifecycleObserver {
 
     private val mDataSet by lazy { DataSet<T>() }
     private val mPaging: Paging by lazy { getPaging() }
     private var mSupport: RecyclerAdapterSupport<T>? = null
     private val mLiveDataRefreshState = MutableLiveData<Boolean>()
 
-    override fun getDataSet(): DataSet<T> {
-        return mDataSet
-    }
-
-    open fun getPaging(): Paging {
-        return Paging.Page()
-    }
-
-    fun getAdapterSupport(): RecyclerAdapterSupport<*>? {
-        return mSupport
-    }
-
-
-    override fun setup(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>) {
-        mSupport = adapter
+    fun setup(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>) {
         adapter.setup(this)
+        mSupport = adapter
         owner.lifecycle.addObserver(this)
         mDataSet.enableEmpty = adapter.enableEmpty()
         mDataSet.enableMore = adapter.enableLoadMore()
         mLiveDataRefreshState.observe(owner, Observer {
             mSupport?.setRefreshState(it ?: false)
         })
+    }
+
+    override fun getPaging(): Paging {
+        return Paging.Page()
+    }
+
+    final override fun getAdapterSupport(): RecyclerAdapterSupport<*>? {
+        return mSupport
+    }
+
+    override fun getDataSet(): DataSet<T> {
+        return mDataSet
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

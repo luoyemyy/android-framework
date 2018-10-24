@@ -13,6 +13,11 @@ interface RecyclerAdapterSupport<T> : LoadCallback<T> {
     fun attachToRecyclerView()
 
     /**
+     * 获得指定位置的数据，如果是加载更多或空数据项，则为null
+     */
+    fun getItem(position: Int): T?
+
+    /**
      * 设置刷新控件样式
      */
     fun setRefreshState(refreshing: Boolean) {

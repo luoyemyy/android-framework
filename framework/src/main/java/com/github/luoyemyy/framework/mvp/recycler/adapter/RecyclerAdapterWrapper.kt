@@ -9,11 +9,6 @@ import com.github.luoyemyy.framework.mvp.recycler.VH
 interface RecyclerAdapterWrapper<T, BIND : ViewDataBinding> {
 
     /**
-     * 获得指定位置的数据，如果是加载更多或空数据项，则为null
-     */
-    fun getItem(position: Int): T?
-
-    /**
      * 绑定数据
      */
     fun bindContentViewHolder(binding: BIND, content: T, position: Int)
