@@ -14,11 +14,7 @@ import com.github.luoyemyy.framework.bus.BusMsg
 import com.github.luoyemyy.framework.bus.BusResult
 import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.ext.toast
-import com.github.luoyemyy.framework.mvp.recycler.Paging
-import com.github.luoyemyy.framework.mvp.recycler.VH
-import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
-import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
-import com.github.luoyemyy.framework.mvp.recycler.setLinearManager
+import com.github.luoyemyy.framework.mvp.recycler.*
 import com.github.luoyemyy.framework.permission.PermissionManager
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
@@ -97,7 +93,7 @@ class MainActivity : AppCompatActivity(), BusResult {
 
     class Presenter(app: Application) : AbstractRecyclerPresenter<String>(app) {
 
-        override fun loadData(loadType: Int, paging: Paging, bundle: Bundle?): List<String>? {
+        override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<String>? {
             return if (paging.current() == 1L) listOf(
                     "浸入状态栏",
                     "drawer",

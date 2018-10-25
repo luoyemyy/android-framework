@@ -13,12 +13,7 @@ import com.github.luoyemyy.framework.bus.BusMsg
 import com.github.luoyemyy.framework.bus.BusResult
 import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.ext.toast
-import com.github.luoyemyy.framework.mvp.recycler.Paging
-import com.github.luoyemyy.framework.mvp.recycler.AbstractMultiRecyclerAdapter
-import com.github.luoyemyy.framework.mvp.recycler.StickHelper
-import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
-import com.github.luoyemyy.framework.mvp.recycler.setLinearManager
-import com.github.luoyemyy.framework.mvp.recycler.wrap
+import com.github.luoyemyy.framework.mvp.recycler.*
 import com.github.luoyemyy.framework.test.MainActivity
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityRecyclerBinding
@@ -105,8 +100,7 @@ class RecyclerActivity : AppCompatActivity(), BusResult {
             BusManager.post(MainActivity.BUS_EVENT)
         }
 
-        override fun loadData(loadType: Int, paging: Paging, bundle: Bundle?): List<Any>? {
-//            Thread.sleep(500)
+        override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<Any>? {
             return if (paging.current() < 10) {
                 (0..9).map { Item(if (it % 5 == 0) 1 else 2, ((paging.current() - 1) * 10 + it).toString()) }
             } else {
