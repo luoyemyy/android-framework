@@ -1,8 +1,6 @@
-package com.github.luoyemyy.framework.mvp.recycler.presenter
+package com.github.luoyemyy.framework.mvp.recycler
 
 import android.os.Bundle
-import com.github.luoyemyy.framework.mvp.recycler.DataSet
-import com.github.luoyemyy.framework.mvp.recycler.LoadCallback
 
 /**
  * 对外提供给 Activity、Fragment、Adapter 调用

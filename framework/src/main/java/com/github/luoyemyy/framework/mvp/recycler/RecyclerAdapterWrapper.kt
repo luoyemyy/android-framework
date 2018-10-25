@@ -1,10 +1,9 @@
-package com.github.luoyemyy.framework.mvp.recycler.adapter
+package com.github.luoyemyy.framework.mvp.recycler
 
 import android.databinding.ViewDataBinding
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.github.luoyemyy.framework.mvp.recycler.VH
 
 interface RecyclerAdapterWrapper<T, BIND : ViewDataBinding> {
 
@@ -12,6 +11,12 @@ interface RecyclerAdapterWrapper<T, BIND : ViewDataBinding> {
      * 绑定数据
      */
     fun bindContentViewHolder(binding: BIND, content: T, position: Int)
+
+    /**
+     * 绑定数据
+     */
+    fun bindContentViewHolder(binding: BIND, content: T, position: Int, payloads: MutableList<Any>) {
+    }
 
     /**
      * 创建内容view

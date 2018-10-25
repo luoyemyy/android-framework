@@ -1,8 +1,7 @@
-package com.github.luoyemyy.framework.mvp.recycler.adapter
+package com.github.luoyemyy.framework.mvp.recycler
 
 import android.databinding.ViewDataBinding
 import android.support.v7.widget.RecyclerView
-import com.github.luoyemyy.framework.mvp.recycler.DataSet
 
 abstract class AbstractSingleRecyclerAdapter<T, BIND : ViewDataBinding>(recyclerView: RecyclerView) : BaseRecyclerAdapter<T, BIND>(recyclerView) {
 

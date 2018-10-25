@@ -1,4 +1,4 @@
-package com.github.luoyemyy.framework.mvp.recycler.adapter
+package com.github.luoyemyy.framework.mvp.recycler
 
 import android.support.v7.widget.RecyclerView
 import android.view.View

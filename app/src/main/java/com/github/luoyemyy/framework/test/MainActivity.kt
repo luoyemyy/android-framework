@@ -16,8 +16,8 @@ import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.ext.toast
 import com.github.luoyemyy.framework.mvp.recycler.Paging
 import com.github.luoyemyy.framework.mvp.recycler.VH
-import com.github.luoyemyy.framework.mvp.recycler.adapter.AbstractSingleRecyclerAdapter
-import com.github.luoyemyy.framework.mvp.recycler.presenter.AbstractRecyclerPresenter
+import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
+import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.framework.mvp.recycler.setLinearManager
 import com.github.luoyemyy.framework.permission.PermissionManager
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding

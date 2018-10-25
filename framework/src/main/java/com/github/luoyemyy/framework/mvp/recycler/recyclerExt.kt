@@ -4,7 +4,6 @@ import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.StaggeredGridLayoutManager
-import com.github.luoyemyy.framework.mvp.recycler.presenter.RecyclerPresenterSupport
 
 fun RecyclerView.setLinearManager() {
     layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)

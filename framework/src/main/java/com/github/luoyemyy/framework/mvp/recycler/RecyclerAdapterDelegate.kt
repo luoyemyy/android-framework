@@ -1,10 +1,9 @@
-package com.github.luoyemyy.framework.mvp.recycler.adapter
+package com.github.luoyemyy.framework.mvp.recycler
 
 import android.content.Context
 import android.databinding.ViewDataBinding
 import android.os.Handler
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -12,9 +11,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import com.github.luoyemyy.framework.mvp.recycler.DataSet
-import com.github.luoyemyy.framework.mvp.recycler.VH
-import com.github.luoyemyy.framework.mvp.recycler.presenter.RecyclerPresenterSupport
 
 internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mWrapper: RecyclerAdapterWrapper<T, BIND>, private var mPresenter: RecyclerPresenterSupport<T>) {
 
@@ -23,6 +19,16 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mW
             val item = getItem(position, true) ?: return
             val binding = holder.binding ?: return
             mWrapper.bindContentViewHolder(binding, item, position)
+        }
+    }
+
+    fun onBindViewHolder(holder: VH<BIND>, position: Int, payloads: MutableList<Any>) {
+        if (payloads.isNotEmpty()) {
+            val item = getItem(position, true) ?: return
+            val binding = holder.binding ?: return
+            mWrapper.bindContentViewHolder(binding, item, position, payloads)
+        } else {
+            onBindViewHolder(holder, position)
         }
     }
 

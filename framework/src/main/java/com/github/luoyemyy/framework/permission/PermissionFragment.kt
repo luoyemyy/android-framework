@@ -5,10 +5,9 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
+import com.github.luoyemyy.framework.ext.getPresenter
 
 internal class PermissionFragment : Fragment() {
-
-    private lateinit var mPresenter: PermissionPresenter
 
     companion object {
 
@@ -26,7 +25,6 @@ internal class PermissionFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        mPresenter = ViewModelProviders.of(requireActivity()).get(PermissionPresenter::class.java)
 
         val permissions = arguments?.getStringArray(REQUEST_PERMISSION)
         if (permissions != null) {
@@ -44,7 +42,7 @@ internal class PermissionFragment : Fragment() {
                     deniedList.add(permissions[index])
                 }
             }
-            mPresenter.postValue(deniedList.toTypedArray())
+            ViewModelProviders.of(requireActivity()).get(PermissionPresenter::class.java).postValue(deniedList.toTypedArray())
         }
         closeRequest()
     }

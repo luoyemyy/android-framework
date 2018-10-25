@@ -14,9 +14,9 @@ import com.github.luoyemyy.framework.bus.BusResult
 import com.github.luoyemyy.framework.ext.getPresenter
 import com.github.luoyemyy.framework.ext.toast
 import com.github.luoyemyy.framework.mvp.recycler.Paging
-import com.github.luoyemyy.framework.mvp.recycler.adapter.AbstractMultiRecyclerAdapter
-import com.github.luoyemyy.framework.mvp.recycler.adapter.StickHelper
-import com.github.luoyemyy.framework.mvp.recycler.presenter.AbstractRecyclerPresenter
+import com.github.luoyemyy.framework.mvp.recycler.AbstractMultiRecyclerAdapter
+import com.github.luoyemyy.framework.mvp.recycler.StickHelper
+import com.github.luoyemyy.framework.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.framework.mvp.recycler.setLinearManager
 import com.github.luoyemyy.framework.mvp.recycler.wrap
 import com.github.luoyemyy.framework.test.MainActivity

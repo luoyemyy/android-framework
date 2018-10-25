@@ -59,10 +59,6 @@ object PermissionManager {
 
         fun request(activity: FragmentActivity, permissions: Array<String>) {
 
-            mPresenter = ViewModelProviders.of(activity).get(PermissionPresenter::class.java).also {
-                it.addObserver(activity, this)
-            }
-
             if (permissions.isEmpty()) {
                 mPassRunnable?.invoke()
                 return
@@ -71,6 +67,10 @@ object PermissionManager {
             if (requestPermission.isEmpty()) {
                 mPassRunnable?.invoke()
                 return
+            }
+
+            mPresenter = ViewModelProviders.of(activity).get(PermissionPresenter::class.java).also {
+                it.addObserver(activity, this)
             }
 
             PermissionFragment.startPermissionFragment(activity, requestPermission)

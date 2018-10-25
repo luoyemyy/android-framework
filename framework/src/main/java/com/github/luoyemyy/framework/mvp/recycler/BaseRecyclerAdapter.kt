@@ -1,10 +1,8 @@
-package com.github.luoyemyy.framework.mvp.recycler.adapter
+package com.github.luoyemyy.framework.mvp.recycler
 
 import android.databinding.ViewDataBinding
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
-import com.github.luoyemyy.framework.mvp.recycler.*
-import com.github.luoyemyy.framework.mvp.recycler.presenter.RecyclerPresenterSupport
 
 abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyclerView: RecyclerView) : RecyclerView.Adapter<VH<BIND>>(), RecyclerAdapterWrapper<T, BIND>, RecyclerAdapterSupport<T> {
 
@@ -34,6 +32,10 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyc
 
     override fun onBindViewHolder(holder: VH<BIND>, position: Int) {
         delegate.onBindViewHolder(holder, position)
+    }
+
+    override fun onBindViewHolder(holder: VH<BIND>, position: Int, payloads: MutableList<Any>) {
+        delegate.onBindViewHolder(holder, position, payloads)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH<BIND> {
