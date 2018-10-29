@@ -21,7 +21,7 @@ import android.os.Bundle
  *              it.presenter = getPresenter(this)
  *          }
  *
- *          mBinding.presenter?.load()
+ *          mBinding.presenter.load()
  *      }
  *
  *      class Presenter(app: Application) : AbstractPresenter<String>(app) {
