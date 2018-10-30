@@ -11,23 +11,23 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     private val mDataSet by lazy { DataSet<T>() }
     private val mPaging: Paging by lazy { getPaging() }
-    private var mSupport: RecyclerAdapterSupport<T>? = null
+    private var mAdapterSupport: RecyclerAdapterSupport<T>? = null
     private val mLiveDataRefreshState = MutableLiveData<Boolean>()
 
     fun setup(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>) {
         adapter.setup(this)
-        mSupport = adapter
+        mAdapterSupport = adapter
         owner.lifecycle.addObserver(this)
         mDataSet.enableEmpty = adapter.enableEmpty()
         mDataSet.enableMore = adapter.enableLoadMore()
         mLiveDataRefreshState.observe(owner, Observer {
-            mSupport?.setRefreshState(it ?: false)
+            mAdapterSupport?.setRefreshState(it ?: false)
         })
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroy(source: LifecycleOwner?) {
-        mSupport = null
+        mAdapterSupport = null
         source?.lifecycle?.removeObserver(this)
     }
 
@@ -36,7 +36,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
     }
 
     final override fun getAdapterSupport(): RecyclerAdapterSupport<*>? {
-        return mSupport
+        return mAdapterSupport
     }
 
     override fun getDataSet(): DataSet<T> {
@@ -45,7 +45,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @MainThread
     override fun beforeLoadInit(bundle: Bundle?) {
-        mSupport?.apply {
+        mAdapterSupport?.apply {
             beforeLoadInit(bundle)
             mPaging.reset()
             mLiveDataRefreshState.value = true
@@ -65,7 +65,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @MainThread
     override fun afterLoadInit(list: List<T>?) {
-        mSupport?.apply {
+        mAdapterSupport?.apply {
             mDataSet.initData(list)
             getAdapter().notifyDataSetChanged()
             attachToRecyclerView()
@@ -76,7 +76,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @MainThread
     override fun beforeLoadRefresh() {
-        mSupport?.apply {
+        mAdapterSupport?.apply {
             beforeLoadRefresh()
             mPaging.reset()
         }
@@ -95,7 +95,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @MainThread
     override fun afterLoadRefresh(list: List<T>?) {
-        mSupport?.apply {
+        mAdapterSupport?.apply {
             mDataSet.setData(list)
             getAdapter().notifyDataSetChanged()
             afterLoadRefresh(list)
@@ -105,7 +105,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @MainThread
     override fun beforeLoadMore() {
-        mSupport?.apply {
+        mAdapterSupport?.apply {
             beforeLoadMore()
             mPaging.next()
         }
@@ -129,7 +129,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @MainThread
     override fun afterLoadMore(list: List<T>?) {
-        mSupport?.apply {
+        mAdapterSupport?.apply {
             mDataSet.addData(list).dispatchUpdatesTo(getAdapter())
             afterLoadMore(list)
         }
@@ -137,7 +137,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @MainThread
     override fun beforeLoadSearch(search: String) {
-        mSupport?.apply {
+        mAdapterSupport?.apply {
             beforeLoadSearch(search)
             mPaging.reset()
             mLiveDataRefreshState.value = true
@@ -157,7 +157,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     @MainThread
     override fun afterLoadSearch(list: List<T>?) {
-        mSupport?.apply {
+        mAdapterSupport?.apply {
             mDataSet.setData(list)
             getAdapter().notifyDataSetChanged()
             afterLoadSearch(list)
