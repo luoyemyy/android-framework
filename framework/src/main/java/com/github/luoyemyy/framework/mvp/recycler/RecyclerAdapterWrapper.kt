@@ -1,6 +1,7 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
 import android.databinding.ViewDataBinding
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -65,6 +66,15 @@ interface RecyclerAdapterWrapper<T, BIND : ViewDataBinding> {
     fun getEmptyLayout(): Int {
         return 0
     }
+
+    /**
+     * 获得加载更多-加载失败样式
+     */
+    fun getMoreErrorLayout(): Int {
+        return 0
+    }
+
+    fun getRecyclerView(): RecyclerView
 
     /**
      * 当展示到倒数第N个的时候就开始加载更多

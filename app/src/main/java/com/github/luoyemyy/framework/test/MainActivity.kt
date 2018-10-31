@@ -19,6 +19,7 @@ import com.github.luoyemyy.framework.permission.PermissionManager
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
 import com.github.luoyemyy.framework.test.drawer.DrawerActivity
+import com.github.luoyemyy.framework.test.exoplayer.ExoPlayerActivity
 import com.github.luoyemyy.framework.test.mvp.MvpActivity
 import com.github.luoyemyy.framework.test.navigation.NavigationActivity
 import com.github.luoyemyy.framework.test.paging.PagingActivity
@@ -83,9 +84,10 @@ class MainActivity : AppCompatActivity(), BusResult {
                         toast(message = "ok")
                     }.withDenied { _, _ ->
                         toast(message = "fail")
-                    }.request(this@MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE))
+                    }.request(this@MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.INTERNET))
                 }
                 7 -> startActivity(Intent(this@MainActivity, TransitionActivity::class.java))
+                8 -> startActivity(Intent(this@MainActivity, ExoPlayerActivity::class.java))
             }
         }
 
@@ -102,7 +104,8 @@ class MainActivity : AppCompatActivity(), BusResult {
                     "paging",
                     "recycler",
                     "permission",
-                    "transition"
+                    "transition",
+                    "exoPlayer"
             ) else listOf()
         }
     }

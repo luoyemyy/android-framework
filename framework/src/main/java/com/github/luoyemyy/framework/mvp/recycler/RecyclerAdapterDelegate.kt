@@ -83,6 +83,7 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mW
             DataSet.EMPTY -> createEmptyView(parent.context)
             DataSet.MORE_LOADING -> createMoreLoadingView(parent.context)
             DataSet.MORE_END -> createMoreEndView(parent.context)
+            DataSet.MORE_ERROR -> createMoreErrorView(parent.context)
             else -> View(parent.context)
         }
     }
@@ -108,7 +109,7 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mW
         return if (mWrapper.getEmptyLayout() == 0) {
             createLayout(context, "暂无数据")
         } else {
-            LayoutInflater.from(context).inflate(mWrapper.getEmptyLayout(), null)
+            LayoutInflater.from(context).inflate(mWrapper.getEmptyLayout(), mWrapper.getRecyclerView(), false)
         }
     }
 
@@ -116,7 +117,19 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mW
         return if (mWrapper.getMoreEndLayout() == 0) {
             createLayout(context, "暂无更多")
         } else {
-            LayoutInflater.from(context).inflate(mWrapper.getMoreEndLayout(), null)
+            LayoutInflater.from(context).inflate(mWrapper.getMoreEndLayout(), mWrapper.getRecyclerView(), false)
+        }
+    }
+
+    private fun createMoreErrorView(context: Context): View {
+        return if (mWrapper.getMoreErrorLayout() == 0) {
+            createLayout(context, "加载失败")
+        } else {
+            LayoutInflater.from(context).inflate(mWrapper.getMoreErrorLayout(), mWrapper.getRecyclerView(), false)
+        }.apply {
+            setOnClickListener {
+                mPresenter.loadMore()
+            }
         }
     }
 
@@ -129,7 +142,7 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mW
             layout.addView(process, 0, LinearLayout.LayoutParams(progressSize, progressSize).apply { marginEnd = padding })
             layout
         } else {
-            LayoutInflater.from(context).inflate(mWrapper.getMoreLoadingLayout(), null)
+            LayoutInflater.from(context).inflate(mWrapper.getMoreLoadingLayout(), mWrapper.getRecyclerView(), false)
         }
     }
 }

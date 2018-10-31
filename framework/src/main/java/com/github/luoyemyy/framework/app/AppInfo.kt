@@ -1,6 +1,7 @@
 package com.github.luoyemyy.framework.app
 
 import android.app.Application
+import android.os.StrictMode
 import com.github.luoyemyy.framework.logger.Logger
 import com.github.luoyemyy.framework.file.FileManager
 
@@ -22,5 +23,6 @@ object AppInfo {
         Logger.enableConsoleLog = enableConsoleLog
         Logger.enableFileLog = enableFileLog
         Logger.logPath = FileManager.getInstance().inner().dir(FileManager.LOG)?.absolutePath
+
     }
 }

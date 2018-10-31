@@ -124,6 +124,9 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
             afterLoadMore(it)
         }.error {
             mPaging.nextError()
+            mSupport?.apply {
+                mDataSet.addError().dispatchUpdatesTo(getAdapter())
+            }
         }
     }
 

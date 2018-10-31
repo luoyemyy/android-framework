@@ -52,4 +52,8 @@ abstract class BaseRecyclerAdapter<T, BIND : ViewDataBinding>(private var mRecyc
     override fun getItemCount(): Int {
         return delegate.getItemCount()
     }
+
+    override fun getRecyclerView(): RecyclerView {
+        return mRecyclerView
+    }
 }

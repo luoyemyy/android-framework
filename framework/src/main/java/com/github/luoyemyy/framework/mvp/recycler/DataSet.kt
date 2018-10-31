@@ -8,8 +8,11 @@ class DataSet<T> {
 
     companion object {
         const val EMPTY = -1
-        const val MORE_LOADING = -2
-        const val MORE_END = -3
+        const val MORE_INIT = -100
+        const val MORE_LOADING = -101
+        const val MORE_END = -102
+        const val MORE_COMPLETE = -103
+        const val MORE_ERROR = -104
         const val CONTENT = 1
     }
 
@@ -29,21 +32,24 @@ class DataSet<T> {
     private val mEmptyItem by lazy { ExtraItem(EMPTY) }
     private val mMoreLoadingItem by lazy { ExtraItem(MORE_LOADING) }
     private val mMoreEndItem by lazy { ExtraItem(MORE_END) }
+    private val mMoreErrorItem by lazy { ExtraItem(MORE_ERROR) }
+
     /**
-     * 加载更多状态： true 加载中； false 不在加载中
+     * 加载更多状态
+     * -1 未开始
+     * -2 加载中
+     * -3 加载结束，还有更多
+     * -4 加载结束，无更多
+     * -5 加载结束，加载错误
      */
-    private var mMoreLoadingState = false
-    /**
-     * 标记加载更多有没有更多数据： true 没有更多数据； false 还有数据可加载
-     */
-    private var mMoreEndState = false
+    private var mLoadMoreState = MORE_INIT
 
     /**
      * 判断是否可以加载更多
      * @return true 会将状态调整为加载中
      */
     fun canLoadMore(): Boolean {
-        return if (enableMore && !mMoreLoadingState && !mMoreEndState) {
+        return if (enableMore && mLoadMoreState in arrayOf(MORE_INIT, MORE_COMPLETE, MORE_ERROR)) {
             loadingMore()
             true
         } else {
@@ -55,24 +61,28 @@ class DataSet<T> {
      * 设置加载中状态
      */
     fun loadingMore() {
-        mMoreLoadingState = true
-        mMoreEndState = false
+        mLoadMoreState = MORE_LOADING
     }
 
     /**
      * 设置加载结束，无更多数据
      */
     fun loadMoreEnd() {
-        mMoreLoadingState = false
-        mMoreEndState = true
+        mLoadMoreState = MORE_END
     }
 
     /**
      * 设置加载结束，还有数据可加载
      */
     fun loadMoreCompleted() {
-        mMoreLoadingState = false
-        mMoreEndState = false
+        mLoadMoreState = MORE_COMPLETE
+    }
+
+    /**
+     * 设置加载结束，加载失败
+     */
+    fun loadMoreError() {
+        mLoadMoreState = MORE_ERROR
     }
 
     /**
@@ -96,7 +106,7 @@ class DataSet<T> {
      * item 的类型
      */
     fun type(position: Int): Int {
-        val item = itemList().let {
+        val item = itemListWithExtra().let {
             if (position in 0 until it.size) {
                 it[position]
             } else {
@@ -114,7 +124,7 @@ class DataSet<T> {
      * 取出item 如果不是内容类型则为null
      */
     fun item(position: Int): T? {
-        return itemListWithoutExtra().let {
+        return itemList().let {
             if (position in 0 until it.size) {
                 it[position]
             } else {
@@ -126,7 +136,7 @@ class DataSet<T> {
     /**
      * item列表 不包含额外的item
      */
-    private fun itemListWithoutExtra(): List<T?> {
+    fun itemList(): List<T?> {
         val list = mutableListOf<T?>()
         if (mData.isEmpty()) {
             if (enableEmpty) {
@@ -146,7 +156,7 @@ class DataSet<T> {
     /**
      * item 列表 包含额外的item
      */
-    private fun itemList(): List<Any?> {
+    private fun itemListWithExtra(): List<Any?> {
         val list = mutableListOf<Any?>()
         if (mData.isEmpty()) {
             if (enableEmpty) {
@@ -157,10 +167,10 @@ class DataSet<T> {
                 list.add(it)
             }
             if (enableMore) {
-                if (mMoreEndState) {
-                    list.add(mMoreEndItem)
-                } else {
-                    list.add(mMoreLoadingItem)
+                when (mLoadMoreState) {
+                    MORE_INIT, MORE_LOADING, MORE_COMPLETE -> list.add(mMoreLoadingItem)
+                    MORE_END -> list.add(mMoreEndItem)
+                    MORE_ERROR -> list.add(mMoreErrorItem)
                 }
             }
         }
@@ -204,6 +214,33 @@ class DataSet<T> {
         }
     }
 
+    fun addDataAfter(anchor: T?, list: List<T>?): DiffUtil.DiffResult {
+        return postData {
+            if (list != null && list.isNotEmpty()) {
+                val index = if (anchor == null) {
+                    0
+                } else {
+                    val i = mData.indexOf(anchor)
+                    if (i > -1) {
+                        i + 1
+                    } else {
+                        0
+                    }
+                }
+                mData.addAll(index, list)
+            }
+        }
+    }
+
+    /**
+     * 增加内容列表，出现错误
+     */
+    fun addError(): DiffUtil.DiffResult {
+        return postData {
+            loadMoreError()
+        }
+    }
+
     /**
      * 删除内容列表，返回数据集的变化结果
      */
@@ -237,9 +274,9 @@ class DataSet<T> {
      * 比较数据集前后变化，返回数据集的变化结果
      */
     fun postData(skipContent: Boolean, changePosition: Int = -1, post: () -> Unit): DiffUtil.DiffResult {
-        val oldList = itemList()
+        val oldList = itemListWithExtra()
         post()
-        val newList = itemList()
+        val newList = itemListWithExtra()
         return diff(oldList, newList, skipContent, changePosition)
     }
 
