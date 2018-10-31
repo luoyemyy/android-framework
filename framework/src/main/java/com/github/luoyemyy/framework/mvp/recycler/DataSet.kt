@@ -3,6 +3,7 @@
 package com.github.luoyemyy.framework.mvp.recycler
 
 import android.support.v7.util.DiffUtil
+import android.support.v7.widget.RecyclerView
 
 class DataSet<T> {
 
@@ -185,37 +186,41 @@ class DataSet<T> {
     /**
      * 初始化内容列表
      */
-    fun initData(list: List<T>?) {
-        setData(list)
+    fun initData(list: List<T>?, adapter: RecyclerView.Adapter<*>) {
+        setData(list, adapter)
     }
 
     /**
      * 重置内容列表
      */
-    fun setData(list: List<T>?) {
+    fun setData(list: List<T>?, adapter: RecyclerView.Adapter<*>) {
         mData.clear()
         if (list != null && list.isNotEmpty()) {
             mData.addAll(list)
         }
         loadMoreCompleted()
+        adapter.notifyDataSetChanged()
     }
 
     /**
-     * 增加内容列表，返回数据集的变化结果
+     * 增加内容列表，并刷新数据
      */
-    fun addData(list: List<T>?): DiffUtil.DiffResult {
-        return postData {
+    fun addData(list: List<T>?, adapter: RecyclerView.Adapter<*>) {
+        postData {
             if (list != null && list.isNotEmpty()) {
                 mData.addAll(list)
                 loadMoreCompleted()
             } else {
                 loadMoreEnd()
             }
-        }
+        }.dispatchUpdatesTo(adapter)
     }
 
-    fun addDataAfter(anchor: T?, list: List<T>?): DiffUtil.DiffResult {
-        return postData {
+    /**
+     * 在指定数据后面添加列表，未指定或找不到指定数据则默认为0
+     */
+    fun addDataAfter(anchor: T?, list: List<T>?, adapter: RecyclerView.Adapter<*>) {
+        postData {
             if (list != null && list.isNotEmpty()) {
                 val index = if (anchor == null) {
                     0
@@ -229,38 +234,38 @@ class DataSet<T> {
                 }
                 mData.addAll(index, list)
             }
-        }
+        }.dispatchUpdatesTo(adapter)
     }
 
     /**
-     * 增加内容列表，出现错误
+     * 增加内容列表，出现错误，刷新变化
      */
-    fun addError(): DiffUtil.DiffResult {
-        return postData {
+    fun addError(adapter: RecyclerView.Adapter<*>) {
+        postData {
             loadMoreError()
-        }
+        }.dispatchUpdatesTo(adapter)
     }
 
     /**
      * 删除内容列表，返回数据集的变化结果
      */
-    fun remove(list: List<T>?): DiffUtil.DiffResult {
-        return postData {
+    fun remove(list: List<T>?, adapter: RecyclerView.Adapter<*>) {
+        postData {
             list?.forEach {
                 mData.remove(it)
             }
-        }
+        }.dispatchUpdatesTo(adapter)
     }
 
     /**
-     * 修改某一项数据，返回数据集的变化结果
+     * 修改某一项数据，并刷新变化的数据
      */
-    fun change(position: Int, change: (value: T) -> Unit): DiffUtil.DiffResult {
-        return postData(false, position) {
+    fun change(position: Int, change: (value: T) -> Unit, adapter: RecyclerView.Adapter<*>) {
+        postData(false, position) {
             item(position)?.let {
                 change(it)
             }
-        }
+        }.dispatchUpdatesTo(adapter)
     }
 
     /**

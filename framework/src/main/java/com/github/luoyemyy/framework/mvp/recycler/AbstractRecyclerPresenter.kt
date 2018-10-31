@@ -3,6 +3,7 @@ package com.github.luoyemyy.framework.mvp.recycler
 import android.app.Application
 import android.arch.lifecycle.*
 import android.os.Bundle
+import android.support.annotation.CallSuper
 import android.support.annotation.MainThread
 import android.support.annotation.WorkerThread
 import com.github.luoyemyy.framework.async.AsyncRun
@@ -43,6 +44,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         return mDataSet
     }
 
+    @CallSuper
     @MainThread
     override fun beforeLoadInit(bundle: Bundle?) {
         mAdapterSupport?.apply {
@@ -52,6 +54,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         }
     }
 
+    @CallSuper
     @MainThread
     override fun loadInit(bundle: Bundle?) {
         AsyncRun.newCall<List<T>>().start {
@@ -63,17 +66,18 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         }
     }
 
+    @CallSuper
     @MainThread
     override fun afterLoadInit(list: List<T>?) {
         mAdapterSupport?.apply {
-            mDataSet.initData(list)
-            getAdapter().notifyDataSetChanged()
+            mDataSet.initData(list, getAdapter())
             attachToRecyclerView()
             afterLoadInit(list)
             mLiveDataRefreshState.value = false
         }
     }
 
+    @CallSuper
     @MainThread
     override fun beforeLoadRefresh() {
         mAdapterSupport?.apply {
@@ -82,6 +86,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         }
     }
 
+    @CallSuper
     @MainThread
     override fun loadRefresh() {
         AsyncRun.newCall<List<T>>().start {
@@ -93,16 +98,17 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         }
     }
 
+    @CallSuper
     @MainThread
     override fun afterLoadRefresh(list: List<T>?) {
         mAdapterSupport?.apply {
-            mDataSet.setData(list)
-            getAdapter().notifyDataSetChanged()
+            mDataSet.setData(list, getAdapter())
             afterLoadRefresh(list)
             mLiveDataRefreshState.value = false
         }
     }
 
+    @CallSuper
     @MainThread
     override fun beforeLoadMore() {
         mAdapterSupport?.apply {
@@ -111,6 +117,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         }
     }
 
+    @CallSuper
     @MainThread
     override fun loadMore() {
         if (!mDataSet.canLoadMore()) {
@@ -124,20 +131,22 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
             afterLoadMore(it)
         }.error {
             mPaging.nextError()
-            mSupport?.apply {
-                mDataSet.addError().dispatchUpdatesTo(getAdapter())
+            mAdapterSupport?.apply {
+                mDataSet.addError(getAdapter())
             }
         }
     }
 
+    @CallSuper
     @MainThread
     override fun afterLoadMore(list: List<T>?) {
         mAdapterSupport?.apply {
-            mDataSet.addData(list).dispatchUpdatesTo(getAdapter())
+            mDataSet.addData(list, getAdapter())
             afterLoadMore(list)
         }
     }
 
+    @CallSuper
     @MainThread
     override fun beforeLoadSearch(search: String) {
         mAdapterSupport?.apply {
@@ -147,6 +156,7 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         }
     }
 
+    @CallSuper
     @MainThread
     override fun loadSearch(search: String) {
         AsyncRun.newCall<List<T>>().start {
@@ -158,16 +168,17 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         }
     }
 
+    @CallSuper
     @MainThread
     override fun afterLoadSearch(list: List<T>?) {
         mAdapterSupport?.apply {
-            mDataSet.setData(list)
-            getAdapter().notifyDataSetChanged()
+            mDataSet.setData(list, getAdapter())
             afterLoadSearch(list)
             mLiveDataRefreshState.value = false
         }
     }
 
+    @CallSuper
     @WorkerThread
     abstract fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle? = null, search: String? = null): List<T>?
 }
