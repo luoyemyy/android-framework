@@ -1,6 +1,6 @@
 package com.github.luoyemyy.framework.test.helper
 
-import com.github.luoyemyy.framework.api.AbstractApiManager
+import com.github.luoyemyy.config.api.AbstractApiManager
 
 class ApiManager : AbstractApiManager() {
     override fun baseDevUrl(): String {

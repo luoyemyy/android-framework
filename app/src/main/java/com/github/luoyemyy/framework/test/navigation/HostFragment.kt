@@ -9,7 +9,7 @@ import android.support.v4.app.FragmentPagerAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.github.luoyemyy.framework.mvp.AbstractPresenter
+import com.github.luoyemyy.mvp.AbstractPresenter
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.FragmentHostBinding
 import com.github.luoyemyy.framework.test.navigation.tab.TabFragment

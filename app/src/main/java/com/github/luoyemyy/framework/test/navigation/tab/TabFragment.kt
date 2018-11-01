@@ -5,7 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.github.luoyemyy.framework.fragment.VisibleLoadFragment
+import com.github.luoyemyy.config.fragment.VisibleLoadFragment
 import com.github.luoyemyy.framework.test.databinding.FragmentTab1Binding
 
 class TabFragment : VisibleLoadFragment() {

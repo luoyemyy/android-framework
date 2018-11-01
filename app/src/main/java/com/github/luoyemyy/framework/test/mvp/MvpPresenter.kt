@@ -2,11 +2,9 @@ package com.github.luoyemyy.framework.test.mvp
 
 import android.app.Application
 import android.os.Bundle
-import com.github.luoyemyy.framework.bus.BusManager
-import com.github.luoyemyy.framework.bus.BusMsg
-import com.github.luoyemyy.framework.bus.BusResult
-import com.github.luoyemyy.framework.ext.runOnWorker
-import com.github.luoyemyy.framework.mvp.AbstractPresenter
+import com.github.luoyemyy.bus.BusManager
+import com.github.luoyemyy.config.ext.runOnWorker
+import com.github.luoyemyy.mvp.AbstractPresenter
 
 class MvpPresenter(var app: Application) : AbstractPresenter<String>(app) {
 

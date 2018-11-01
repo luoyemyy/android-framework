@@ -2,16 +2,13 @@ package com.github.luoyemyy.framework.test.drawer
 
 import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.design.internal.FlowLayout
 import android.support.design.widget.NavigationView
 import android.support.design.widget.Snackbar
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
-import android.view.View
-import android.view.WindowManager
-import com.github.luoyemyy.framework.ext.immerse
+import com.github.luoyemyy.config.ext.immerse
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityDrawerBinding
 

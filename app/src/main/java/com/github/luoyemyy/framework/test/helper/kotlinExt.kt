@@ -1,6 +1,6 @@
 package com.github.luoyemyy.framework.test.helper
 
-import com.github.luoyemyy.framework.async.AsyncRun
+import com.github.luoyemyy.async.AsyncRun
 import retrofit2.Call
 
 fun getApi(): Api = ApiManager().getApi()

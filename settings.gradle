@@ -1,1 +1,1 @@
-include ':app', ':framework', ':mvp', ':async', ':bus', ':permission'
+include ':app', ':mvp', ':async', ':bus', ':permission', ':logger', ':file', ':audio', ':config'

@@ -10,7 +10,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.github.luoyemyy.framework.mvp.recycler.setLinearManager
+import com.github.luoyemyy.mvp.recycler.setLinearManager
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.FragmentTransition1RecyclerBinding
 

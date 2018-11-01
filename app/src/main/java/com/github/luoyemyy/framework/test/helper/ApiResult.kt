@@ -1,6 +1,6 @@
 package com.github.luoyemyy.framework.test.helper
 
-import com.github.luoyemyy.framework.async.AsyncRun
+import com.github.luoyemyy.async.AsyncRun
 
 class ApiResult<T> : AsyncRun.Result {
 

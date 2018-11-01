@@ -3,11 +3,11 @@ package com.github.luoyemyy.framework.test.mvp
 import android.databinding.DataBindingUtil.setContentView
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.github.luoyemyy.framework.bus.BusManager
-import com.github.luoyemyy.framework.bus.BusMsg
-import com.github.luoyemyy.framework.bus.BusResult
-import com.github.luoyemyy.framework.ext.getPresenter
-import com.github.luoyemyy.framework.ext.toast
+import com.github.luoyemyy.bus.BusManager
+import com.github.luoyemyy.bus.BusMsg
+import com.github.luoyemyy.bus.BusResult
+import com.github.luoyemyy.config.ext.getPresenter
+import com.github.luoyemyy.config.ext.toast
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityMvpBinding
 

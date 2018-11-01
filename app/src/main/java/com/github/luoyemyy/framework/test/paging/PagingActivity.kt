@@ -5,7 +5,7 @@ import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
-import com.github.luoyemyy.framework.ext.getPresenter
+import com.github.luoyemyy.config.ext.getPresenter
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityPagingBinding
 
