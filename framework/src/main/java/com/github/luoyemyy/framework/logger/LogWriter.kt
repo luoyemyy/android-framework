@@ -42,9 +42,9 @@ internal class LogWriter private constructor() {
         private var mDestroyTime: Long = 0
 
         fun time(): Time {
-            val now = Calendar.getInstance()
-            return Time(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH),
-                    now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), now.get(Calendar.SECOND))
+            return Calendar.getInstance().let { now ->
+                Time(now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH), now.get(Calendar.HOUR_OF_DAY), now.get(Calendar.MINUTE), now.get(Calendar.SECOND))
+            }
         }
 
         override fun handleMessage(msg: Message) {

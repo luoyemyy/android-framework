@@ -6,6 +6,8 @@ class Profile(private var type: Int) {
 
     fun isTest() = type == TEST
 
+    fun isDemo() = type == DEMO
+
     fun isPro() = type == PRO
 
     fun setNewType(type: Int) {
@@ -15,6 +17,7 @@ class Profile(private var type: Int) {
     companion object {
         const val DEV = 1
         const val TEST = 2
-        const val PRO = 3
+        const val DEMO = 3
+        const val PRO = 4
     }
 }

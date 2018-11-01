@@ -23,7 +23,7 @@ internal class AppError private constructor(private val mApp: Application, priva
             //如果用户没有处理则让系统默认的异常处理器来处理
             mDefaultHandler.uncaughtException(thread, ex)
 
-            if (AppInfo.profile.isDev() && AppInfo.profile.isTest()) {
+            if (!AppInfo.profile.isPro()) {
                 mApp.toast(message = log)
             }
 
