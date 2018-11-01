@@ -31,9 +31,9 @@ internal class AudioMsg() : Parcelable {
         repeatState = parcel.readByte() != 0.toByte()
     }
 
-    constructor(@Op op: Int,
+    constructor(op: Int,
                 id: String? = null,
-                @SourceType sourceType: Int = NONE,
+                sourceType: Int = NONE,
                 path: String? = null,
                 uri: Uri? = null,
                 @RawRes rawId: Int = 0,
@@ -50,12 +50,6 @@ internal class AudioMsg() : Parcelable {
     constructor(state: Int) : this() {
         this.state = state
     }
-
-    @IntDef(DESTROY, PLAY, STOP, LEFT_SECOND)
-    internal annotation class Op
-
-    @IntDef(PATH, URI, RAW, NONE)
-    internal annotation class SourceType
 
     @IntRange(from = -1)
     internal annotation class Repeat

@@ -17,7 +17,7 @@ object BusManager {
 
     internal const val GROUP_DEFAULT = 0
 
-    internal const val GROUP_AUDIO = 1
+    const val GROUP_AUDIO = 1
 
     interface Callback : BusResult {
 
@@ -35,7 +35,7 @@ object BusManager {
      * @param callback
      */
     @MainThread
-    internal fun register(callback: Callback) {
+    fun register(callback: Callback) {
         val group = callback.interceptGroup()
         mCallbacks.get(group)
                 ?.apply {
@@ -53,7 +53,7 @@ object BusManager {
      * @param callback
      */
     @MainThread
-    internal fun unRegister(callback: Callback) {
+    fun unRegister(callback: Callback) {
 
         val group = callback.interceptGroup()
         val callbacks = mCallbacks.get(group)
