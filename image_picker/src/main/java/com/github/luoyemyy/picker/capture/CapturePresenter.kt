@@ -13,9 +13,7 @@ import android.provider.MediaStore
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.FileProvider
 import android.util.Log
-import com.github.luoyemyy.framework.ext.toast
-import com.github.luoyemyy.framework.file.FileManager
-import com.github.luoyemyy.framework.permission.PermissionManager
+import com.github.luoyemyy.permission.PermissionManager
 import com.github.luoyemyy.picker.PickerBundle
 import com.github.luoyemyy.picker.PickerFragment
 import com.github.luoyemyy.picker.R

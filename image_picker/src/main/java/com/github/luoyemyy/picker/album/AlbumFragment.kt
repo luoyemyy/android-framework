@@ -8,9 +8,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.github.luoyemyy.framework.ext.getPresenter
-import com.github.luoyemyy.framework.mvp.recycler.setGridManager
-import com.github.luoyemyy.framework.mvp.recycler.setLinearManager
+import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.picker.R
 import com.github.luoyemyy.picker.databinding.ImagePickerAlbumBinding
 

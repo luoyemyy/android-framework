@@ -5,8 +5,8 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.github.luoyemyy.framework.mvp.recycler.VH
-import com.github.luoyemyy.framework.mvp.recycler.AbstractSingleRecyclerAdapter
+import com.github.luoyemyy.mvp.recycler.AbstractSingleRecyclerAdapter
+import com.github.luoyemyy.mvp.recycler.VH
 import com.github.luoyemyy.picker.databinding.ImagePickerAlbumRecyclerBinding
 import com.github.luoyemyy.picker.entity.Image
 
