@@ -23,11 +23,17 @@ internal class RecyclerAdapterDelegate<T, BIND : ViewDataBinding>(private var mW
     }
 
     fun onBindViewHolder(holder: VH<BIND>, position: Int, payloads: MutableList<Any>) {
+        var dispatch = true
         if (payloads.isNotEmpty()) {
-            val item = getItem(position, true) ?: return
-            val binding = holder.binding ?: return
-            mWrapper.bindContentViewHolder(binding, item, position, payloads)
-        } else {
+            val item = getItem(position, true)
+            val binding = holder.binding
+            dispatch = if (item == null || binding == null) {
+                true
+            } else {
+                !mWrapper.bindContentViewHolder(binding, item, position, payloads)
+            }
+        }
+        if (dispatch) {
             onBindViewHolder(holder, position)
         }
     }

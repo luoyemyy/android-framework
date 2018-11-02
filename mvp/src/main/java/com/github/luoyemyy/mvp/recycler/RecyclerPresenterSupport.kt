@@ -6,11 +6,10 @@ import android.support.annotation.MainThread
 /**
  * 扩展
  */
-interface RecyclerPresenterSupport<T>: PresenterLoadCallback<T>{
+interface RecyclerPresenterSupport<T>{
 
     fun getDataSet(): DataSet<T>
     fun getPaging(): Paging
-    fun getAdapterSupport(): RecyclerAdapterSupport<*>?
 
     @MainThread
     fun loadInit(bundle: Bundle? = null)
@@ -23,7 +22,5 @@ interface RecyclerPresenterSupport<T>: PresenterLoadCallback<T>{
 
     @MainThread
     fun loadSearch(search: String)
-
-    fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle? = null, search: String? = null): List<T>?
 
 }

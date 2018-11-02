@@ -37,11 +37,11 @@ class DataSet<T> {
 
     /**
      * 加载更多状态
-     * -1 未开始
-     * -2 加载中
-     * -3 加载结束，还有更多
-     * -4 加载结束，无更多
-     * -5 加载结束，加载错误
+     * -100 未开始
+     * -101 加载中
+     * -102 加载结束，无更多
+     * -103 加载结束，还有更多
+     * -104 加载结束，加载错误
      */
     private var mLoadMoreState = MORE_INIT
 
@@ -135,7 +135,7 @@ class DataSet<T> {
     }
 
     /**
-     * item列表 不包含额外的item
+     * item列表 额外的item为null
      */
     fun itemList(): List<T?> {
         val list = mutableListOf<T?>()
@@ -251,8 +251,8 @@ class DataSet<T> {
      */
     fun remove(list: List<T>?, adapter: RecyclerView.Adapter<*>) {
         postData {
-            list?.forEach {
-                mData.remove(it)
+            if (list != null && list.isNotEmpty()) {
+                mData.removeAll(list)
             }
         }.dispatchUpdatesTo(adapter)
     }
@@ -260,32 +260,24 @@ class DataSet<T> {
     /**
      * 修改某一项数据，并刷新变化的数据
      */
-    fun change(position: Int, change: (value: T) -> Unit, adapter: RecyclerView.Adapter<*>) {
-        postData(false, position) {
-            item(position)?.let {
-                change(it)
-            }
-        }.dispatchUpdatesTo(adapter)
+    fun change(position: Int, adapter: RecyclerView.Adapter<*>, change: (value: T) -> Unit) {
+        item(position)?.let {
+            change(it)
+            adapter.notifyItemChanged(position, "change")
+        }
     }
 
     /**
      * 比较数据集前后变化，返回数据集的变化结果
      */
     fun postData(post: () -> Unit): DiffUtil.DiffResult {
-        return postData(true, -1, post)
-    }
-
-    /**
-     * 比较数据集前后变化，返回数据集的变化结果
-     */
-    fun postData(skipContent: Boolean, changePosition: Int = -1, post: () -> Unit): DiffUtil.DiffResult {
         val oldList = itemListWithExtra()
         post()
         val newList = itemListWithExtra()
-        return diff(oldList, newList, skipContent, changePosition)
+        return diff(oldList, newList)
     }
 
-    private fun diff(oldList: List<Any?>, newList: List<Any?>, skipContent: Boolean = true, changePosition: Int = -1): DiffUtil.DiffResult {
+    private fun diff(oldList: List<Any?>, newList: List<Any?>): DiffUtil.DiffResult {
         return DiffUtil.calculateDiff(object : DiffUtil.Callback() {
 
             override fun getOldListSize(): Int = oldList.size
@@ -297,7 +289,7 @@ class DataSet<T> {
             }
 
             override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-                return skipContent || newItemPosition != changePosition
+                return true
             }
         })
     }

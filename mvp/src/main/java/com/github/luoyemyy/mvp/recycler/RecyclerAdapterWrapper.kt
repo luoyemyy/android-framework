@@ -21,7 +21,8 @@ interface RecyclerAdapterWrapper<T, BIND : ViewDataBinding> {
     /**
      * 绑定数据
      */
-    fun bindContentViewHolder(binding: BIND, content: T, position: Int, payloads: MutableList<Any>) {
+    fun bindContentViewHolder(binding: BIND, content: T, position: Int, payloads: MutableList<Any>): Boolean {
+        return false
     }
 
     /**

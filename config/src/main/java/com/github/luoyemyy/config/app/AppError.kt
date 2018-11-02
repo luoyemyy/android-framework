@@ -28,7 +28,7 @@ internal class AppError private constructor(private val mApp: Application, priva
             }
 
             Handler().postDelayed({
-                ActivityLifecycleAdapter.instance.exit()
+                ActivityLifecycleWrapper.instance.exit()
             }, 3000)
         }
     }

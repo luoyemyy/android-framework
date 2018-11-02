@@ -5,12 +5,11 @@ import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LifecycleOwner
 import android.os.Bundle
 
-abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), RecyclerPresenterSupport<T> {
+abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), RecyclerPresenterSupport<T>, RecyclerPresenterWrapper<T> {
 
     private lateinit var mDelegate: RecyclerPresenterDelegate<T>
 
     fun setup(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>) {
-        adapter.setup(this)
         mDelegate = RecyclerPresenterDelegate(owner, adapter, this)
     }
 
@@ -18,12 +17,12 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
         return mDelegate.getPaging()
     }
 
-    override fun getAdapterSupport(): RecyclerAdapterSupport<*>? {
-        return mDelegate.getAdapterSupport()
-    }
-
     override fun getDataSet(): DataSet<T> {
         return mDelegate.getDataSet()
+    }
+
+    override fun getAdapterSupport(): RecyclerAdapterSupport<*>? {
+        return mDelegate.getAdapterSupport()
     }
 
     override fun loadInit(bundle: Bundle?) {

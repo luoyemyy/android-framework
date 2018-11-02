@@ -1,17 +1,22 @@
 package com.github.luoyemyy.mvp.recycler
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.*
 import android.os.Bundle
-import com.github.luoyemyy.async.AsyncRun
+import io.reactivex.Single
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 
-class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, private var mAdapterSupport: RecyclerAdapterSupport<T>?, private val mPresenterSupport: RecyclerPresenterSupport<T>) : RecyclerPresenterSupport<T>, LifecycleObserver {
+class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>, private val mPresenterWrapper: RecyclerPresenterWrapper<T>) : RecyclerPresenterSupport<T>, LifecycleObserver {
 
     private val mDataSet by lazy { DataSet<T>() }
-    private val mPaging: Paging by lazy { getPaging() }
+    private var mPaging: Paging = Paging.Page()
+    private var mAdapterSupport: RecyclerAdapterSupport<T>? = adapter
     private val mLiveDataRefreshState = MutableLiveData<Boolean>()
 
     init {
         owner.lifecycle.addObserver(this)
+        adapter.setup(this)
 
         mAdapterSupport?.apply {
             mDataSet.enableEmpty = enableEmpty()
@@ -28,20 +33,24 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, private var mAdapterSu
         source?.lifecycle?.removeObserver(this)
     }
 
-    override fun getPaging(): Paging {
-        return Paging.Page()
-    }
-
-    override fun getAdapterSupport(): RecyclerAdapterSupport<*>? {
-        return mAdapterSupport
-    }
-
     override fun getDataSet(): DataSet<T> {
         return mDataSet
     }
 
-    override fun beforeLoadInit(bundle: Bundle?) {
-        mPresenterSupport.beforeLoadInit(bundle)
+    override fun getPaging(): Paging {
+        return mPaging
+    }
+
+    fun setPaging(paging: Paging) {
+        mPaging = paging
+    }
+
+    fun getAdapterSupport(): RecyclerAdapterSupport<*>? {
+        return mAdapterSupport
+    }
+
+    private fun beforeLoadInit(bundle: Bundle?) {
+        mPresenterWrapper.beforeLoadInit(bundle)
         mAdapterSupport?.apply {
             beforeLoadInit(bundle)
             mPaging.reset()
@@ -50,16 +59,11 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, private var mAdapterSu
     }
 
     override fun loadInit(bundle: Bundle?) {
-        val loadType = LoadType.init()
-        AsyncRun.newCall<List<T>>()
-                .start { beforeLoadInit(bundle) }
-                .create { loadData(loadType, mPaging, bundle) }
-                .result { afterLoadInit(it) }
-                .error { loadError(loadType) }
+        loadData(LoadType.init(), bundle)
     }
 
-    override fun afterLoadInit(list: List<T>?) {
-        mPresenterSupport.afterLoadInit(list)
+    private fun afterLoadInit(list: List<T>?) {
+        mPresenterWrapper.afterLoadInit(list)
         mAdapterSupport?.apply {
             mDataSet.initData(list, getAdapter())
             attachToRecyclerView()
@@ -68,8 +72,8 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, private var mAdapterSu
         }
     }
 
-    override fun beforeLoadRefresh() {
-        mPresenterSupport.beforeLoadRefresh()
+    private fun beforeLoadRefresh() {
+        mPresenterWrapper.beforeLoadRefresh()
         mAdapterSupport?.apply {
             beforeLoadRefresh()
             mPaging.reset()
@@ -77,16 +81,11 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, private var mAdapterSu
     }
 
     override fun loadRefresh() {
-        val loadType = LoadType.refresh()
-        AsyncRun.newCall<List<T>>()
-                .start { beforeLoadRefresh() }
-                .create { loadData(loadType, mPaging) }
-                .result { afterLoadRefresh(it) }
-                .error { loadError(loadType) }
+        loadData(LoadType.refresh())
     }
 
-    override fun afterLoadRefresh(list: List<T>?) {
-        mPresenterSupport.afterLoadRefresh(list)
+    private fun afterLoadRefresh(list: List<T>?) {
+        mPresenterWrapper.afterLoadRefresh(list)
         mAdapterSupport?.apply {
             mDataSet.setData(list, getAdapter())
             afterLoadRefresh(list)
@@ -94,8 +93,8 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, private var mAdapterSu
         }
     }
 
-    override fun beforeLoadMore() {
-        mPresenterSupport.beforeLoadMore()
+    private fun beforeLoadMore() {
+        mPresenterWrapper.beforeLoadMore()
         mAdapterSupport?.apply {
             beforeLoadMore()
             mPaging.next()
@@ -106,24 +105,20 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, private var mAdapterSu
         if (!mDataSet.canLoadMore()) {
             return
         }
-        val loadType = LoadType.more()
-        AsyncRun.newCall<List<T>>()
-                .start { beforeLoadMore() }
-                .create { loadData(loadType, mPaging) }
-                .result { afterLoadMore(it) }
-                .error { loadError(loadType) }
+        loadData(LoadType.more())
+
     }
 
-    override fun afterLoadMore(list: List<T>?) {
-        mPresenterSupport.afterLoadMore(list)
+    private fun afterLoadMore(list: List<T>?) {
+        mPresenterWrapper.afterLoadMore(list)
         mAdapterSupport?.apply {
             mDataSet.addData(list, getAdapter())
             afterLoadMore(list)
         }
     }
 
-    override fun beforeLoadSearch(search: String) {
-        mPresenterSupport.beforeLoadSearch(search)
+    private fun beforeLoadSearch(search: String) {
+        mPresenterWrapper.beforeLoadSearch(search)
         mAdapterSupport?.apply {
             beforeLoadSearch(search)
             mPaging.reset()
@@ -132,16 +127,11 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, private var mAdapterSu
     }
 
     override fun loadSearch(search: String) {
-        val loadType = LoadType.search()
-        AsyncRun.newCall<List<T>>()
-                .start { beforeLoadSearch(search) }
-                .create { loadData(loadType, mPaging, null, search) }
-                .result { afterLoadSearch(it) }
-                .error { loadError(loadType) }
+        loadData(LoadType.search(), null, search)
     }
 
-    override fun afterLoadSearch(list: List<T>?) {
-        mPresenterSupport.afterLoadSearch(list)
+    private fun afterLoadSearch(list: List<T>?) {
+        mPresenterWrapper.afterLoadSearch(list)
         mAdapterSupport?.apply {
             mDataSet.setData(list, getAdapter())
             afterLoadSearch(list)
@@ -149,24 +139,52 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, private var mAdapterSu
         }
     }
 
-    override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<T>? {
-        return mPresenterSupport.loadData(loadType, paging, bundle, search)
+    @SuppressLint("CheckResult")
+    private fun loadData(loadType: LoadType, bundle: Bundle? = null, search: String? = null): List<T>? {
+        loadBefore(loadType, bundle, search)
+        Single
+                .create<List<T>> {
+                    it.onSuccess(mPresenterWrapper.loadData(loadType, mPaging, bundle, search)
+                            ?: listOf())
+                }
+                .subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe({
+                    loadAfter(loadType, it)
+                }, {
+                    loadError(loadType)
+                })
+        return mPresenterWrapper.loadData(loadType, mPaging, bundle, search)
     }
 
-    override fun loadError(loadType: LoadType): Boolean {
-        if (!mPresenterSupport.loadError(loadType)) {
-            when {
-                loadType.isInit() -> afterLoadInit(null)
-                loadType.isRefresh() -> afterLoadRefresh(null)
-                loadType.isMore() -> {
-                    mPaging.nextError()
-                    mAdapterSupport?.apply {
-                        mDataSet.addError(getAdapter())
-                    }
-                }
-                loadType.isSearch() -> afterLoadSearch(null)
-            }
+    private fun loadBefore(loadType: LoadType, bundle: Bundle? = null, search: String? = null) {
+        when {
+            loadType.isInit() -> beforeLoadInit(bundle)
+            loadType.isRefresh() -> beforeLoadRefresh()
+            loadType.isMore() -> beforeLoadMore()
+            loadType.isSearch() -> beforeLoadSearch(search ?: "")
         }
-        return true
+    }
+
+    private fun loadAfter(loadType: LoadType, list: List<T>?) {
+        when {
+            loadType.isInit() -> afterLoadInit(list)
+            loadType.isRefresh() -> afterLoadRefresh(list)
+            loadType.isMore() -> afterLoadMore(list)
+            loadType.isSearch() -> afterLoadSearch(list)
+        }
+    }
+
+    private fun loadError(loadType: LoadType) {
+        when {
+            loadType.isInit() -> afterLoadInit(null)
+            loadType.isRefresh() -> afterLoadRefresh(null)
+            loadType.isMore() -> {
+                mPaging.nextError()
+                mAdapterSupport?.apply {
+                    mDataSet.addError(getAdapter())
+                }
+            }
+            loadType.isSearch() -> afterLoadSearch(null)
+        }
     }
 }
