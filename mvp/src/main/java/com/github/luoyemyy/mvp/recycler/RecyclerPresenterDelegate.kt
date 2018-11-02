@@ -1,10 +1,10 @@
 package com.github.luoyemyy.mvp.recycler
 
-import android.annotation.SuppressLint
 import android.arch.lifecycle.*
 import android.os.Bundle
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
 class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>, private val mPresenterWrapper: RecyclerPresenterWrapper<T>) : RecyclerPresenterSupport<T>, LifecycleObserver {
@@ -13,6 +13,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
     private var mPaging: Paging = Paging.Page()
     private var mAdapterSupport: RecyclerAdapterSupport<T>? = adapter
     private val mLiveDataRefreshState = MutableLiveData<Boolean>()
+    private var mDisposable: Disposable? = null
 
     init {
         owner.lifecycle.addObserver(this)
@@ -29,6 +30,12 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     fun onDestroy(source: LifecycleOwner?) {
+        mDisposable?.apply {
+            if (!isDisposed) {
+                dispose()
+            }
+        }
+        mDisposable = null
         mAdapterSupport = null
         source?.lifecycle?.removeObserver(this)
     }
@@ -139,10 +146,12 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
         }
     }
 
-    @SuppressLint("CheckResult")
-    private fun loadData(loadType: LoadType, bundle: Bundle? = null, search: String? = null): List<T>? {
+    private fun loadData(loadType: LoadType, bundle: Bundle? = null, search: String? = null) {
+        mDisposable?.apply {
+            if (!isDisposed) dispose()
+        }
         loadBefore(loadType, bundle, search)
-        Single
+        mDisposable = Single
                 .create<List<T>> {
                     it.onSuccess(mPresenterWrapper.loadData(loadType, mPaging, bundle, search)
                             ?: listOf())
@@ -153,7 +162,6 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
                 }, {
                     loadError(loadType)
                 })
-        return mPresenterWrapper.loadData(loadType, mPaging, bundle, search)
     }
 
     private fun loadBefore(loadType: LoadType, bundle: Bundle? = null, search: String? = null) {
