@@ -1,6 +1,5 @@
-@file:Suppress("unused")
 
-package com.github.luoyemyy.config.ext
+package com.github.luoyemyy.mvp
 
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.ViewModelProviders
