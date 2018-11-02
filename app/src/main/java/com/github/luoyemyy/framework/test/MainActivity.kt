@@ -14,9 +14,9 @@ import com.github.luoyemyy.bus.BusMsg
 import com.github.luoyemyy.bus.BusResult
 import com.github.luoyemyy.config.ext.getPresenter
 import com.github.luoyemyy.config.ext.toast
+import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.mvp.recycler.*
 import com.github.luoyemyy.permission.PermissionManager
-import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
 import com.github.luoyemyy.framework.test.drawer.DrawerActivity
 import com.github.luoyemyy.framework.test.exoplayer.ExoPlayerActivity

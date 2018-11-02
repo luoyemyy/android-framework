@@ -2,8 +2,10 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.github.luoyemyy.framework.test.exoplayer.ExoPlayerView
+    <com.google.android.exoplayer2.ui.PlayerView
         android:id="@+id/playView"
         android:layout_width="match_parent"
-        android:layout_height="300dp"/>
+        android:layout_height="300dp"
+        app:use_artwork="false"
+        app:surface_type="texture_view" />
 </layout>

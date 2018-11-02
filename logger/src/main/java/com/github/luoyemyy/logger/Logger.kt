@@ -2,12 +2,6 @@ package com.github.luoyemyy.logger
 
 import android.util.Log
 
-fun loge(tag: String, message: String, e: Throwable? = null) = Logger.e(tag, message, e)
-
-fun logd(tag: String, message: String, e: Throwable? = null) = Logger.d(tag, message, e)
-
-fun logi(tag: String, message: String, e: Throwable? = null) = Logger.i(tag, message, e)
-
 object Logger {
 
     var enableFileLog: Boolean = false
