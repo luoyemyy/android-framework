@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.github.luoyemyy.config.ext
+package com.github.luoyemyy.ext
 
 import com.google.gson.*
 import java.lang.reflect.ParameterizedType

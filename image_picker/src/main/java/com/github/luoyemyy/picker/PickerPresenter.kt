@@ -8,11 +8,6 @@ import android.arch.lifecycle.Observer
 
 
 /**
- * example
- *
- * ViewModelProviders.of(fragmentActivity).get(PickerPresenter::class.java).getImages(owner){images->
- *
- * }
  *
  */
 class PickerPresenter(app: Application) : AndroidViewModel(app) {
@@ -23,11 +18,6 @@ class PickerPresenter(app: Application) : AndroidViewModel(app) {
         data = MutableLiveData<List<String>>().apply {
             observe(owner, observer)
         }
-    }
-
-    fun removeObserver(owner: LifecycleOwner) {
-        data?.removeObservers(owner)
-        data = null
     }
 
     fun postValue(array: List<String>?) {

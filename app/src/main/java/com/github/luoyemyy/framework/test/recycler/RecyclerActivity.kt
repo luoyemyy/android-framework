@@ -11,14 +11,14 @@ import android.view.ViewGroup
 import com.github.luoyemyy.bus.BusManager
 import com.github.luoyemyy.bus.BusMsg
 import com.github.luoyemyy.bus.BusResult
-import com.github.luoyemyy.config.ext.getPresenter
-import com.github.luoyemyy.config.ext.toast
+import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.mvp.recycler.*
 import com.github.luoyemyy.framework.test.MainActivity
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityRecyclerBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityRecyclerRecyclerBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityRecyclerStickBinding
+import com.github.luoyemyy.mvp.getPresenter
 
 class RecyclerActivity : AppCompatActivity(), BusResult {
 

@@ -6,10 +6,10 @@ import android.support.v7.app.AppCompatActivity
 import com.github.luoyemyy.bus.BusManager
 import com.github.luoyemyy.bus.BusMsg
 import com.github.luoyemyy.bus.BusResult
-import com.github.luoyemyy.config.ext.getPresenter
-import com.github.luoyemyy.config.ext.toast
+import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.framework.test.R
 import com.github.luoyemyy.framework.test.databinding.ActivityMvpBinding
+import com.github.luoyemyy.mvp.getPresenter
 
 class MvpActivity : AppCompatActivity(), BusResult {
 

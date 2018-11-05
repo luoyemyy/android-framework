@@ -12,11 +12,9 @@ import android.view.ViewGroup
 import com.github.luoyemyy.bus.BusManager
 import com.github.luoyemyy.bus.BusMsg
 import com.github.luoyemyy.bus.BusResult
-import com.github.luoyemyy.config.ext.getPresenter
-import com.github.luoyemyy.config.ext.toast
+import com.github.luoyemyy.ext.toJsonString
+import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
-import com.github.luoyemyy.mvp.recycler.*
-import com.github.luoyemyy.permission.PermissionManager
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
 import com.github.luoyemyy.framework.test.drawer.DrawerActivity
 import com.github.luoyemyy.framework.test.exoplayer.ExoPlayerActivity
@@ -26,6 +24,10 @@ import com.github.luoyemyy.framework.test.paging.PagingActivity
 import com.github.luoyemyy.framework.test.recycler.RecyclerActivity
 import com.github.luoyemyy.framework.test.status.StatusActivity
 import com.github.luoyemyy.framework.test.transition.TransitionActivity
+import com.github.luoyemyy.mvp.getPresenter
+import com.github.luoyemyy.mvp.recycler.*
+import com.github.luoyemyy.permission.PermissionManager
+import com.github.luoyemyy.picker.Picker
 
 
 class MainActivity : AppCompatActivity(), BusResult {
@@ -84,10 +86,15 @@ class MainActivity : AppCompatActivity(), BusResult {
                         toast(message = "ok")
                     }.withDenied { _, _ ->
                         toast(message = "fail")
-                    }.request(this@MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.INTERNET))
+                    }.request(this@MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.INTERNET))
                 }
                 7 -> startActivity(Intent(this@MainActivity, TransitionActivity::class.java))
                 8 -> startActivity(Intent(this@MainActivity, ExoPlayerActivity::class.java))
+                9 -> {
+                    Picker.create().fileProvider("com.github.luoyemyy.framework.test").maxSelect(9).build().picker(this@MainActivity) {
+                        toast(message = it?.toJsonString() ?: "")
+                    }
+                }
             }
         }
 
@@ -105,7 +112,8 @@ class MainActivity : AppCompatActivity(), BusResult {
                     "recycler",
                     "permission",
                     "transition",
-                    "exoPlayer"
+                    "exoPlayer",
+                    "imagePicker"
             ) else listOf()
         }
     }

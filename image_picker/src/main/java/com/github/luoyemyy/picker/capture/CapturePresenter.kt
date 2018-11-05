@@ -13,6 +13,8 @@ import android.provider.MediaStore
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.FileProvider
 import android.util.Log
+import com.github.luoyemyy.ext.toast
+import com.github.luoyemyy.file.FileManager
 import com.github.luoyemyy.permission.PermissionManager
 import com.github.luoyemyy.picker.PickerBundle
 import com.github.luoyemyy.picker.PickerFragment
@@ -38,9 +40,8 @@ class CapturePresenter(app: Application) : AndroidViewModel(app) {
                 return@withPass
             }
             val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                val fileProvider = pickerBundle.fileProvider
-                        ?: throw NullPointerException("need file provider external-path#DCIM dir")
-                FileProvider.getUriForFile(activity, fileProvider, file)
+                pickerBundle.fileProvider?.let { FileProvider.getUriForFile(activity, it, file) }
+                        ?: throw NullPointerException("need file provider external-path#Pictures dir")
             } else {
                 Uri.fromFile(file)
             }
@@ -65,7 +66,7 @@ class CapturePresenter(app: Application) : AndroidViewModel(app) {
     private fun createFile(activity: FragmentActivity): File? {
         FileManager.initManager(activity.application)
         val fileName = FileManager.getInstance().getName()
-        val file = FileManager.getInstance().outer().publicStandardFile(Environment.DIRECTORY_DCIM, fileName, FileManager.SUFFIX_IMAGE)
+        val file = FileManager.getInstance().outer().publicStandardFile(Environment.DIRECTORY_PICTURES, fileName, FileManager.SUFFIX_IMAGE)
                 ?: return null
         if (!file.exists() && file.createNewFile()) {
             return file

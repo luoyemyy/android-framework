@@ -1,6 +1,6 @@
 @file:Suppress("unused")
 
-package com.github.luoyemyy.config.ext
+package com.github.luoyemyy.ext
 
 import android.content.Context
 import android.content.pm.PackageManager

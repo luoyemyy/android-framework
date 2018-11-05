@@ -33,6 +33,16 @@
         <activity android:name=".recycler.RecyclerActivity" />
         <activity android:name=".transition.TransitionActivity" />
         <activity android:name=".exoplayer.ExoPlayerActivity" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.github.luoyemyy.framework.test"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 
 </manifest>

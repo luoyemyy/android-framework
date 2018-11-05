@@ -5,7 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Handler
 import android.util.Log
-import com.github.luoyemyy.config.ext.toast
+import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.file.FileManager
 import java.io.FileOutputStream
 import java.io.PrintWriter

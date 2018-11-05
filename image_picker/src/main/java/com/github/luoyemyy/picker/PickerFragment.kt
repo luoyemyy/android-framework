@@ -30,6 +30,14 @@ class PickerFragment : Fragment() {
                 }
             }, null).commit()
         }
+
+        fun start(fragment: Fragment, pickerBundle: PickerBundle) {
+            fragment.childFragmentManager.beginTransaction().add(PickerFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable("pickerBundle", pickerBundle)
+                }
+            }, null).commit()
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -50,8 +58,9 @@ class PickerFragment : Fragment() {
     private fun showPickerType() {
         when (mPickerBundle.pickerType) {
             1 -> {
-                AlertDialog.Builder(context).setItems(R.array.image_picker_type) { _, which ->
+                AlertDialog.Builder(context).setItems(R.array.image_picker_type) { dialog, which ->
                     mCancelDismiss = false
+                    dialog.dismiss()
                     when (which) {
                         0 -> toAlbum()
                         1 -> toCapture()
@@ -75,7 +84,8 @@ class PickerFragment : Fragment() {
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val presenter = requireActivity().getPresenter<PickerPresenter>()
+        val presenter = parentFragment?.getPresenter()
+                ?: requireActivity().getPresenter<PickerPresenter>()
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == ALBUM_REQUEST_CODE) {
                 presenter.postValue(data?.getStringArrayExtra("data")?.toList())
@@ -86,8 +96,9 @@ class PickerFragment : Fragment() {
         close()
     }
 
-    fun close() {
-        requireActivity().getPresenter<PickerPresenter>().removeObserver(this)
-        requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
+
+    private fun close() {
+        (parentFragment?.childFragmentManager
+                ?: requireActivity().supportFragmentManager).beginTransaction().remove(this).commit()
     }
 }
