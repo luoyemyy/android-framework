@@ -16,4 +16,18 @@
         <item name="android:windowEnterTransition">@transition/image_picker_preview</item>
         <item name="android:windowExitAnimation">@transition/image_picker_preview</item>
     </style>
+
+    <declare-styleable name="CropImageView">
+        <attr name="maskColor" format="color|reference" />
+        <attr name="aspectX" format="integer" />
+        <attr name="aspectY" format="integer" />
+        <attr name="cropWidth" format="enum|dimension">
+            <enum name="match_parent" value="-1" />
+            <enum name="relative_height" value="-2" />
+        </attr>
+        <attr name="cropHeight" format="enum|dimension">
+            <enum name="match_parent" value="-1" />
+            <enum name="relative_width" value="-2" />
+        </attr>
+    </declare-styleable>
 </resources>

@@ -22,6 +22,7 @@ import com.github.luoyemyy.picker.databinding.ImagePickerPreviewBinding
 import com.github.luoyemyy.picker.databinding.ImagePickerPreviewRecyclerBinding
 import com.github.luoyemyy.picker.entity.Image
 import com.github.luoyemyy.picker.helper.BindAdapter
+import com.github.luoyemyy.picker.view.ImageViewListener
 import kotlin.math.roundToInt
 
 class PreviewActivity : AppCompatActivity() {
@@ -50,21 +51,21 @@ class PreviewActivity : AppCompatActivity() {
         })
 
         mBinding.imgPreview.apply {
-            setScaleLevels(1f, 2f, 3f)
             val shareName = intent.extras?.getString("shareName")
             val path = intent.extras?.getString("image")
             ViewCompat.setTransitionName(this, shareName)
             BindAdapter.imagePicker(this, path)
 
-            setOnClickListener {
-                fullScreen(!mPresenter.fullScreen)
-            }
 
-            setOnScaleChangeListener { _, _, _ ->
-                if (!mPresenter.fullScreen) {
+            setImageViewListener(object : ImageViewListener {
+                override fun onChange() {
                     fullScreen(true)
                 }
-            }
+
+                override fun onSingleTap() {
+                    fullScreen(!mPresenter.fullScreen)
+                }
+            })
         }
 
         mBinding.recyclerView.apply {
@@ -98,11 +99,19 @@ class PreviewActivity : AppCompatActivity() {
         mPresenter.fullScreen = fullScreen
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.image_picker_albun_menu, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             android.R.id.home -> {
                 finishAfterTransition()
+            }
+            R.id.sure -> {
+                mBinding.imgPreview.crop()
             }
         }
         return super.onOptionsItemSelected(item)

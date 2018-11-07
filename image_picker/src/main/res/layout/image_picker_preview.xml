@@ -23,7 +23,7 @@
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
         </android.support.design.widget.AppBarLayout>
 
-        <com.github.chrisbanes.photoview.PhotoView
+        <com.github.luoyemyy.picker.view.CropImageView
             android:id="@+id/imgPreview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
