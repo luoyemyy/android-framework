@@ -16,15 +16,16 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, 0, 0)
     constructor(context: Context) : this(context, null, 0, 0)
 
-    private var mMatrix = matrix
-    private var mResetMatrix = matrix
+    protected var mMatrix = matrix
+    protected var mResetMatrix = matrix
     private var mInitMatrix = false
-    private var mImageViewListener: ImageViewListener? = null
+    private var mImageViewListeners = mutableListOf<ImageViewListener>()
     private val mScaleGestureDetector = ScaleGestureDetector(context, ScaleGestureListener())
     private val mGestureDetector = GestureDetector(context, GestureListener())
+    private var mChange = false
 
-    fun setImageViewListener(listener: ImageViewListener) {
-        mImageViewListener = listener
+    fun addImageViewListener(listener: ImageViewListener) {
+        mImageViewListeners.add(listener)
     }
 
     private fun initMatrix() {
@@ -37,16 +38,19 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         }
     }
 
-    private fun getMatrixValues(matrix: Matrix): FloatArray {
+    protected fun getMatrixValues(matrix: Matrix): FloatArray {
         val array = FloatArray(9)
         matrix.getValues(array)
         return array
     }
 
     private fun reset() {
+        animator(mMatrix, mResetMatrix)
+    }
 
-        val start = getMatrixValues(mMatrix)
-        val end = getMatrixValues(mResetMatrix)
+    protected fun animator(startMatrix: Matrix, endMatrix: Matrix) {
+        val start = getMatrixValues(startMatrix)
+        val end = getMatrixValues(endMatrix)
 
         val animator = ValueAnimator()
         animator.setObjectValues(start, end)
@@ -72,22 +76,40 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     }
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
+        if (event == null) return false
         mGestureDetector.onTouchEvent(event)
         mScaleGestureDetector.onTouchEvent(event)
+        if (mChange && event.action and MotionEvent.ACTION_MASK == MotionEvent.ACTION_UP) {
+            changeEnd()
+        }
         return true
+    }
+
+    open fun changeEnd() {
+
+    }
+
+    fun scale(scale: Float, x: Float, y: Float) {
+        mMatrix.postScale(scale, scale, x, y)
+        imageMatrix = mMatrix
+    }
+
+    fun translate(x: Float, y: Float) {
+        mMatrix.postTranslate(x, y)
+        imageMatrix = mMatrix
     }
 
     inner class ScaleGestureListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
 
         override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
-            mImageViewListener?.onChange()
+            mImageViewListeners.forEach { it.onChange() }
             initMatrix()
             return true
         }
 
         override fun onScale(detector: ScaleGestureDetector): Boolean {
-            mMatrix.postScale(detector.scaleFactor, detector.scaleFactor, detector.focusX, detector.focusY)
-            imageMatrix = mMatrix
+            scale(detector.scaleFactor, detector.focusX, detector.focusY)
+            mChange = true
             return true
         }
     }
@@ -96,24 +118,25 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
 
         override fun onDown(e: MotionEvent?): Boolean {
             initMatrix()
+            mChange = false
             return false
         }
 
         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
-            mImageViewListener?.onChange()
-            mMatrix.postTranslate(-distanceX, -distanceY)
-            imageMatrix = mMatrix
+            mImageViewListeners.forEach { it.onChange() }
+            translate(-distanceX, -distanceY)
+            mChange = true
             return true
         }
 
         override fun onDoubleTap(e: MotionEvent?): Boolean {
-            mImageViewListener?.onChange()
+            mImageViewListeners.forEach { it.onChange() }
             reset()
             return true
         }
 
         override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
-            mImageViewListener?.onSingleTap()
+            mImageViewListeners.forEach { it.onSingleTap() }
             return super.onSingleTapConfirmed(e)
         }
     }

@@ -57,7 +57,7 @@ class PreviewActivity : AppCompatActivity() {
             BindAdapter.imagePicker(this, path)
 
 
-            setImageViewListener(object : ImageViewListener {
+            addImageViewListener(object : ImageViewListener {
                 override fun onChange() {
                     fullScreen(true)
                 }
