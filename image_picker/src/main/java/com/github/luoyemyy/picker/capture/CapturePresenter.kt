@@ -17,11 +17,14 @@ import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.file.FileManager
 import com.github.luoyemyy.permission.PermissionManager
 import com.github.luoyemyy.picker.PickerBundle
-import com.github.luoyemyy.picker.PickerFragment
 import com.github.luoyemyy.picker.R
 import java.io.File
 
 class CapturePresenter(app: Application) : AndroidViewModel(app) {
+
+    companion object {
+        const val CAPTURE_REQUEST_CODE = 102
+    }
 
     private var mCacheCaptureFile: String? = null
     val captureErrorFlag = MutableLiveData<Boolean>()
@@ -46,7 +49,7 @@ class CapturePresenter(app: Application) : AndroidViewModel(app) {
                 Uri.fromFile(file)
             }
             intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
-            activity.startActivityForResult(intent, PickerFragment.CAPTURE_REQUEST_CODE)
+            activity.startActivityForResult(intent, CAPTURE_REQUEST_CODE)
             mCacheCaptureFile = file.absolutePath
         }.withDenied { future, _ ->
             future.toSettings(activity, activity.getString(R.string.image_picker_need_camera))

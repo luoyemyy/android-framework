@@ -3,10 +3,11 @@ package com.github.luoyemyy.picker.view
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.Drawable
+import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import com.github.luoyemyy.picker.CropOption
 import kotlin.math.min
 
 class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : PreviewImageView(context, attributeSet, defStyleAttr, defStyleRes) {
@@ -15,7 +16,8 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
     constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, 0, 0)
     constructor(context: Context) : this(context, null, 0, 0)
 
-    private var mMaskColor: Int = 0x88000000.toInt()
+    private var mCropOption: CropOption = CropOption.default()
+    private var mMaskColor: Int = 0x80000000.toInt()
     private val mPaint = Paint().apply {
         color = mMaskColor
     }
@@ -24,12 +26,8 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
         style = Paint.Style.STROKE
     }
 
-    /**
-     * 设置完图片后
-     */
-    override fun setImageDrawable(drawable: Drawable?) {
-        super.setImageDrawable(drawable)
-        matchBounds()
+    fun setCropOption(cropOption: CropOption) {
+        mCropOption = cropOption
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -54,12 +52,37 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
         canvas?.drawRect(cropRect, mStrokePaint)
     }
 
+    private fun cropSize(): Pair<Int, Int> {
+        when {
+            mCropOption.cropType == 1 -> return if (width < height) {
+                val w = min(mCropOption.size, width)
+                val h = min((w * mCropOption.ratio).toInt(), height)
+                Pair(w, h)
+            } else {
+                val h = min(mCropOption.size, height)
+                val w = min((h * mCropOption.ratio).toInt(), width)
+                Pair(w, h)
+            }
+            mCropOption.cropType == 2 -> return if (width < height) {
+                val w = (width * mCropOption.percent).toInt()
+                val h = min((w * mCropOption.ratio).toInt(), height)
+                Pair(w, h)
+            } else {
+                val h = (height * mCropOption.percent).toInt()
+                val w = min((h * mCropOption.ratio).toInt(), width)
+                Pair(w, h)
+            }
+            else -> return Pair(0, 0)
+        }
+
+    }
+
     /**
      * 计算裁剪区域
      */
     private fun calculateCropSpace(): RectF {
-        val space = min(height, width) / 8
-        return RectF((width / 2 - 3 * space).toFloat(), (height / 2 - 3 * space).toFloat(), (width / 2 + 3 * space).toFloat(), (height / 2 + 3 * space).toFloat())
+        val (x, y) = cropSize()
+        return RectF((width / 2 - x / 2).toFloat(), (height / 2 - y / 2).toFloat(), (width / 2 + x / 2).toFloat(), (height / 2 + y / 2).toFloat())
     }
 
     /**
@@ -73,11 +96,11 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
      * 保证图片完全覆盖裁剪区域
      */
     private fun matchBounds() {
-        changeMatrixType()
+        initMatrixType()
         val bitmap = (drawable as? BitmapDrawable)?.bitmap ?: return
         val src = RectF(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat())
         var scale = RectF(src)
-        val matrix = imageMatrix
+        val matrix = Matrix(imageMatrix)
         matrix.mapRect(src)
         val w = src.right - src.left
         val h = src.bottom - src.top
@@ -87,6 +110,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
 
         val startValues = getMatrixValues(matrix)
 
+        //缩放保持高度和宽度不小于裁剪区域
         val dw = w - cw
         val dh = h - ch
         if (dw < 0 || dh < 0) {
@@ -101,6 +125,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
             scale = src
         }
 
+        //平移保证裁剪区域在图片内
         if (scale.left > crop.left) {
             matrix.postTranslate(crop.left - scale.left, 0f)
         } else if (scale.right < crop.right) {
@@ -119,7 +144,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
     }
 
     fun crop(success: (Bitmap) -> Unit, failure: (Throwable) -> Unit) {
-        Thread {
+        AsyncTask.execute {
             var cropBitmap: Bitmap? = null
             val handler = Handler(Looper.getMainLooper())
             try {
@@ -133,6 +158,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
                 val ch = (cropRect.bottom - cropRect.top).toInt()
                 val matrixBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, imageMatrix, false)
                 cropBitmap = Bitmap.createBitmap(matrixBitmap, cx, cy, cw, ch)
+                matrixBitmap.recycle()
             } catch (e: Throwable) {
                 handler.post {
                     failure(e)
@@ -145,6 +171,6 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
                     }
                 }
             }
-        }.run()
+        }
     }
 }

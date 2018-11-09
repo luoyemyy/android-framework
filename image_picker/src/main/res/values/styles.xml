@@ -1,6 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <style name="ImagePickerTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowAnimationStyle">@style/ImagePickerActivityAnim</item>
+    </style>
+
+    <style name="ImagePickerActivityAnim">
+        <item name="android:activityOpenEnterAnimation">@anim/image_picker_dialog_in</item>
+        <item name="android:activityCloseExitAnimation">@anim/image_picker_dialog_out</item>
+    </style>
+
     <style name="ImagePickerAlbumTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@android:color/black</item>
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -16,18 +31,4 @@
         <item name="android:windowEnterTransition">@transition/image_picker_preview</item>
         <item name="android:windowExitAnimation">@transition/image_picker_preview</item>
     </style>
-
-    <declare-styleable name="CropImageView">
-        <attr name="maskColor" format="color|reference" />
-        <attr name="aspectX" format="integer" />
-        <attr name="aspectY" format="integer" />
-        <attr name="cropWidth" format="enum|dimension">
-            <enum name="match_parent" value="-1" />
-            <enum name="relative_height" value="-2" />
-        </attr>
-        <attr name="cropHeight" format="enum|dimension">
-            <enum name="match_parent" value="-1" />
-            <enum name="relative_width" value="-2" />
-        </attr>
-    </declare-styleable>
 </resources>

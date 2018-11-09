@@ -55,8 +55,11 @@ class Picker private constructor() {
             return this
         }
 
-        fun crop(aspectX: Int, aspectY: Int): Builder {
-            bundle.crop = true
+        fun crop(cropOption: CropOption = CropOption.default()): Builder {
+            bundle.cropType = cropOption.cropType
+            bundle.size = cropOption.size
+            bundle.percent = cropOption.percent
+            bundle.ratio = cropOption.ratio
             return this
         }
 

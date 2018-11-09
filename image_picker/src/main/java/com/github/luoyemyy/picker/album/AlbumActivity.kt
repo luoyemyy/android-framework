@@ -14,7 +14,6 @@ import android.support.v7.widget.RecyclerView
 import android.util.Pair
 import android.view.*
 import android.widget.ImageView
-import com.github.luoyemyy.ext.toJsonString
 import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.mvp.recycler.AbstractSingleRecyclerAdapter
 import com.github.luoyemyy.mvp.recycler.VH
@@ -161,16 +160,11 @@ class AlbumActivity : AppCompatActivity() {
                 val image = getItem(vh.adapterPosition) ?: return
                 val imageView = vh.binding?.imageView ?: return
                 val shareName = ViewCompat.getTransitionName(imageView) ?: return
-                val images = mAlbumPresenter.getDataSet().dataList()
-                val position = images.indexOf(image)
-                val shares: Array<Pair<View, String>> = arrayOf(Pair(imageView as View, shareName))
 
                 startActivity(Intent(this@AlbumActivity, PreviewActivity::class.java).apply {
-                    putExtra("position", position)
-                    putExtra("images", images.toJsonString())
                     putExtra("shareName", shareName)
                     putExtra("image", image.path)
-                }, ActivityOptions.makeSceneTransitionAnimation(this@AlbumActivity, *shares).toBundle())
+                }, ActivityOptions.makeSceneTransitionAnimation(this@AlbumActivity, Pair(imageView as View, shareName)).toBundle())
             } else {
                 mAlbumPresenter.clickSelect(vh.adapterPosition)
             }

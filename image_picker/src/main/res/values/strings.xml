@@ -15,6 +15,9 @@
     <string name="image_picker_need_camera">拍照需要使用相机的权限</string>
     <string name="image_picker_need_camera_app">没有找到可以使用相机的应用</string>
 
+    <string name="image_picker_type_camera">拍照</string>
+    <string name="image_picker_type_album">相册</string>
+    <string name="image_picker_type_cancel">取消</string>
     <string-array name="image_picker_type">
         <item>相册</item>
         <item>拍照</item>

@@ -8,18 +8,20 @@ class PickerBundle() : Parcelable {
     var maxSelect: Int = 1
     var pickerType: Int = 1 // 1 camera and album(default); 2 camera; 3 album
     var fileProvider: String? = null
-    var crop: Boolean = false
-    var aspectX: Int = 1
-    var aspectY: Int = 1
-    var portrait:Boolean = true
+    var cropType: Int = 0           // 0 不裁剪 1 按尺寸 2 按比例
+    var size: Int = 0               //dp 相对于imageView的最小边
+    var percent: Float = 0f         //相对于imageView的最小边的比例
+    var ratio: Float = 0f           //x:y 比例
+    var portrait: Boolean = true    //true 锁定垂直布局 false 锁定横向布局
 
     constructor(parcel: Parcel) : this() {
         maxSelect = parcel.readInt()
         pickerType = parcel.readInt()
         fileProvider = parcel.readString()
-        crop = parcel.readByte() != 0.toByte()
-        aspectX = parcel.readInt()
-        aspectY = parcel.readInt()
+        cropType = parcel.readInt()
+        size = parcel.readInt()
+        percent = parcel.readFloat()
+        ratio = parcel.readFloat()
         portrait = parcel.readByte() != 0.toByte()
     }
 
@@ -27,9 +29,10 @@ class PickerBundle() : Parcelable {
         parcel.writeInt(maxSelect)
         parcel.writeInt(pickerType)
         parcel.writeString(fileProvider)
-        parcel.writeByte(if (crop) 1 else 0)
-        parcel.writeInt(aspectX)
-        parcel.writeInt(aspectY)
+        parcel.writeInt(cropType)
+        parcel.writeInt(size)
+        parcel.writeFloat(percent)
+        parcel.writeFloat(ratio)
         parcel.writeByte(if (portrait) 1 else 0)
     }
 

@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Matrix
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
@@ -32,6 +33,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
      * 设置图片时，设置当前的scaleType
      */
     override fun setImageDrawable(drawable: Drawable?) {
+        mInitMatrixType = false
         scaleType = ScaleType.CENTER_INSIDE
         super.setImageDrawable(drawable)
     }
@@ -39,13 +41,12 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     /**
      * 设置matrix，并记录最初的matrix（以便可以重置当前图片)
      */
-    private fun initMatrix() {
+    fun initMatrixType() {
         if (!mInitMatrixType) {
             mInitMatrixType = true
             mMatrix.set(imageMatrix)
             mResetMatrix = Matrix(imageMatrix)
             scaleType = ScaleType.MATRIX
-            imageMatrix = mMatrix
         }
     }
 
@@ -110,10 +111,6 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
 
     }
 
-    fun changeMatrixType() {
-        initMatrix()
-    }
-
     /**
      * 图片缩放
      */
@@ -133,7 +130,6 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     inner class ScaleGestureListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
 
         override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
-            changeMatrixType()
             mImageViewListeners.forEach { it.onChange() }
             return true
         }
@@ -148,7 +144,8 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
 
         override fun onDown(e: MotionEvent?): Boolean {
-            changeMatrixType()
+            Log.e("GestureListener", "onDown:  ")
+            initMatrixType()
             mChange = false
             return false
         }
