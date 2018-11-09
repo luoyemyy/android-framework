@@ -111,7 +111,11 @@ class PreviewActivity : AppCompatActivity() {
                 finishAfterTransition()
             }
             R.id.sure -> {
-                mBinding.imgPreview.crop()
+                mBinding.imgPreview.crop({
+
+                }, {
+
+                })
             }
         }
         return super.onOptionsItemSelected(item)

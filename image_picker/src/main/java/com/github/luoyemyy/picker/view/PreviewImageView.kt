@@ -16,9 +16,9 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, 0, 0)
     constructor(context: Context) : this(context, null, 0, 0)
 
-    protected var mMatrix = matrix
-    protected var mResetMatrix = matrix
-    private var mInitMatrix = false
+    private var mMatrix = matrix
+    private var mResetMatrix = matrix
+    private var mInitMatrixType = false
     private var mImageViewListeners = mutableListOf<ImageViewListener>()
     private val mScaleGestureDetector = ScaleGestureDetector(context, ScaleGestureListener())
     private val mGestureDetector = GestureDetector(context, GestureListener())
@@ -28,9 +28,20 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         mImageViewListeners.add(listener)
     }
 
+    /**
+     * 设置图片时，设置当前的scaleType
+     */
+    override fun setImageDrawable(drawable: Drawable?) {
+        scaleType = ScaleType.CENTER_INSIDE
+        super.setImageDrawable(drawable)
+    }
+
+    /**
+     * 设置matrix，并记录最初的matrix（以便可以重置当前图片)
+     */
     private fun initMatrix() {
-        if (!mInitMatrix) {
-            mInitMatrix = true
+        if (!mInitMatrixType) {
+            mInitMatrixType = true
             mMatrix.set(imageMatrix)
             mResetMatrix = Matrix(imageMatrix)
             scaleType = ScaleType.MATRIX
@@ -38,16 +49,25 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         }
     }
 
+    /**
+     * 获得指定matrix的值
+     */
     protected fun getMatrixValues(matrix: Matrix): FloatArray {
         val array = FloatArray(9)
         matrix.getValues(array)
         return array
     }
 
+    /**
+     * 重置当前图片
+     */
     private fun reset() {
         animator(mMatrix, mResetMatrix)
     }
 
+    /**
+     * 动画
+     */
     protected fun animator(startMatrix: Matrix, endMatrix: Matrix) {
         val start = getMatrixValues(startMatrix)
         val end = getMatrixValues(endMatrix)
@@ -69,12 +89,10 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         animator.start()
     }
 
-    override fun setImageDrawable(drawable: Drawable?) {
-        mInitMatrix = false
-        scaleType = ScaleType.FIT_CENTER
-        super.setImageDrawable(drawable)
-    }
 
+    /**
+     * 接管事件
+     */
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event == null) return false
         mGestureDetector.onTouchEvent(event)
@@ -85,15 +103,28 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         return true
     }
 
+    /**
+     * 图片有变化时，变化结束会调用该方法
+     */
     open fun changeEnd() {
 
     }
 
+    fun changeMatrixType() {
+        initMatrix()
+    }
+
+    /**
+     * 图片缩放
+     */
     fun scale(scale: Float, x: Float, y: Float) {
         mMatrix.postScale(scale, scale, x, y)
         imageMatrix = mMatrix
     }
 
+    /**
+     * 图片平移
+     */
     fun translate(x: Float, y: Float) {
         mMatrix.postTranslate(x, y)
         imageMatrix = mMatrix
@@ -102,8 +133,8 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     inner class ScaleGestureListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
 
         override fun onScaleBegin(detector: ScaleGestureDetector?): Boolean {
+            changeMatrixType()
             mImageViewListeners.forEach { it.onChange() }
-            initMatrix()
             return true
         }
 
@@ -117,7 +148,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
     inner class GestureListener : GestureDetector.SimpleOnGestureListener() {
 
         override fun onDown(e: MotionEvent?): Boolean {
-            initMatrix()
+            changeMatrixType()
             mChange = false
             return false
         }
