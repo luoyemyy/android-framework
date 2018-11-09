@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
 import com.github.luoyemyy.picker.CropOption
+import com.github.luoyemyy.picker.Picker
 import kotlin.math.min
 
 class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : PreviewImageView(context, attributeSet, defStyleAttr, defStyleRes) {
@@ -16,7 +17,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
     constructor(context: Context, attributeSet: AttributeSet?) : this(context, attributeSet, 0, 0)
     constructor(context: Context) : this(context, null, 0, 0)
 
-    private var mCropOption: CropOption = CropOption.default()
+    private var mCropOption: CropOption = Picker.bundle.cropOption
     private var mMaskColor: Int = 0x80000000.toInt()
     private val mPaint = Paint().apply {
         color = mMaskColor

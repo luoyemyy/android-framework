@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import android.os.Process
+import android.util.Log
 
 internal class ActivityLifecycleWrapper : Application.ActivityLifecycleCallbacks {
 
@@ -24,10 +25,12 @@ internal class ActivityLifecycleWrapper : Application.ActivityLifecycleCallbacks
 
     override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
         activities.add(activity)
+        Log.e("ActivityLifecycle", "onActivityCreated:  ${activity?.toString()}")
     }
 
     override fun onActivityDestroyed(activity: Activity?) {
         activities.remove(activity)
+        Log.e("ActivityLifecycle", "onActivityDestroyed:  ${activity?.toString()}")
     }
 
     override fun onActivityPaused(activity: Activity?) {

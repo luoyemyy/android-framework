@@ -19,6 +19,7 @@ import com.github.luoyemyy.mvp.recycler.AbstractSingleRecyclerAdapter
 import com.github.luoyemyy.mvp.recycler.VH
 import com.github.luoyemyy.mvp.recycler.setGridManager
 import com.github.luoyemyy.mvp.recycler.setLinearManager
+import com.github.luoyemyy.picker.Picker
 import com.github.luoyemyy.picker.R
 import com.github.luoyemyy.picker.databinding.ImagePickerAlbumBinding
 import com.github.luoyemyy.picker.databinding.ImagePickerAlbumRecyclerBinding
@@ -52,8 +53,7 @@ class AlbumActivity : AppCompatActivity() {
             setTitle(R.string.image_picker_album_title)
             setDisplayHomeAsUpEnabled(true)
         }
-        mAlbumPresenter.setBundle(intent.extras)
-        requestedOrientation = if (mAlbumPresenter.pickerBundle.portrait) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        requestedOrientation = if (Picker.bundle.portrait) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         mAlbumPresenter.setMenu()
 
         mAlbumPresenter.apply {

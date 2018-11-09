@@ -16,6 +16,7 @@ import android.util.Log
 import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.file.FileManager
 import com.github.luoyemyy.permission.PermissionManager
+import com.github.luoyemyy.picker.Picker
 import com.github.luoyemyy.picker.PickerBundle
 import com.github.luoyemyy.picker.R
 import java.io.File
@@ -29,7 +30,7 @@ class CapturePresenter(app: Application) : AndroidViewModel(app) {
     private var mCacheCaptureFile: String? = null
     val captureErrorFlag = MutableLiveData<Boolean>()
 
-    fun capture(activity: FragmentActivity, pickerBundle: PickerBundle) {
+    fun capture(activity: FragmentActivity) {
         PermissionManager.withPass {
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (intent.resolveActivity(activity.packageManager) == null) {
@@ -43,7 +44,7 @@ class CapturePresenter(app: Application) : AndroidViewModel(app) {
                 return@withPass
             }
             val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                pickerBundle.fileProvider?.let { FileProvider.getUriForFile(activity, it, file) }
+                Picker.bundle.fileProvider?.let { FileProvider.getUriForFile(activity, it, file) }
                         ?: throw NullPointerException("need file provider external-path#Pictures dir")
             } else {
                 Uri.fromFile(file)

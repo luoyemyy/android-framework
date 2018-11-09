@@ -24,15 +24,10 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener {
     private lateinit var mBinding: ImagePickerPickerBinding
     private lateinit var mBehavior: BottomSheetBehavior<LinearLayout>
     private lateinit var mCapturePresenter: CapturePresenter
-    private lateinit var mPickerBundle: PickerBundle
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = DataBindingUtil.setContentView(this, R.layout.image_picker_picker)
-
-        mPickerBundle = intent.getParcelableExtra("pickerBundle") ?: let {
-            throw NullPointerException("pickerBundle is null")
-        }
 
         mCapturePresenter = getPresenter()
         mCapturePresenter.captureErrorFlag.observe(this, Observer {
@@ -61,15 +56,11 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun toCapture() {
-        mCapturePresenter.capture(this, mPickerBundle)
+        mCapturePresenter.capture(this)
     }
 
     private fun toAlbum() {
-        val bundle = intent.getParcelableExtra<PickerBundle>("pickerBundle") ?: return
-        val albumIntent = Intent(this, AlbumActivity::class.java).apply {
-            putExtra("pickerBundle", bundle)
-        }
-        startActivity(albumIntent)
+        startActivity(Intent(this, AlbumActivity::class.java))
     }
 
     private fun delay(millis: Long, runnable: () -> Unit) {

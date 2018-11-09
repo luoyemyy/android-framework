@@ -7,6 +7,7 @@ import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.mvp.recycler.LoadType
 import com.github.luoyemyy.mvp.recycler.Paging
+import com.github.luoyemyy.picker.Picker
 import com.github.luoyemyy.picker.PickerBundle
 import com.github.luoyemyy.picker.R
 import com.github.luoyemyy.picker.entity.Bucket
@@ -22,16 +23,11 @@ class AlbumPresenter(private val app: Application) : AbstractRecyclerPresenter<I
     val liveDataMenu = MutableLiveData<Boolean>()
     val liveDataImages = MutableLiveData<List<Image>>()
 
-    lateinit var pickerBundle: PickerBundle
     private val mModel: AlbumModel by lazy { AlbumModel(app) }
     private var mSizePair: Pair<Int, Int>? = null
 
-    fun setBundle(bundle: Bundle?) {
-        pickerBundle = bundle?.getParcelable("pickerBundle") ?: throw NullPointerException("pickerBundle is null")
-    }
-
     fun setMenu() {
-        val maxSelect = pickerBundle.maxSelect
+        val maxSelect = Picker.bundle.maxSelect
         if (maxSelect > 1) {
             val selectCount = findSelectImages().size
             mMenuText = app.getString(R.string.image_picker_selected, selectCount, maxSelect)
@@ -88,7 +84,7 @@ class AlbumPresenter(private val app: Application) : AbstractRecyclerPresenter<I
             }
             setMenu()
         } else {
-            val maxSelect = pickerBundle.maxSelect
+            val maxSelect = Picker.bundle.maxSelect
             if (selectImages.size >= maxSelect) {
                 val toast = app.getString(R.string.image_picker_tip2, maxSelect)
                 app.toast(message = toast)
