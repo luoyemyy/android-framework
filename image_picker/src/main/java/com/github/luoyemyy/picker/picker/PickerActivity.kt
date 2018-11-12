@@ -11,15 +11,18 @@ import android.support.v7.app.AppCompatActivity
 import android.view.View
 import android.widget.LinearLayout
 import com.github.luoyemyy.bus.BusManager
+import com.github.luoyemyy.bus.BusMsg
+import com.github.luoyemyy.bus.BusResult
 import com.github.luoyemyy.ext.toJsonString
 import com.github.luoyemyy.mvp.getPresenter
-import com.github.luoyemyy.picker.PickerBundle
+import com.github.luoyemyy.picker.ImagePicker
 import com.github.luoyemyy.picker.R
 import com.github.luoyemyy.picker.album.AlbumActivity
 import com.github.luoyemyy.picker.capture.CapturePresenter
+import com.github.luoyemyy.picker.crop.CropActivity
 import com.github.luoyemyy.picker.databinding.ImagePickerPickerBinding
 
-class PickerActivity : AppCompatActivity(), View.OnClickListener {
+class PickerActivity : AppCompatActivity(), View.OnClickListener, BusResult {
 
     private lateinit var mBinding: ImagePickerPickerBinding
     private lateinit var mBehavior: BottomSheetBehavior<LinearLayout>
@@ -39,6 +42,8 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener {
         mBinding.txtCamera.setOnClickListener(this)
 
         initDialog()
+
+        BusManager.setCallback(lifecycle, this, ImagePicker.ALBUM_RESULT)
     }
 
     override fun onClick(v: View?) {
@@ -101,7 +106,24 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == CapturePresenter.CAPTURE_REQUEST_CODE) {
-            BusManager.post("", stringValue = mCapturePresenter.captureResult(this).toJsonString())
+            pickerResult(mCapturePresenter.captureResult(this).toJsonString())
+            finish()
+        }
+    }
+
+    override fun busResult(event: String, msg: BusMsg) {
+        pickerResult(msg.stringValue)
+    }
+
+
+    private fun pickerResult(images: String?) {
+        when (ImagePicker.option.cropType) {
+            0 -> {
+                BusManager.post(ImagePicker.PICKER_RESULT, stringValue = images)
+            }
+            1, 2 -> {
+                startActivity(Intent(this, CropActivity::class.java).putExtra("images", images))
+            }
         }
     }
 }

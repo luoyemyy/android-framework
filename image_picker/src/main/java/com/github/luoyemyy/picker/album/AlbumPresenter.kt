@@ -7,8 +7,7 @@ import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.mvp.recycler.LoadType
 import com.github.luoyemyy.mvp.recycler.Paging
-import com.github.luoyemyy.picker.Picker
-import com.github.luoyemyy.picker.PickerBundle
+import com.github.luoyemyy.picker.ImagePicker
 import com.github.luoyemyy.picker.R
 import com.github.luoyemyy.picker.entity.Bucket
 import com.github.luoyemyy.picker.entity.Image
@@ -27,7 +26,7 @@ class AlbumPresenter(private val app: Application) : AbstractRecyclerPresenter<I
     private var mSizePair: Pair<Int, Int>? = null
 
     fun setMenu() {
-        val maxSelect = Picker.bundle.maxSelect
+        val maxSelect = ImagePicker.option.maxSelect
         if (maxSelect > 1) {
             val selectCount = findSelectImages().size
             mMenuText = app.getString(R.string.image_picker_selected, selectCount, maxSelect)
@@ -84,7 +83,7 @@ class AlbumPresenter(private val app: Application) : AbstractRecyclerPresenter<I
             }
             setMenu()
         } else {
-            val maxSelect = Picker.bundle.maxSelect
+            val maxSelect = ImagePicker.option.maxSelect
             if (selectImages.size >= maxSelect) {
                 val toast = app.getString(R.string.image_picker_tip2, maxSelect)
                 app.toast(message = toast)

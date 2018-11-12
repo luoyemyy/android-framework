@@ -27,7 +27,7 @@ import com.github.luoyemyy.framework.test.transition.TransitionActivity
 import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.mvp.recycler.*
 import com.github.luoyemyy.permission.PermissionManager
-import com.github.luoyemyy.picker.Picker
+import com.github.luoyemyy.picker.ImagePicker
 
 
 class MainActivity : AppCompatActivity(), BusResult {
@@ -91,7 +91,7 @@ class MainActivity : AppCompatActivity(), BusResult {
                 7 -> startActivity(Intent(this@MainActivity, TransitionActivity::class.java))
                 8 -> startActivity(Intent(this@MainActivity, ExoPlayerActivity::class.java))
                 9 -> {
-                    Picker.create().fileProvider("com.github.luoyemyy.framework.test").maxSelect(9).build().picker(this@MainActivity) {
+                    ImagePicker.create("com.github.luoyemyy.framework.test").maxSelect(9).cropByPercent(0.6f, 1.0f).build().picker(this@MainActivity) {
                         toast(message = it?.toJsonString() ?: "")
                     }
                 }

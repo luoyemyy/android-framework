@@ -1,6 +1,5 @@
 package com.github.luoyemyy.picker.album
 
-import android.app.Activity
 import android.app.ActivityOptions
 import android.arch.lifecycle.Observer
 import android.content.Intent
@@ -14,12 +13,14 @@ import android.support.v7.widget.RecyclerView
 import android.util.Pair
 import android.view.*
 import android.widget.ImageView
+import com.github.luoyemyy.bus.BusManager
+import com.github.luoyemyy.ext.toJsonString
 import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.mvp.recycler.AbstractSingleRecyclerAdapter
 import com.github.luoyemyy.mvp.recycler.VH
 import com.github.luoyemyy.mvp.recycler.setGridManager
 import com.github.luoyemyy.mvp.recycler.setLinearManager
-import com.github.luoyemyy.picker.Picker
+import com.github.luoyemyy.picker.ImagePicker
 import com.github.luoyemyy.picker.R
 import com.github.luoyemyy.picker.databinding.ImagePickerAlbumBinding
 import com.github.luoyemyy.picker.databinding.ImagePickerAlbumRecyclerBinding
@@ -53,7 +54,7 @@ class AlbumActivity : AppCompatActivity() {
             setTitle(R.string.image_picker_album_title)
             setDisplayHomeAsUpEnabled(true)
         }
-        requestedOrientation = if (Picker.bundle.portrait) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        requestedOrientation = if (ImagePicker.option.portrait) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         mAlbumPresenter.setMenu()
 
         mAlbumPresenter.apply {
@@ -65,9 +66,7 @@ class AlbumActivity : AppCompatActivity() {
                 invalidateOptionsMenu()
             })
             liveDataImages.observe(this@AlbumActivity, Observer { images ->
-                setResult(Activity.RESULT_OK, Intent().apply {
-                    putExtra("data", images?.map { it.path }?.toTypedArray() ?: arrayOf())
-                })
+                BusManager.post(ImagePicker.ALBUM_RESULT, stringValue = images?.map { it.path }.toJsonString())
                 finishAfterTransition()
             })
         }
@@ -120,7 +119,9 @@ class AlbumActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
-            android.R.id.home -> finish()
+            android.R.id.home -> {
+                finish()
+            }
             R.id.sure -> mAlbumPresenter.clickSure()
         }
         return super.onOptionsItemSelected(item)

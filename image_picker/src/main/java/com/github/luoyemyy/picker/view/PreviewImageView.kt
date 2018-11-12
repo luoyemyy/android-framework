@@ -34,7 +34,10 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
      */
     override fun setImageDrawable(drawable: Drawable?) {
         mInitMatrixType = false
-        scaleType = ScaleType.CENTER_INSIDE
+        mResetMatrix.reset()
+        mMatrix.reset()
+        mChange = false
+        scaleType = ScaleType.MATRIX
         super.setImageDrawable(drawable)
     }
 
@@ -57,6 +60,14 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         val array = FloatArray(9)
         matrix.getValues(array)
         return array
+    }
+
+    protected fun getResetValues(): FloatArray {
+        return getMatrixValues(mResetMatrix)
+    }
+
+    protected fun getCurrentValues(): FloatArray {
+        return getMatrixValues(mMatrix)
     }
 
     /**
@@ -166,6 +177,12 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
             mImageViewListeners.forEach { it.onSingleTap() }
             return super.onSingleTapConfirmed(e)
+        }
+
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+            Log.e("GestureListener", "onFling:  $velocityX")
+            Log.e("GestureListener", "onFling:  $velocityY")
+            return super.onFling(e1, e2, velocityX, velocityY)
         }
     }
 

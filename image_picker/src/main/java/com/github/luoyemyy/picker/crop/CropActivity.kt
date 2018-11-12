@@ -5,14 +5,9 @@ import android.content.pm.ActivityInfo
 import android.databinding.DataBindingUtil
 import android.graphics.Rect
 import android.os.Bundle
-import android.os.Handler
-import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.transition.Slide
-import android.transition.TransitionManager
-import android.transition.TransitionSet
 import android.view.*
 import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.mvp.recycler.AbstractSingleRecyclerAdapter
@@ -22,7 +17,6 @@ import com.github.luoyemyy.picker.databinding.ImagePickerCropBinding
 import com.github.luoyemyy.picker.databinding.ImagePickerCropRecyclerBinding
 import com.github.luoyemyy.picker.entity.Image
 import com.github.luoyemyy.picker.helper.BindAdapter
-import com.github.luoyemyy.picker.view.ImageViewListener
 import kotlin.math.roundToInt
 
 class CropActivity : AppCompatActivity() {
@@ -33,7 +27,7 @@ class CropActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_BEHIND
-        mBinding = DataBindingUtil.setContentView(this, R.layout.image_picker_preview)
+        mBinding = DataBindingUtil.setContentView(this, R.layout.image_picker_crop)
         mPresenter = getPresenter()
         mPresenter.setup(this, Adapter())
 
@@ -45,28 +39,10 @@ class CropActivity : AppCompatActivity() {
 
         mPresenter.liveDataPreviewImage.observe(this, Observer {
             if (it != null) {
-                ViewCompat.setTransitionName(mBinding.imgPreview, "${it.index}_share")
                 BindAdapter.imagePicker(mBinding.imgPreview, it.path)
             }
         })
 
-        mBinding.imgPreview.apply {
-            val shareName = intent.extras?.getString("shareName")
-            val path = intent.extras?.getString("image")
-            ViewCompat.setTransitionName(this, shareName)
-            BindAdapter.imagePicker(this, path)
-
-
-            addImageViewListener(object : ImageViewListener {
-                override fun onChange() {
-                    fullScreen(true)
-                }
-
-                override fun onSingleTap() {
-                    fullScreen(!mPresenter.fullScreen)
-                }
-            })
-        }
 
         mBinding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
@@ -84,19 +60,6 @@ class CropActivity : AppCompatActivity() {
         }
 
         mPresenter.loadInit(intent.extras)
-        Handler().postDelayed({
-            fullScreen(false)
-        }, 300)
-    }
-
-    private fun fullScreen(fullScreen: Boolean) {
-        val visible = if (fullScreen) View.GONE else View.VISIBLE
-        TransitionManager.beginDelayedTransition(mBinding.layoutContainer, TransitionSet()
-                .addTransition(Slide(Gravity.TOP).addTarget(mBinding.appBarLayout))
-                .addTransition(Slide(Gravity.BOTTOM).addTarget(mBinding.recyclerView)))
-        mBinding.recyclerView.visibility = visible
-        mBinding.appBarLayout.visibility = visible
-        mPresenter.fullScreen = fullScreen
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -145,13 +108,8 @@ class CropActivity : AppCompatActivity() {
         }
 
         override fun afterLoadInit(list: List<Image>?) {
-            if (list != null) {
-                val position = intent.getIntExtra("position", -1)
-                if (position in 0 until list.size) {
-                    mBinding.recyclerView.scrollToPosition(position)
-                }
-            }
+            super.afterLoadInit(list)
+            mPresenter.clickImage(0)
         }
-
     }
 }

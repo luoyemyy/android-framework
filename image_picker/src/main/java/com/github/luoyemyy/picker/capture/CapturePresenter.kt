@@ -16,8 +16,7 @@ import android.util.Log
 import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.file.FileManager
 import com.github.luoyemyy.permission.PermissionManager
-import com.github.luoyemyy.picker.Picker
-import com.github.luoyemyy.picker.PickerBundle
+import com.github.luoyemyy.picker.ImagePicker
 import com.github.luoyemyy.picker.R
 import java.io.File
 
@@ -31,32 +30,35 @@ class CapturePresenter(app: Application) : AndroidViewModel(app) {
     val captureErrorFlag = MutableLiveData<Boolean>()
 
     fun capture(activity: FragmentActivity) {
-        PermissionManager.withPass {
-            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-            if (intent.resolveActivity(activity.packageManager) == null) {
-                activity.toast(messageId = R.string.image_picker_need_camera_app)
-                captureErrorFlag.value = true
-                return@withPass
-            }
-            val file = createFile(activity) ?: let {
-                Log.e("CapturePresenter", "创建文件失败")
-                captureErrorFlag.value = true
-                return@withPass
-            }
-            val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                Picker.bundle.fileProvider?.let { FileProvider.getUriForFile(activity, it, file) }
-                        ?: throw NullPointerException("need file provider external-path#Pictures dir")
-            } else {
-                Uri.fromFile(file)
-            }
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
-            activity.startActivityForResult(intent, CAPTURE_REQUEST_CODE)
-            mCacheCaptureFile = file.absolutePath
-        }.withDenied { future, _ ->
-            future.toSettings(activity, activity.getString(R.string.image_picker_need_camera))
-            Log.e("CapturePresenter", "权限不足，需要同时拥有相机和文件读写的权限")
-            captureErrorFlag.value = true
-        }.request(activity, arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE))
+        PermissionManager
+                .withPass {
+                    val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                    if (intent.resolveActivity(activity.packageManager) == null) {
+                        activity.toast(messageId = R.string.image_picker_need_camera_app)
+                        captureErrorFlag.value = true
+                        return@withPass
+                    }
+                    val file = createFile(activity) ?: let {
+                        Log.e("CapturePresenter", "创建文件失败")
+                        captureErrorFlag.value = true
+                        return@withPass
+                    }
+                    val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        ImagePicker.option.fileProvider?.let { FileProvider.getUriForFile(activity, it, file) }
+                                ?: throw NullPointerException("need file provider external-path#Pictures dir")
+                    } else {
+                        Uri.fromFile(file)
+                    }
+                    intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+                    activity.startActivityForResult(intent, CAPTURE_REQUEST_CODE)
+                    mCacheCaptureFile = file.absolutePath
+                }
+                .withDenied { future, _ ->
+                    future.toSettings(activity, activity.getString(R.string.image_picker_need_camera))
+                    Log.e("CapturePresenter", "权限不足，需要同时拥有相机和文件读写的权限")
+                    captureErrorFlag.value = true
+                }
+                .request(activity, arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE))
     }
 
     fun captureResult(context: Context): List<String> {
