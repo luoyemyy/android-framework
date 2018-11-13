@@ -15,6 +15,7 @@ import com.github.luoyemyy.bus.BusManager
 import com.github.luoyemyy.bus.BusMsg
 import com.github.luoyemyy.bus.BusResult
 import com.github.luoyemyy.ext.toJsonString
+import com.github.luoyemyy.file.FileManager
 import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.permission.PermissionManager
 import com.github.luoyemyy.picker.ImagePicker
@@ -42,6 +43,7 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener, BusResult {
 
         initDialog()
 
+        FileManager.initManager(application)
         BusManager.setCallback(lifecycle, this, ImagePicker.ALBUM_RESULT, ImagePicker.CROP_RESULT)
     }
 

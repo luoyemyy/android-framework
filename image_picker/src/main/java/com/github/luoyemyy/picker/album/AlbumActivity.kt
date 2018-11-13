@@ -117,8 +117,9 @@ class AlbumActivity : AppCompatActivity() {
                 finishAfterTransition()
             }
             R.id.sure -> {
-                mAlbumPresenter.clickSure()
-                finishAfterTransition()
+                if (mAlbumPresenter.clickSure()) {
+                    finishAfterTransition()
+                }
             }
         }
         return super.onOptionsItemSelected(item)

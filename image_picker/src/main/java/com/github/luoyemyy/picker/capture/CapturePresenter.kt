@@ -30,22 +30,22 @@ class CapturePresenter(app: Application) : AndroidViewModel(app) {
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         if (intent.resolveActivity(activity.packageManager) == null) {
             activity.toast(messageId = R.string.image_picker_need_camera_app)
+            Log.e("CapturePresenter", "无相机应用")
             return
         }
-        val file = createFile(activity) ?: let {
+        val file = createFile() ?: let {
+            activity.toast(messageId = R.string.image_picker_create_file_failure)
             Log.e("CapturePresenter", "创建文件失败")
             return
         }
         val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            ImagePicker.option.fileProvider?.let { FileProvider.getUriForFile(activity, it, file) }
-                    ?: throw NullPointerException("need file provider external-path#Pictures dir")
+            FileProvider.getUriForFile(activity, ImagePicker.option.fileProvider, file)
         } else {
             Uri.fromFile(file)
         }
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
         activity.startActivityForResult(intent, CAPTURE_REQUEST_CODE)
         mCacheCaptureFile = file.absolutePath
-
     }
 
     fun captureResult(context: Context): List<String> {
@@ -56,8 +56,7 @@ class CapturePresenter(app: Application) : AndroidViewModel(app) {
         return listOf(fileName)
     }
 
-    private fun createFile(activity: FragmentActivity): File? {
-        FileManager.initManager(activity.application)
+    private fun createFile(): File? {
         val fileName = FileManager.getInstance().getName()
         val file = FileManager.getInstance().outer().publicStandardFile(Environment.DIRECTORY_PICTURES, fileName, FileManager.SUFFIX_IMAGE)
                 ?: return null

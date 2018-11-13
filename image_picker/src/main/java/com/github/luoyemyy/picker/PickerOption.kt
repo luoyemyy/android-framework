@@ -1,10 +1,9 @@
 package com.github.luoyemyy.picker
 
-class PickerOption {
+class PickerOption(var fileProvider: String) {
 
     var minSelect: Int = 1
     var maxSelect: Int = 1
-    var fileProvider: String? = null
     var portrait: Boolean = true        //true 锁定垂直布局 false 锁定横向布局
 
     var cropType: Int = 0               // 0 不裁剪 1 按尺寸 2 按比例

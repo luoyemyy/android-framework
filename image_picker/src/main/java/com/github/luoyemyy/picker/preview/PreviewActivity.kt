@@ -8,9 +8,7 @@ import android.support.v4.view.ViewCompat
 import android.support.v7.app.AppCompatActivity
 import android.transition.Slide
 import android.transition.TransitionManager
-import android.transition.TransitionSet
 import android.view.Gravity
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import com.github.luoyemyy.mvp.getPresenter
@@ -60,9 +58,7 @@ class PreviewActivity : AppCompatActivity() {
 
     private fun fullScreen(fullScreen: Boolean) {
         val visible = if (fullScreen) View.GONE else View.VISIBLE
-        TransitionManager.beginDelayedTransition(mBinding.layoutContainer, TransitionSet()
-                .addTransition(Slide(Gravity.TOP).addTarget(mBinding.appBarLayout))
-        )
+        TransitionManager.beginDelayedTransition(mBinding.layoutContainer, Slide(Gravity.TOP).addTarget(mBinding.appBarLayout))
         mBinding.appBarLayout.visibility = visible
         mPresenter.fullScreen = fullScreen
     }

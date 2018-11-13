@@ -51,9 +51,9 @@ class CropPresenter(var app: Application) : AbstractRecyclerPresenter<CropImage>
         }
     }
 
-    fun crop(file: File) {
+    fun crop(filePath: String) {
         liveDataCropImage.value?.apply {
-            cropPath = file.absolutePath
+            cropPath = filePath
             isCrop = true
             getAdapterSupport()?.apply {
                 getDataSet().change(index, getAdapter()) {}

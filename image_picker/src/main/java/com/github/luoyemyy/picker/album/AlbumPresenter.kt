@@ -22,7 +22,6 @@ class AlbumPresenter(private val app: Application) : AbstractRecyclerPresenter<I
     var buckets: List<Bucket>? = null
     val liveDataInit = MutableLiveData<Boolean>()
     val liveDataMenu = MutableLiveData<Boolean>()
-    val liveDataImages = MutableLiveData<List<Image>>()
 
     private val mModel: AlbumModel by lazy { AlbumModel(app) }
     private var mSizePair: Pair<Int, Int>? = null
@@ -99,18 +98,19 @@ class AlbumPresenter(private val app: Application) : AbstractRecyclerPresenter<I
         }
     }
 
-    fun clickSure() {
+    fun clickSure(): Boolean {
         val images = findSelectImages()
         if (images.isEmpty()) {
             app.toast(messageId = R.string.image_picker_tip1)
-            return
+            return false
         }
         val minSelect = ImagePicker.option.minSelect
         if (images.size < minSelect) {
             app.toast(message = app.getString(R.string.image_picker_tip3, minSelect))
-            return
+            return false
         }
         BusManager.post(ImagePicker.ALBUM_RESULT, stringValue = images.map { it.path }.toJsonString())
+        return true
     }
 
     private fun findSelectImages(): List<Image> {

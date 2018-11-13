@@ -18,25 +18,20 @@ class ImagePicker private constructor() {
         internal const val ALBUM_RESULT = "com.github.luoyemyy.picker.ImagePicker.ALBUM_RESULT"
         internal const val CROP_RESULT = "com.github.luoyemyy.picker.ImagePicker.CROP_RESULT"
 
+        /**
+         * @param fileProvider external-path#Pictures
+         */
         fun create(fileProvider: String): Builder {
-            return Builder().apply {
-                fileProvider(fileProvider)
-            }
+            return Builder(fileProvider)
         }
     }
 
-    class Builder {
+    class Builder internal constructor(fileProvider: String) {
 
-        private val mOption: PickerOption = PickerOption()
-
-
-        internal fun fileProvider(fileProvider: String): Builder {
-            mOption.fileProvider = fileProvider
-            return this
-        }
+        private val mOption = PickerOption(fileProvider)
 
         /**
-         * @param  0 < minSelect <= maxSelect
+         * @param  0 < minSelect <= maxSelect （默认1）
          */
         fun minSelect(minSelect: Int): Builder {
             mOption.minSelect = minSelect
@@ -44,10 +39,18 @@ class ImagePicker private constructor() {
         }
 
         /**
-         * @param maxSelect minSelect <= maxSelect
+         * @param maxSelect minSelect <= maxSelect  （默认1）
          */
         fun maxSelect(maxSelect: Int): Builder {
             mOption.maxSelect = maxSelect
+            return this
+        }
+
+        /**
+         * @param portrait true 竖屏（默认) ；false 横屏
+         */
+        fun portrait(portrait: Boolean): Builder {
+            mOption.portrait = portrait
             return this
         }
 
@@ -82,6 +85,14 @@ class ImagePicker private constructor() {
         }
 
         fun build(): ImagePicker {
+            if (mOption.maxSelect <= 0) {
+                mOption.maxSelect = 1
+            }
+            if (mOption.minSelect <= 0) {
+                mOption.minSelect = 1
+            } else if (mOption.minSelect > mOption.maxSelect) {
+                mOption.minSelect = mOption.maxSelect
+            }
             ImagePicker.option = mOption
             return ImagePicker()
         }

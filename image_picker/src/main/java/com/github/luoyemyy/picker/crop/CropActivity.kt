@@ -35,7 +35,7 @@ class CropActivity : AppCompatActivity() {
 
         setSupportActionBar(mBinding.toolbar)
         supportActionBar?.apply {
-            setTitle(R.string.image_picker_preview_title)
+            setTitle(R.string.image_picker_crop_title)
             setDisplayHomeAsUpEnabled(true)
         }
 
@@ -70,9 +70,9 @@ class CropActivity : AppCompatActivity() {
             }
             R.id.crop -> {
                 mBinding.imgPreview.crop {
-                    CropHelper.saveBitmap(it) { ok, file ->
-                        if (ok && file != null) {
-                            mPresenter.crop(file)
+                    CropHelper.saveBitmap(it) { ok, path ->
+                        if (ok && path != null) {
+                            mPresenter.crop(path)
                         }
                     }
                 }
