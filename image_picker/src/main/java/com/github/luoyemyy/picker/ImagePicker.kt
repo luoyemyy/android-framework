@@ -14,9 +14,7 @@ class ImagePicker private constructor() {
     companion object {
 
         internal lateinit var option: PickerOption
-        internal const val CAMERA_RESULT = "com.github.luoyemyy.picker.ImagePicker.CAMERA_RESULT"
         internal const val ALBUM_RESULT = "com.github.luoyemyy.picker.ImagePicker.ALBUM_RESULT"
-        internal const val CROP_RESULT = "com.github.luoyemyy.picker.ImagePicker.CROP_RESULT"
         internal const val PICKER_RESULT = "com.github.luoyemyy.picker.ImagePicker.PICKER_RESULT"
 
         fun create(fileProvider: String): Builder {
@@ -36,29 +34,51 @@ class ImagePicker private constructor() {
             return this
         }
 
+        /**
+         * @param  0 < minSelect <= maxSelect
+         */
+        fun minSelect(minSelect: Int): Builder {
+            mOption.minSelect = minSelect
+            return this
+        }
+
+        /**
+         * @param maxSelect minSelect <= maxSelect
+         */
         fun maxSelect(maxSelect: Int): Builder {
             mOption.maxSelect = maxSelect
             return this
         }
 
-        fun cropBySize(size: Int, ratio: Float): Builder {
+        /**
+         * 按照固定尺寸计算裁剪区域，不超过imageView的大小
+         * @param size cropSize > 0
+         * @param ratio  cropRatio > 0
+         */
+        fun cropBySize(size: Int, ratio: Float = 1f, require: Boolean = true): Builder {
             if (size <= 0) throw IllegalArgumentException("cropSize: cropSize > 0")
             if (ratio <= 0) throw IllegalArgumentException("cropRatio: cropRatio > 0")
             mOption.cropSize = size
             mOption.cropRatio = ratio
+            mOption.cropRequire = require
             mOption.cropType = 1
             return this
         }
 
-        fun cropByPercent(percent: Float, ratio: Float): Builder {
-            if (percent <= 0 || percent >= 1) throw IllegalArgumentException("cropPercent: 0 < cropPercent < 1")
+        /**
+         * 按照imageView的最小边的百分比计算裁剪区域
+         * @param percent 0 < cropPercent <= 1
+         * @param ratio  cropRatio > 0
+         */
+        fun cropByPercent(percent: Float = 0.6f, ratio: Float = 1f, require: Boolean = true): Builder {
+            if (percent <= 0 || percent > 1) throw IllegalArgumentException("cropPercent: 0 < cropPercent <= 1")
             if (ratio <= 0) throw IllegalArgumentException("cropRatio: cropRatio > 0")
             mOption.cropPercent = percent
             mOption.cropRatio = ratio
+            mOption.cropRequire = require
             mOption.cropType = 2
             return this
         }
-
 
         fun build(): ImagePicker {
             ImagePicker.option = mOption
@@ -67,27 +87,19 @@ class ImagePicker private constructor() {
     }
 
     fun picker(activity: FragmentActivity, callback: (List<String>?) -> Unit) {
-        BusManager.setCallback(activity.lifecycle, PickerInternal(callback), PICKER_RESULT, CROP_RESULT)
+        BusManager.setCallback(activity.lifecycle, PickerInternal(callback), PICKER_RESULT)
         activity.startActivity(Intent(activity, PickerActivity::class.java))
     }
 
     fun picker(fragment: Fragment, callback: (List<String>?) -> Unit) {
-        BusManager.setCallback(fragment.lifecycle, PickerInternal(callback), PICKER_RESULT, CROP_RESULT)
+        BusManager.setCallback(fragment.lifecycle, PickerInternal(callback), PICKER_RESULT)
         fragment.startActivity(Intent(fragment.requireContext(), PickerActivity::class.java))
     }
 
-
     inner class PickerInternal(private val mCallback: (List<String>?) -> Unit) : BusResult {
         override fun busResult(event: String, msg: BusMsg) {
-            if (PICKER_RESULT == event) {
-                if (option.cropType == 0) {
-                    mCallback(msg.stringValue?.toList())
-                } else {
-
-                }
-            } else {
-                mCallback(msg.stringValue?.toList())
-            }
+            mCallback(msg.stringValue?.toList())
+            BusManager.releaseEvents(PICKER_RESULT)
         }
     }
 }

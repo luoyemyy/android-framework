@@ -65,10 +65,6 @@ class AlbumActivity : AppCompatActivity() {
             liveDataMenu.observe(this@AlbumActivity, Observer {
                 invalidateOptionsMenu()
             })
-            liveDataImages.observe(this@AlbumActivity, Observer { images ->
-                BusManager.post(ImagePicker.ALBUM_RESULT, stringValue = images?.map { it.path }.toJsonString())
-                finishAfterTransition()
-            })
         }
 
         mBinding.recyclerView.apply {
@@ -122,7 +118,10 @@ class AlbumActivity : AppCompatActivity() {
             android.R.id.home -> {
                 finish()
             }
-            R.id.sure -> mAlbumPresenter.clickSure()
+            R.id.sure -> {
+                mAlbumPresenter.clickSure()
+                finishAfterTransition()
+            }
         }
         return super.onOptionsItemSelected(item)
     }

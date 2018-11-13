@@ -3,6 +3,8 @@ package com.github.luoyemyy.picker.album
 import android.app.Application
 import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
+import com.github.luoyemyy.bus.BusManager
+import com.github.luoyemyy.ext.toJsonString
 import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.mvp.recycler.AbstractRecyclerPresenter
 import com.github.luoyemyy.mvp.recycler.LoadType
@@ -85,8 +87,7 @@ class AlbumPresenter(private val app: Application) : AbstractRecyclerPresenter<I
         } else {
             val maxSelect = ImagePicker.option.maxSelect
             if (selectImages.size >= maxSelect) {
-                val toast = app.getString(R.string.image_picker_tip2, maxSelect)
-                app.toast(message = toast)
+                app.toast(message = app.getString(R.string.image_picker_tip2, maxSelect))
             } else {
                 getAdapterSupport()?.getAdapter()?.apply {
                     getDataSet().change(position, this) {
@@ -104,7 +105,12 @@ class AlbumPresenter(private val app: Application) : AbstractRecyclerPresenter<I
             app.toast(messageId = R.string.image_picker_tip1)
             return
         }
-        liveDataImages.postValue(images)
+        val minSelect = ImagePicker.option.minSelect
+        if (images.size < minSelect) {
+            app.toast(message = app.getString(R.string.image_picker_tip3, minSelect))
+            return
+        }
+        BusManager.post(ImagePicker.ALBUM_RESULT, stringValue = images.map { it.path }.toJsonString())
     }
 
     private fun findSelectImages(): List<Image> {

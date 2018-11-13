@@ -107,7 +107,6 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener, BusResult {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == CapturePresenter.CAPTURE_REQUEST_CODE) {
             pickerResult(mCapturePresenter.captureResult(this).toJsonString())
-            finish()
         }
     }
 
@@ -125,5 +124,6 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener, BusResult {
                 startActivity(Intent(this, CropActivity::class.java).putExtra("images", images))
             }
         }
+        finish()
     }
 }

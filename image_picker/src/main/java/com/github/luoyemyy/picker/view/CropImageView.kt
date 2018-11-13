@@ -7,6 +7,7 @@ import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import android.util.AttributeSet
+import android.util.Log
 import com.github.luoyemyy.picker.ImagePicker
 import kotlin.math.min
 
@@ -100,8 +101,7 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
         val bitmap = (drawable as? BitmapDrawable)?.bitmap ?: return
         val src = RectF(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat())
         var scale = RectF(src)
-        val matrix = Matrix(imageMatrix)
-        matrix.mapRect(src)
+        val matrix = Matrix(imageMatrix).apply { mapRect(src) }
         val w = src.right - src.left
         val h = src.bottom - src.top
         val crop = calculateCropSpace()
@@ -143,48 +143,82 @@ class CropImageView(context: Context, attributeSet: AttributeSet?, defStyleAttr:
         }
     }
 
-    fun crop(success: (Bitmap) -> Unit, failure: (Throwable) -> Unit) {
+    private fun checkBounds(): Boolean {
+        val afterCropRect = calculateCropSpace() //缩放后-裁剪区域坐标
+        val bitmap = (drawable as? BitmapDrawable)?.bitmap ?: return true
+        val afterBitmapRect = RectF(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat()).also {
+            imageMatrix.mapRect(it)//缩放后-图片区域坐标
+        }
+        return when {
+            afterBitmapRect.right - afterBitmapRect.left < afterCropRect.right - afterCropRect.left -> false
+            afterBitmapRect.bottom - afterBitmapRect.top < afterCropRect.bottom - afterCropRect.top -> false
+            afterBitmapRect.left > afterCropRect.left -> false
+            afterBitmapRect.top > afterCropRect.top -> false
+            afterBitmapRect.right < afterCropRect.right -> false
+            afterBitmapRect.bottom < afterCropRect.bottom -> false
+            else -> true
+        }
+    }
+
+    fun crop(failure: (Throwable?) -> Unit = {}, success: (Bitmap) -> Unit) {
+        if (!checkBounds()) {
+            failure(null)
+            matchBounds()
+            return
+        }
         AsyncTask.execute {
             var cropBitmap: Bitmap? = null
             val handler = Handler(Looper.getMainLooper())
             try {
-                //实际的裁剪区域坐标
-                val cropRect = calculateCropSpace()
+                val afterCropRect = calculateCropSpace() //缩放后-裁剪区域坐标
                 val bitmap = (drawable as BitmapDrawable).bitmap
-                val src = RectF(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat())
-                imageMatrix.mapRect(src)//计算图片经过变换后的区域坐标
+                val afterBitmapRect = RectF(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat()).also {
+                    imageMatrix.mapRect(it)//缩放后-图片区域坐标
+                }
 
-                //裁剪区域相对于图片的坐标
-                val cropWidth = cropRect.right - cropRect.left
-                val cropHeight = cropRect.bottom - cropRect.top
-                val cropX = cropRect.left - src.left
-                val cropY = cropRect.top - src.top
+                //缩放后-裁剪区域相对于图片坐标
+                val cw = afterCropRect.right - afterCropRect.left
+                val ch = afterCropRect.bottom - afterCropRect.top
+                val cx = afterCropRect.left - afterBitmapRect.left
+                val cy = afterCropRect.top - afterBitmapRect.top
 
                 //计算图片的缩放比例
-                val resetValues = getResetValues()
-                val currentValues = getCurrentValues()
-                val scale = currentValues[Matrix.MSCALE_X] / resetValues[Matrix.MSCALE_X]
+                val scale = getCurrentValues()[Matrix.MSCALE_X] / getResetValues()[Matrix.MSCALE_X]
+                val beforeCropRect = RectF(cx, cy, cx + cw, cy + ch).also {
+                    Matrix().apply {
+                        postScale(1 / scale, 1 / scale)
+                        mapRect(it)
+                    }
+                }
 
-                //计算裁剪区域还原缩放比例的宽度和高度
-                val cw = cropWidth / scale
-                val ch = cropHeight / scale
+                //缩放前-裁剪区域相对于图片坐标
+                val x = beforeCropRect.left.toInt()
+                val y = beforeCropRect.top.toInt()
+                val w = (beforeCropRect.right - beforeCropRect.left).toInt()
+                val h = (beforeCropRect.bottom - beforeCropRect.top).toInt()
 
-                //计算裁剪区域还原缩放比例后的左上角坐标
-                val w = cw.toInt()
-                val h = ch.toInt()
-                val x = (cropX - (cropWidth - cw) / 2).toInt()
-                val y = (cropY - (cropHeight - ch) / 2).toInt()
+//                Log.e("CropImageView", "crop:  图片尺寸 ${bitmap.width} ${bitmap.height}")
+//                Log.e("CropImageView", "crop:  缩放后-裁剪区域坐标 afterCropRect")
+//                Log.e("CropImageView", "crop:  缩放后-图片区域坐标 afterBitmapRect")
+//                Log.e("CropImageView", "crop:  缩放后-裁剪区域相对于图片坐标 ${RectF(cx, cy, cx + cw, cy + ch)}")
+//                Log.e("CropImageView", "crop:  缩放比例 $scale")
+//                Log.e("CropImageView", "crop:  缩放前-裁剪区域相对于图片坐标 $beforeCropRect")
 
-                cropBitmap = Bitmap.createBitmap(bitmap, x, y, w, h, imageMatrix, false)
+                val matrix = Matrix().apply {
+                    postScale(scale, scale)
+                }
+
+                cropBitmap = Bitmap.createBitmap(bitmap, x, y, w, h, matrix, false)
             } catch (e: Throwable) {
+                Log.e("CropImageView", "crop:  ", e)
                 handler.post {
                     failure(e)
                 }
             } finally {
                 handler.post {
                     cropBitmap?.apply {
-                        success(this)
                         setImageBitmap(this)
+                        success(this)
                     }
                 }
             }

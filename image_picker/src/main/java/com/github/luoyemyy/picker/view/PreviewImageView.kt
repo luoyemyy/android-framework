@@ -37,7 +37,7 @@ open class PreviewImageView(context: Context, attributeSet: AttributeSet?, defSt
         mResetMatrix.reset()
         mMatrix.reset()
         mChange = false
-        scaleType = ScaleType.MATRIX
+        scaleType = ScaleType.CENTER_INSIDE
         super.setImageDrawable(drawable)
     }
 

@@ -94,4 +94,12 @@ object BusManager {
         BusRegistry(lifecycle, result, events)
     }
 
+    fun releaseEvents(vararg events: String) {
+        mHandler.post {
+            mCallbacks[GROUP_DEFAULT].removeAll { callback ->
+                events.map { callback.interceptEvent().contains(it) }.firstOrNull { it } ?: false
+            }
+        }
+    }
+
 }

@@ -4,11 +4,11 @@
     <data>
         <variable
             name="image"
-            type="com.github.luoyemyy.picker.entity.Image" />
+            type="com.github.luoyemyy.picker.entity.CropImage" />
     </data>
 
     <ImageView
-        image_picker_image_url="@{image.path}"
+        image_picker_image_url="@{image.cropPath}"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:contentDescription="@null"
