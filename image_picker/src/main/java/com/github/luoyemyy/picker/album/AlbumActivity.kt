@@ -13,8 +13,6 @@ import android.support.v7.widget.RecyclerView
 import android.util.Pair
 import android.view.*
 import android.widget.ImageView
-import com.github.luoyemyy.bus.BusManager
-import com.github.luoyemyy.ext.toJsonString
 import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.mvp.recycler.AbstractSingleRecyclerAdapter
 import com.github.luoyemyy.mvp.recycler.VH
@@ -116,7 +114,7 @@ class AlbumActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
         when (item?.itemId) {
             android.R.id.home -> {
-                finish()
+                finishAfterTransition()
             }
             R.id.sure -> {
                 mAlbumPresenter.clickSure()

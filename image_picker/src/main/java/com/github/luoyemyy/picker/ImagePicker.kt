@@ -14,8 +14,9 @@ class ImagePicker private constructor() {
     companion object {
 
         internal lateinit var option: PickerOption
-        internal const val ALBUM_RESULT = "com.github.luoyemyy.picker.ImagePicker.ALBUM_RESULT"
         internal const val PICKER_RESULT = "com.github.luoyemyy.picker.ImagePicker.PICKER_RESULT"
+        internal const val ALBUM_RESULT = "com.github.luoyemyy.picker.ImagePicker.ALBUM_RESULT"
+        internal const val CROP_RESULT = "com.github.luoyemyy.picker.ImagePicker.CROP_RESULT"
 
         fun create(fileProvider: String): Builder {
             return Builder().apply {
@@ -87,19 +88,18 @@ class ImagePicker private constructor() {
     }
 
     fun picker(activity: FragmentActivity, callback: (List<String>?) -> Unit) {
-        BusManager.setCallback(activity.lifecycle, PickerInternal(callback), PICKER_RESULT)
+        BusManager.replaceCallback(activity.lifecycle, PickerInternal(callback), PICKER_RESULT)
         activity.startActivity(Intent(activity, PickerActivity::class.java))
     }
 
     fun picker(fragment: Fragment, callback: (List<String>?) -> Unit) {
-        BusManager.setCallback(fragment.lifecycle, PickerInternal(callback), PICKER_RESULT)
+        BusManager.replaceCallback(fragment.lifecycle, PickerInternal(callback), PICKER_RESULT)
         fragment.startActivity(Intent(fragment.requireContext(), PickerActivity::class.java))
     }
 
-    inner class PickerInternal(private val mCallback: (List<String>?) -> Unit) : BusResult {
+    inner class PickerInternal(private var mCallback: (List<String>?) -> Unit) : BusResult {
         override fun busResult(event: String, msg: BusMsg) {
-            mCallback(msg.stringValue?.toList())
-            BusManager.releaseEvents(PICKER_RESULT)
+            mCallback.invoke(msg.stringValue?.toList())
         }
     }
 }

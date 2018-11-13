@@ -9,13 +9,20 @@ import android.arch.lifecycle.OnLifecycleEvent
  * bus 管理注册器
  * 注册后，此事件监听会绑定生命周期，不用手动去释放
  */
-internal class BusRegistry constructor(private val lifecycle: Lifecycle, private val mResult: BusResult, private var mEvents: Array<out String>) : BusManager.Callback, LifecycleObserver {
+internal class BusRegistry constructor(private val replace: Boolean, private val lifecycle: Lifecycle, private val mResult: BusResult, private var mEvents: Array<out String>) : BusManager.Callback, LifecycleObserver {
 
     private val popEvents: MutableList<EventInfo> = mutableListOf()
 
     init {
         lifecycle.addObserver(this)
-        BusManager.register(this)
+    }
+
+    fun register() {
+        if (replace) {
+            BusManager.replaceRegister(this)
+        } else {
+            BusManager.register(this)
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

@@ -70,7 +70,7 @@ class CropPresenter(var app: Application) : AbstractRecyclerPresenter<CropImage>
             app.toast(R.string.image_picker_crop_tip)
             return false
         }
-        BusManager.post(ImagePicker.PICKER_RESULT, stringValue = mImages.map { it.cropPath }.toJsonString())
+        BusManager.post(ImagePicker.CROP_RESULT, stringValue = mImages.map { it.cropPath }.toJsonString())
         return true
     }
 

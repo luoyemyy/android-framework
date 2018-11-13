@@ -15,14 +15,11 @@
     <string name="image_picker_crop_title">裁剪图片</string>
     <string name="image_picker_crop_tip">请裁剪当前图片</string>
 
-    <string name="image_picker_need_camera">拍照需要使用相机的权限</string>
     <string name="image_picker_need_camera_app">没有找到可以使用相机的应用</string>
+    <string name="image_picker_need_camera_storage">拍照需要使用相机和存储图片的权限</string>
+    <string name="image_picker_need_storage">相册需要读取图片的权限</string>
 
     <string name="image_picker_type_camera">拍照</string>
     <string name="image_picker_type_album">相册</string>
     <string name="image_picker_type_cancel">取消</string>
-    <string-array name="image_picker_type">
-        <item>相册</item>
-        <item>拍照</item>
-    </string-array>
 </resources>

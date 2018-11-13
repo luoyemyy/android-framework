@@ -79,7 +79,7 @@ class CropActivity : AppCompatActivity() {
             }
             R.id.sure -> {
                 if (mPresenter.cropResult()) {
-                    finish()
+                    finishAfterTransition()
                 }
             }
         }

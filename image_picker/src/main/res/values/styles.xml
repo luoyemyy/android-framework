@@ -25,10 +25,12 @@
         <item name="android:windowTranslucentNavigation">false</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowActivityTransitions">true</item>
+        <item name="android:windowEnterTransition">@transition/image_picker_in</item>
+        <item name="android:windowExitTransition">@transition/image_picker_out</item>
     </style>
 
     <style name="ImagePickerPreviewTheme" parent="ImagePickerAlbumTheme">
         <item name="android:windowEnterTransition">@transition/image_picker_preview</item>
-        <item name="android:windowExitAnimation">@transition/image_picker_preview</item>
+        <item name="android:windowExitTransition">@transition/image_picker_preview</item>
     </style>
 </resources>

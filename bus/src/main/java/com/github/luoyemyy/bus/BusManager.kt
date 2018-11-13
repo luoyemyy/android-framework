@@ -28,6 +28,11 @@ object BusManager {
         fun interceptEvent(): Array<out String>
     }
 
+    private fun getCallbacks(group: Int): MutableList<Callback> {
+        return mCallbacks.get(group) ?: mutableListOf<Callback>().apply {
+            mCallbacks.put(group, this)
+        }
+    }
 
     /**
      * 注册回调
@@ -37,14 +42,14 @@ object BusManager {
     @MainThread
     fun register(callback: Callback) {
         val group = callback.interceptGroup()
-        mCallbacks.get(group)
-                ?.apply {
-                    add(callback)
-                }
-                ?: mutableListOf<Callback>().apply {
-                    mCallbacks.put(group, this)
-                    add(callback)
-                }
+        getCallbacks(group).add(callback)
+    }
+
+    @MainThread
+    fun replaceRegister(callback: Callback) {
+        val group = callback.interceptGroup()
+        mCallbacks.get(group)?.removeAll { it.callbackId == callback.callbackId }
+        getCallbacks(group).add(callback)
     }
 
     /**
@@ -91,7 +96,11 @@ object BusManager {
     }
 
     fun setCallback(lifecycle: Lifecycle, result: BusResult, vararg events: String) {
-        BusRegistry(lifecycle, result, events)
+        BusRegistry(false, lifecycle, result, events).register()
+    }
+
+    fun replaceCallback(lifecycle: Lifecycle, result: BusResult, vararg events: String) {
+        BusRegistry(true, lifecycle, result, events).register()
     }
 
     fun releaseEvents(vararg events: String) {

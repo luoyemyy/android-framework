@@ -91,9 +91,17 @@ class MainActivity : AppCompatActivity(), BusResult {
                 7 -> startActivity(Intent(this@MainActivity, TransitionActivity::class.java))
                 8 -> startActivity(Intent(this@MainActivity, ExoPlayerActivity::class.java))
                 9 -> {
-                    ImagePicker.create("com.github.luoyemyy.framework.test").maxSelect(9).cropByPercent(0.6f, 1f).build().picker(this@MainActivity) {
+                    ImagePicker.create("com.github.luoyemyy.framework.test").maxSelect(9)
+                            .build().picker(this@MainActivity) {
                         toast(message = it?.toJsonString() ?: "")
                     }
+                }
+                10 -> {
+                    ImagePicker.create("com.github.luoyemyy.framework.test").maxSelect(9)
+                            .cropByPercent(0.6f, 1f)
+                            .build().picker(this@MainActivity) {
+                                toast(message = it?.toJsonString() ?: "")
+                            }
                 }
             }
         }
@@ -113,7 +121,8 @@ class MainActivity : AppCompatActivity(), BusResult {
                     "permission",
                     "transition",
                     "exoPlayer",
-                    "imagePicker"
+                    "imagePicker",
+                    "imagePicker-crop"
             ) else listOf()
         }
     }

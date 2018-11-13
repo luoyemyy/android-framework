@@ -25,12 +25,12 @@ internal class ActivityLifecycleWrapper : Application.ActivityLifecycleCallbacks
 
     override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
         activities.add(activity)
-        Log.e("ActivityLifecycle", "onActivityCreated:  ${activity?.toString()}")
+//        Log.e("ActivityLifecycle", "onActivityCreated:  ${activity?.toString()}")
     }
 
     override fun onActivityDestroyed(activity: Activity?) {
         activities.remove(activity)
-        Log.e("ActivityLifecycle", "onActivityDestroyed:  ${activity?.toString()}")
+//        Log.e("ActivityLifecycle", "onActivityDestroyed:  ${activity?.toString()}")
     }
 
     override fun onActivityPaused(activity: Activity?) {

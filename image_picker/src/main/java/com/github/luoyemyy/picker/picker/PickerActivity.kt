@@ -1,13 +1,14 @@
 package com.github.luoyemyy.picker.picker
 
+import android.Manifest
 import android.app.Activity
-import android.arch.lifecycle.Observer
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.BottomSheetBehavior
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.View
 import android.widget.LinearLayout
 import com.github.luoyemyy.bus.BusManager
@@ -15,6 +16,7 @@ import com.github.luoyemyy.bus.BusMsg
 import com.github.luoyemyy.bus.BusResult
 import com.github.luoyemyy.ext.toJsonString
 import com.github.luoyemyy.mvp.getPresenter
+import com.github.luoyemyy.permission.PermissionManager
 import com.github.luoyemyy.picker.ImagePicker
 import com.github.luoyemyy.picker.R
 import com.github.luoyemyy.picker.album.AlbumActivity
@@ -33,9 +35,6 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener, BusResult {
         mBinding = DataBindingUtil.setContentView(this, R.layout.image_picker_picker)
 
         mCapturePresenter = getPresenter()
-        mCapturePresenter.captureErrorFlag.observe(this, Observer {
-            hideDialog()
-        })
 
         mBinding.txtCancel.setOnClickListener(this)
         mBinding.txtAlbum.setOnClickListener(this)
@@ -43,16 +42,26 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener, BusResult {
 
         initDialog()
 
-        BusManager.setCallback(lifecycle, this, ImagePicker.ALBUM_RESULT)
+        BusManager.setCallback(lifecycle, this, ImagePicker.ALBUM_RESULT, ImagePicker.CROP_RESULT)
     }
 
     override fun onClick(v: View?) {
         when (v) {
             mBinding.txtAlbum -> {
-                toAlbum()
+                PermissionManager.withPass {
+                    toAlbum()
+                }.withDenied { future, _ ->
+                    future.toSettings(this, getString(R.string.image_picker_need_storage))
+                    Log.e("CapturePresenter", "权限不足，需要拥有文件读写的权限")
+                }.request(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE))
             }
             mBinding.txtCamera -> {
-                toCapture()
+                PermissionManager.withPass {
+                    toCapture()
+                }.withDenied { future, _ ->
+                    future.toSettings(this, getString(R.string.image_picker_need_camera_storage))
+                    Log.e("CapturePresenter", "权限不足，需要同时拥有相机和文件读写的权限")
+                }.request(this, arrayOf(Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE))
             }
             mBinding.txtCancel -> {
                 hideDialog()
@@ -106,24 +115,34 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener, BusResult {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == CapturePresenter.CAPTURE_REQUEST_CODE) {
-            pickerResult(mCapturePresenter.captureResult(this).toJsonString())
+            imageResult(mCapturePresenter.captureResult(this).toJsonString())
         }
     }
 
     override fun busResult(event: String, msg: BusMsg) {
-        pickerResult(msg.stringValue)
+        if (event == ImagePicker.ALBUM_RESULT) {
+            imageResult(msg.stringValue)
+        } else if (event == ImagePicker.CROP_RESULT) {
+            pickerResult(msg.stringValue)
+        }
     }
 
-
-    private fun pickerResult(images: String?) {
+    private fun imageResult(images: String?) {
         when (ImagePicker.option.cropType) {
             0 -> {
-                BusManager.post(ImagePicker.PICKER_RESULT, stringValue = images)
+                pickerResult(images)
             }
             1, 2 -> {
                 startActivity(Intent(this, CropActivity::class.java).putExtra("images", images))
             }
         }
-        finish()
+    }
+
+    private fun pickerResult(images: String?) {
+        BusManager.post(ImagePicker.PICKER_RESULT, stringValue = images)
+        mBinding.layoutContainer.visibility = View.GONE
+        delay(300) {
+            finish()
+        }
     }
 }

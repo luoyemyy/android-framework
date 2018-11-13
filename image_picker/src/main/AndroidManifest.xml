@@ -16,6 +16,6 @@
             android:theme="@style/ImagePickerPreviewTheme" />
         <activity
             android:name=".crop.CropActivity"
-            android:theme="@style/ImagePickerPreviewTheme" />
+            android:theme="@style/ImagePickerAlbumTheme" />
     </application>
 </manifest>
