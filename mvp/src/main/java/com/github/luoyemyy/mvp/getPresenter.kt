@@ -1,4 +1,3 @@
-
 package com.github.luoyemyy.mvp
 
 import android.arch.lifecycle.AndroidViewModel

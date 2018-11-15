@@ -31,7 +31,7 @@ internal class LogWriter private constructor() {
 
     fun write(throwable: Throwable?, threadName: String, level: String, tag: String, msg: String, path: String) {
         AsyncTask.execute {
-            val logDateTime = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(Date())
+            val logDateTime = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
             val logInfo = try {
                 StringWriter().use { sw ->
                     PrintWriter(sw, true).use { writer ->
@@ -46,7 +46,7 @@ internal class LogWriter private constructor() {
                     sw
                 }.toString()
             } catch (e: Throwable) {
-                Log.e("LogWriter", "AsyncTask.execute:  ")
+                Log.e("LogWriter", "AsyncTask.execute:  ", e)
                 null
             } ?: return@execute
 
@@ -55,7 +55,7 @@ internal class LogWriter private constructor() {
                 try {
                     FileWriter("$path$logFileName.log.txt", true).write(logInfo)
                 } catch (e: Throwable) {
-                    Log.e("LogWriter", "write:  ")
+                    Log.e("LogWriter", "write:  ", e)
                 }
             }
         }
