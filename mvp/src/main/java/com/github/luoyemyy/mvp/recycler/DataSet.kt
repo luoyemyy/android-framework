@@ -44,13 +44,14 @@ class DataSet<T> {
      * -104 加载结束，加载错误
      */
     private var mLoadMoreState = MORE_INIT
+    private val mEnableLoadStates = arrayOf(MORE_INIT, MORE_COMPLETE, MORE_ERROR)
 
     /**
      * 判断是否可以加载更多
      * @return true 会将状态调整为加载中
      */
     fun canLoadMore(): Boolean {
-        return if (enableMore && mLoadMoreState in arrayOf(MORE_INIT, MORE_COMPLETE, MORE_ERROR)) {
+        return if (enableMore && mLoadMoreState in mEnableLoadStates) {
             loadingMore()
             true
         } else {
@@ -240,14 +241,14 @@ class DataSet<T> {
     /**
      * 增加内容列表，出现错误，刷新变化
      */
-    fun addError(adapter: RecyclerView.Adapter<*>) {
+    fun setError(adapter: RecyclerView.Adapter<*>) {
         postData {
             loadMoreError()
         }.dispatchUpdatesTo(adapter)
     }
 
     /**
-     * 删除内容列表，返回数据集的变化结果
+     * 删除内容列表，并刷新数据
      */
     fun remove(list: List<T>?, adapter: RecyclerView.Adapter<*>) {
         postData {

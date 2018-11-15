@@ -12,7 +12,7 @@ interface Paging {
 
     class Page : Paging {
 
-        var pageNumber: Long = 1
+        private var pageNumber: Long = 1
 
         override fun reset() {
             pageNumber = 1

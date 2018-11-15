@@ -189,7 +189,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
             loadType.isMore() -> {
                 mPaging.nextError()
                 mAdapterSupport?.apply {
-                    mDataSet.addError(getAdapter())
+                    mDataSet.setError(getAdapter())
                 }
             }
             loadType.isSearch() -> afterLoadSearch(null)
