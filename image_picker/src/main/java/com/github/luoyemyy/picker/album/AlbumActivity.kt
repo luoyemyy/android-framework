@@ -14,6 +14,7 @@ import android.util.Pair
 import android.view.*
 import android.widget.ImageView
 import com.github.luoyemyy.mvp.getPresenter
+import com.github.luoyemyy.mvp.getRecyclerPresenter
 import com.github.luoyemyy.mvp.recycler.AbstractSingleRecyclerAdapter
 import com.github.luoyemyy.mvp.recycler.VH
 import com.github.luoyemyy.mvp.recycler.setGridManager
@@ -39,10 +40,8 @@ class AlbumActivity : AppCompatActivity() {
 
         mBinding = DataBindingUtil.setContentView(this, R.layout.image_picker_album)
 
-        mBucketPresenter = getPresenter()
-        mAlbumPresenter = getPresenter()
-        mAlbumPresenter.setup(this, AlbumAdapter())
-        mBucketPresenter.setup(this, BucketAdapter())
+        mBucketPresenter = getRecyclerPresenter(this, BucketAdapter())
+        mAlbumPresenter = getRecyclerPresenter(this, AlbumAdapter())
         if (savedInstanceState != null) {
             mAlbumPresenter.reCalculateImageItemSize()
         }

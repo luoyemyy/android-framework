@@ -9,27 +9,25 @@ object Logger {
     var logPath: String? = null
 
     fun e(tag: String, msg: String, e: Throwable? = null) {
-        if (enableConsoleLog) {
-            Log.e(tag, msg, e)
-        }
         log("E", tag, msg, e)
     }
 
     fun i(tag: String, msg: String, e: Throwable? = null) {
-        if (enableConsoleLog) {
-            Log.i(tag, msg, e)
-        }
         log("I", tag, msg, e)
     }
 
     fun d(tag: String, msg: String, e: Throwable? = null) {
-        if (enableConsoleLog) {
-            Log.d(tag, msg, e)
-        }
         log("D", tag, msg, e)
     }
 
     private fun log(level: String, tag: String, msg: String, e: Throwable?) {
+        if (enableConsoleLog) {
+            when (level) {
+                "E" -> Log.e(tag, msg, e)
+                "I" -> Log.i(tag, msg, e)
+                "D" -> Log.d(tag, msg, e)
+            }
+        }
         val path = logPath ?: let {
             Log.w(tag, "logPath is null")
             return
