@@ -15,5 +15,5 @@ interface RecyclerPresenterWrapper<T> : LoadCallback<T> {
     fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle? = null, search: String? = null): List<T>?
 
     @MainThread
-    fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle? = null, search: String? = null, @MainThread result: (Boolean, List<T>?) -> Unit): Boolean
+    fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle? = null, search: String? = null,@MainThread result: (Boolean, List<T>?) -> Unit): Boolean
 }

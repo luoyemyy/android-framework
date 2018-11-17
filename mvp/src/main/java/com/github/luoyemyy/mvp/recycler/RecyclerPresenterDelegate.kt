@@ -11,15 +11,16 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
 
     private val mDataSet by lazy { DataSet<T>() }
     private var mPaging: Paging = Paging.Page()
-    private var mAdapterSupport: RecyclerAdapterSupport<T>? = adapter
+    private var mAdapterSupport: RecyclerAdapterSupport<T>? = null
     private val mLiveDataRefreshState = MutableLiveData<Boolean>()
     private var mDisposable: Disposable? = null
 
     init {
-        owner.lifecycle.addObserver(this)
-        adapter.setup(this)
 
-        mAdapterSupport?.apply {
+        owner.lifecycle.addObserver(this)
+
+        adapter.apply {
+            mAdapterSupport = this
             mDataSet.enableEmpty = enableEmpty()
             mDataSet.enableMore = enableLoadMore()
             mLiveDataRefreshState.observe(owner, Observer {
