@@ -26,7 +26,7 @@ import com.github.luoyemyy.framework.test.status.StatusActivity
 import com.github.luoyemyy.framework.test.transition.TransitionActivity
 import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.mvp.recycler.*
-import com.github.luoyemyy.permission.PermissionManager
+import com.github.luoyemyy.permission.PermissionHelper
 import com.github.luoyemyy.picker.ImagePicker
 
 
@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity(), BusResult {
                 4 -> startActivity(Intent(this@MainActivity, PagingActivity::class.java))
                 5 -> startActivity(Intent(this@MainActivity, RecyclerActivity::class.java))
                 6 -> {
-                    PermissionManager.newFuture().withPass {
+                    PermissionHelper.newFuture().withPass {
                         toast(message = "ok")
                     }.withDenied { _, _ ->
                         toast(message = "fail")

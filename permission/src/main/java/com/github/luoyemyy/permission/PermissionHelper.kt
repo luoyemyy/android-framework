@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -12,11 +13,9 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 
-object PermissionManager {
+object PermissionHelper {
 
     const val REQUEST_CODE = 95
-
-    fun newFuture(): Future = Future()
 
     fun withPass(pass: (() -> Unit)): Future {
         return Future().withPass(pass)
@@ -45,12 +44,16 @@ object PermissionManager {
             mDeniedRunnable = null
         }
 
+        /**
+         * 设置授权通过的回调
+         */
         fun withPass(pass: (() -> Unit)): Future {
             mPassRunnable = pass
             return this
         }
 
         /**
+         * 设置授权失败的回调
          * 可以使用 future.toSettings(activity,msg)，跳到应用详情页去授权
          */
         fun withDenied(denied: ((future: Future, permissions: Array<String>) -> Unit)): Future {
@@ -60,15 +63,7 @@ object PermissionManager {
 
         fun request(activity: FragmentActivity, permissions: Array<String>) {
 
-            if (permissions.isEmpty()) {
-                mPassRunnable?.invoke()
-                return
-            }
-            val requestPermission = permissions.filter { ContextCompat.checkSelfPermission(activity, it) == PackageManager.PERMISSION_DENIED }.toTypedArray()
-            if (requestPermission.isEmpty()) {
-                mPassRunnable?.invoke()
-                return
-            }
+            val requestPermission = filterPermissions(activity, permissions) ?: return
 
             mPresenter = ViewModelProviders.of(activity).get(PermissionPresenter::class.java).also {
                 it.addObserver(activity, this)
@@ -77,23 +72,20 @@ object PermissionManager {
             PermissionFragment.startPermissionFragment(activity.supportFragmentManager, requestPermission)
         }
 
-        fun request(fragment: Fragment, permissions: Array<String>) {
-
+        /**
+         * 返回未获得的权限列表
+         */
+        private fun filterPermissions(context: Context, permissions: Array<String>): Array<String>? {
             if (permissions.isEmpty()) {
                 mPassRunnable?.invoke()
-                return
+                return null
             }
-            val requestPermission = permissions.filter { ContextCompat.checkSelfPermission(fragment.requireContext(), it) == PackageManager.PERMISSION_DENIED }.toTypedArray()
+            val requestPermission = permissions.filter { ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_DENIED }.toTypedArray()
             if (requestPermission.isEmpty()) {
                 mPassRunnable?.invoke()
-                return
+                return null
             }
-
-            mPresenter = ViewModelProviders.of(fragment).get(PermissionPresenter::class.java).also {
-                it.addObserver(fragment, this)
-            }
-
-            PermissionFragment.startPermissionFragment(fragment.childFragmentManager, requestPermission)
+            return requestPermission
         }
 
         fun toSettings(activity: Activity, msg: String, cancel: String = "取消", sure: String = "去设置") {

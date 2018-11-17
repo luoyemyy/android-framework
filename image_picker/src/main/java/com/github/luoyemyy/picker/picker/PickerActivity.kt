@@ -17,7 +17,7 @@ import com.github.luoyemyy.bus.BusResult
 import com.github.luoyemyy.ext.toJsonString
 import com.github.luoyemyy.file.FileManager
 import com.github.luoyemyy.mvp.getPresenter
-import com.github.luoyemyy.permission.PermissionManager
+import com.github.luoyemyy.permission.PermissionHelper
 import com.github.luoyemyy.picker.ImagePicker
 import com.github.luoyemyy.picker.R
 import com.github.luoyemyy.picker.album.AlbumActivity
@@ -50,7 +50,7 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener, BusResult {
     override fun onClick(v: View?) {
         when (v) {
             mBinding.txtAlbum -> {
-                PermissionManager.withPass {
+                PermissionHelper.withPass {
                     toAlbum()
                 }.withDenied { future, _ ->
                     future.toSettings(this, getString(R.string.image_picker_need_storage))
@@ -58,7 +58,7 @@ class PickerActivity : AppCompatActivity(), View.OnClickListener, BusResult {
                 }.request(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE))
             }
             mBinding.txtCamera -> {
-                PermissionManager.withPass {
+                PermissionHelper.withPass {
                     toCapture()
                 }.withDenied { future, _ ->
                     future.toSettings(this, getString(R.string.image_picker_need_camera_storage))

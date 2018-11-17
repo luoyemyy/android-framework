@@ -27,36 +27,26 @@ internal class PermissionFragment : Fragment() {
 
         val permissions = arguments?.getStringArray(REQUEST_PERMISSION)
         if (permissions != null) {
-            requestPermissions(permissions, PermissionManager.REQUEST_CODE)
+            requestPermissions(permissions, PermissionHelper.REQUEST_CODE)
         } else {
             closeRequest()
         }
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        if (requestCode == PermissionManager.REQUEST_CODE) {
+        if (requestCode == PermissionHelper.REQUEST_CODE) {
             val deniedList = mutableListOf<String>()
             grantResults.forEachIndexed { index, i ->
                 if (i == PackageManager.PERMISSION_DENIED) {
                     deniedList.add(permissions[index])
                 }
             }
-            val parent = parentFragment
-            if (parent == null) {
-                ViewModelProviders.of(requireActivity()).get(PermissionPresenter::class.java).postValue(deniedList.toTypedArray())
-            } else {
-                ViewModelProviders.of(parent).get(PermissionPresenter::class.java).postValue(deniedList.toTypedArray())
-            }
+            ViewModelProviders.of(requireActivity()).get(PermissionPresenter::class.java).postValue(deniedList.toTypedArray())
         }
         closeRequest()
     }
 
     private fun closeRequest() {
-        val parent = parentFragment
-        if (parent == null) {
-            requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
-        } else {
-            parent.childFragmentManager.beginTransaction().remove(this).commit()
-        }
+        requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
     }
 }

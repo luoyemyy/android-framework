@@ -7,7 +7,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 
-class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>, private val mPresenterWrapper: RecyclerPresenterWrapper<T>) : RecyclerPresenterSupport<T>, LifecycleObserver {
+class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>, private val mPresenterWrapper: RecyclerPresenterWrapper<T>) : LifecycleObserver {
 
     private val mDataSet by lazy { DataSet<T>() }
     private var mPaging: Paging = Paging.Page()
@@ -41,11 +41,11 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
         source?.lifecycle?.removeObserver(this)
     }
 
-    override fun getDataSet(): DataSet<T> {
+    fun getDataSet(): DataSet<T> {
         return mDataSet
     }
 
-    override fun getPaging(): Paging {
+    fun getPaging(): Paging {
         return mPaging
     }
 
@@ -66,7 +66,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
         }
     }
 
-    override fun loadInit(bundle: Bundle?) {
+    fun loadInit(bundle: Bundle?) {
         beforeLoadInit(bundle)
         loadData(LoadType.init(), bundle)
     }
@@ -89,7 +89,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
         }
     }
 
-    override fun loadRefresh() {
+    fun loadRefresh() {
         beforeLoadRefresh()
         loadData(LoadType.refresh())
     }
@@ -111,7 +111,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
         }
     }
 
-    override fun loadMore() {
+    fun loadMore() {
         if (!mDataSet.canLoadMore()) {
             return
         }
@@ -137,7 +137,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
         }
     }
 
-    override fun loadSearch(search: String) {
+    fun loadSearch(search: String) {
         beforeLoadSearch(search)
         loadData(LoadType.search(), null, search)
     }
@@ -163,10 +163,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
             mDisposable?.apply {
                 if (!isDisposed) dispose()
             }
-            mDisposable = Single
-                    .create<List<T>> {
-                        it.onSuccess(mPresenterWrapper.loadData(loadType, mPaging, bundle, search) ?: listOf())
-                    }
+            mDisposable = Single.create<List<T>> { it.onSuccess(mPresenterWrapper.loadData(loadType, mPaging, bundle, search) ?: listOf()) }
                     .subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ loadAfter(loadType, it) }, { loadAfterError(loadType) })
         }

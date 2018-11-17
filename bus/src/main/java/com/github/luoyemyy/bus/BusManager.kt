@@ -96,11 +96,11 @@ object BusManager {
     }
 
     fun setCallback(lifecycle: Lifecycle, result: BusResult, vararg events: String) {
-        BusRegistry(false, lifecycle, result, events).register()
+        BusRegistry(lifecycle, result, events).register(false)
     }
 
     fun replaceCallback(lifecycle: Lifecycle, result: BusResult, vararg events: String) {
-        BusRegistry(true, lifecycle, result, events).register()
+        BusRegistry(lifecycle, result, events).register(true)
     }
 
     fun releaseEvents(vararg events: String) {
