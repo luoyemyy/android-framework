@@ -4,6 +4,8 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LifecycleOwner
 import android.os.Bundle
+import android.support.annotation.MainThread
+import android.support.annotation.WorkerThread
 
 abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel(app), RecyclerPresenterSupport<T>, RecyclerPresenterWrapper<T> {
 
@@ -39,5 +41,15 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
 
     override fun loadSearch(search: String) {
         mDelegate.loadSearch(search)
+    }
+
+    @WorkerThread
+    override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<T>? {
+        return null
+    }
+
+    @MainThread
+    override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?, @MainThread result: (Boolean, List<T>?) -> Unit): Boolean {
+        return false
     }
 }

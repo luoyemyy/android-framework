@@ -66,6 +66,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
     }
 
     override fun loadInit(bundle: Bundle?) {
+        beforeLoadInit(bundle)
         loadData(LoadType.init(), bundle)
     }
 
@@ -88,6 +89,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
     }
 
     override fun loadRefresh() {
+        beforeLoadRefresh()
         loadData(LoadType.refresh())
     }
 
@@ -112,6 +114,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
         if (!mDataSet.canLoadMore()) {
             return
         }
+        beforeLoadMore()
         loadData(LoadType.more())
 
     }
@@ -134,6 +137,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
     }
 
     override fun loadSearch(search: String) {
+        beforeLoadSearch(search)
         loadData(LoadType.search(), null, search)
     }
 
@@ -147,29 +151,23 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
     }
 
     private fun loadData(loadType: LoadType, bundle: Bundle? = null, search: String? = null) {
-        mDisposable?.apply {
-            if (!isDisposed) dispose()
+        val r = mPresenterWrapper.loadData(loadType, mPaging, bundle, search) { ok, value ->
+            if (ok) {
+                loadAfter(loadType, value)
+            } else {
+                loadAfterError(loadType)
+            }
         }
-        loadBefore(loadType, bundle, search)
-        mDisposable = Single
-                .create<List<T>> {
-                    it.onSuccess(mPresenterWrapper.loadData(loadType, mPaging, bundle, search)
-                            ?: listOf())
-                }
-                .subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
-                .subscribe({
-                    loadAfter(loadType, it)
-                }, {
-                    loadError(loadType)
-                })
-    }
-
-    private fun loadBefore(loadType: LoadType, bundle: Bundle? = null, search: String? = null) {
-        when {
-            loadType.isInit() -> beforeLoadInit(bundle)
-            loadType.isRefresh() -> beforeLoadRefresh()
-            loadType.isMore() -> beforeLoadMore()
-            loadType.isSearch() -> beforeLoadSearch(search ?: "")
+        if (!r) {
+            mDisposable?.apply {
+                if (!isDisposed) dispose()
+            }
+            mDisposable = Single
+                    .create<List<T>> {
+                        it.onSuccess(mPresenterWrapper.loadData(loadType, mPaging, bundle, search) ?: listOf())
+                    }
+                    .subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({ loadAfter(loadType, it) }, { loadAfterError(loadType) })
         }
     }
 
@@ -182,7 +180,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
         }
     }
 
-    private fun loadError(loadType: LoadType) {
+    private fun loadAfterError(loadType: LoadType) {
         when {
             loadType.isInit() -> afterLoadInit(null)
             loadType.isRefresh() -> afterLoadRefresh(null)

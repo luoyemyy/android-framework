@@ -37,6 +37,6 @@ abstract class AbstractPresenter<T>(app: Application) : AndroidViewModel(app) {
 
     val data = MutableLiveData<T>()
 
-    abstract fun load(bundle: Bundle? = null)
+    fun load(bundle: Bundle? = null) {}
 
 }

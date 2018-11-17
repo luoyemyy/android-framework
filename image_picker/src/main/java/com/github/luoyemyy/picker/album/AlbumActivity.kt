@@ -72,6 +72,7 @@ class AlbumActivity : AppCompatActivity() {
         mBinding.recyclerView2.apply {
             setLinearManager()
             mBottomSheet = BottomSheetBehavior.from(this)
+            mBottomSheet.peekHeight = 0
             mBottomSheet.isHideable = true
             hideBucket()
         }
