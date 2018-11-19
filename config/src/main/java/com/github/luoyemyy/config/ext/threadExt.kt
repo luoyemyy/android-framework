@@ -2,13 +2,13 @@
 
 package com.github.luoyemyy.config.ext
 
+import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
-import com.github.luoyemyy.async.AsyncRun
 
 /**
  * thread run
  */
-fun runOnWorker(run: () -> Unit) = AsyncRun.newCall<Any>().create { run() }
+fun runOnWorker(run: () -> Unit) = AsyncTask.THREAD_POOL_EXECUTOR.execute(run)
 
 fun runOnMain(run: () -> Unit) = Handler(Looper.getMainLooper()).post(run)

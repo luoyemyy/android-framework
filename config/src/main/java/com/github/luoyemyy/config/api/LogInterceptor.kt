@@ -17,16 +17,17 @@ class LogInterceptor : Interceptor {
         val size = response.body()?.contentLength() ?: 0
         if (size > 0L) {
             Logger.i("LogInterceptor", "<<<<<<:${response.peekBody(size).string()}")
+        } else {
+            Logger.i("LogInterceptor", "<<<<<<:{},contentLength()==0")
         }
         return response
     }
 
     private fun preLog(request: Request): Request {
         val method = request.method().toUpperCase()
-        val logBuilder = StringBuilder()
-        when (method) {
-            "GET" -> logBuilder.append(">>>>>>:get,${request.url()}")
-            "POST" -> logBuilder.append(">>>>>>:post,${request.url()},${postBodyParam(request.body())}")
+        val logBuilder = StringBuilder().append(">>>>>>:$method,${request.url()}")
+        if (method.equals("POST", true)) {
+            logBuilder.append(",${postBodyParam(request.body())}")
         }
         Logger.i("LogInterceptor", "preLog:  $logBuilder")
         return request

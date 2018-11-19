@@ -28,6 +28,7 @@ import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.mvp.recycler.*
 import com.github.luoyemyy.permission.PermissionHelper
 import com.github.luoyemyy.picker.ImagePicker
+import java.lang.NullPointerException
 
 
 class MainActivity : AppCompatActivity(), BusResult {
@@ -103,6 +104,9 @@ class MainActivity : AppCompatActivity(), BusResult {
                                 toast(message = it?.toJsonString() ?: "")
                             }
                 }
+                11->{
+                    throw NullPointerException()
+                }
             }
         }
 
@@ -122,7 +126,8 @@ class MainActivity : AppCompatActivity(), BusResult {
                     "transition",
                     "exoPlayer",
                     "imagePicker",
-                    "imagePicker-crop"
+                    "imagePicker-crop",
+                    "exception"
             ) else listOf()
         }
     }

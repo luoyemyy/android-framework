@@ -1,36 +1,25 @@
-package com.github.luoyemyy.config.app
+package com.github.luoyemyy.logger
 
 import android.app.Application
 import android.content.Context
 import android.os.Build
-import android.os.Handler
 import android.util.Log
-import com.github.luoyemyy.ext.toast
-import com.github.luoyemyy.file.FileManager
+import java.io.File
 import java.io.FileOutputStream
 import java.io.PrintWriter
 import java.io.StringWriter
+import java.text.SimpleDateFormat
+import java.util.*
 
 
-internal class AppError private constructor(private val mApp: Application, private val mDefaultHandler: Thread.UncaughtExceptionHandler) : Thread.UncaughtExceptionHandler {
+class AppError private constructor(private val mApp: Application, private val mDefaultHandler: Thread.UncaughtExceptionHandler) : Thread.UncaughtExceptionHandler {
 
     //用来存储设备信息和异常信息
     private var deviceInfo: String? = null
 
     override fun uncaughtException(thread: Thread?, ex: Throwable?) {
-        val log = handleException(ex)
-        if (log != null) {
-            //如果用户没有处理则让系统默认的异常处理器来处理
-            mDefaultHandler.uncaughtException(thread, ex)
-
-            if (!AppInfo.profile.isPro()) {
-                mApp.toast(message = log)
-            }
-
-            Handler().postDelayed({
-                ActivityLifecycleWrapper.instance.exit()
-            }, 3000)
-        }
+        handleException(ex)
+        mDefaultHandler.uncaughtException(thread, ex)
     }
 
     private fun handleException(ex: Throwable?): String? {
@@ -43,9 +32,17 @@ internal class AppError private constructor(private val mApp: Application, priva
         }
         //打印和保存日志文件
         val log = collectExceptionInfo(ex)
-        FileOutputStream(FileManager.getInstance().log()).use { it.write(log.toByteArray()) }
+        logFile()?.apply {
+            FileOutputStream(this).use { it.write(log.toByteArray()) }
+        }
         Log.e("AppError", "handleException:  $log")
         return log
+    }
+
+    private fun logFile(): File? {
+        val path = Logger.logPath ?: return null
+        val logFileName = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(Date())
+        return File.createTempFile(logFileName, ".log.txt", File(path))
     }
 
     @Suppress("DEPRECATION")
