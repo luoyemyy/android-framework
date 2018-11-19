@@ -25,9 +25,17 @@ interface RecyclerAdapterSupport<T> : LoadCallback<T> {
     }
 
     /**
+     * 加载完全部数据后，是否隐藏该项目
+     */
+    fun loadMoreEndGone(): Boolean {
+        return false
+    }
+
+    /**
      * 是否需要空数据样式
      */
     fun enableEmpty(): Boolean {
         return true
     }
+
 }

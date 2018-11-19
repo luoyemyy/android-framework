@@ -20,7 +20,6 @@ import com.github.luoyemyy.framework.test.drawer.DrawerActivity
 import com.github.luoyemyy.framework.test.exoplayer.ExoPlayerActivity
 import com.github.luoyemyy.framework.test.mvp.MvpActivity
 import com.github.luoyemyy.framework.test.navigation.NavigationActivity
-import com.github.luoyemyy.framework.test.paging.PagingActivity
 import com.github.luoyemyy.framework.test.recycler.RecyclerActivity
 import com.github.luoyemyy.framework.test.status.StatusActivity
 import com.github.luoyemyy.framework.test.transition.TransitionActivity
@@ -80,7 +79,7 @@ class MainActivity : AppCompatActivity(), BusResult {
                 1 -> startActivity(Intent(this@MainActivity, DrawerActivity::class.java))
                 2 -> startActivity(Intent(this@MainActivity, MvpActivity::class.java))
                 3 -> startActivity(Intent(this@MainActivity, NavigationActivity::class.java))
-                4 -> startActivity(Intent(this@MainActivity, PagingActivity::class.java))
+//                4 -> startActivity(Intent(this@MainActivity, PagingActivity::class.java))
                 5 -> startActivity(Intent(this@MainActivity, RecyclerActivity::class.java))
                 6 -> {
                     PermissionHelper.withPass {
@@ -120,7 +119,7 @@ class MainActivity : AppCompatActivity(), BusResult {
                     "drawer",
                     "mvp",
                     "navigation",
-                    "paging",
+//                    "paging",
                     "recycler",
                     "permission",
                     "transition",

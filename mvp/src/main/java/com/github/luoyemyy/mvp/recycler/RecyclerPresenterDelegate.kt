@@ -23,6 +23,7 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
             mAdapterSupport = this
             mDataSet.enableEmpty = enableEmpty()
             mDataSet.enableMore = enableLoadMore()
+            mDataSet.moreEndGone = loadMoreEndGone()
             mLiveDataRefreshState.observe(owner, Observer {
                 setRefreshState(it ?: false)
             })
@@ -163,7 +164,10 @@ class RecyclerPresenterDelegate<T>(owner: LifecycleOwner, adapter: RecyclerAdapt
             mDisposable?.apply {
                 if (!isDisposed) dispose()
             }
-            mDisposable = Single.create<List<T>> { it.onSuccess(mPresenterWrapper.loadData(loadType, mPaging, bundle, search) ?: listOf()) }
+            mDisposable = Single.create<List<T>> {
+                it.onSuccess(mPresenterWrapper.loadData(loadType, mPaging, bundle, search)
+                        ?: listOf())
+            }
                     .subscribeOn(Schedulers.newThread()).observeOn(AndroidSchedulers.mainThread())
                     .subscribe({ loadAfter(loadType, it) }, { loadAfterError(loadType) })
         }

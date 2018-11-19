@@ -13,7 +13,6 @@ import android.support.v7.widget.RecyclerView
 import android.util.Pair
 import android.view.*
 import android.widget.ImageView
-import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.mvp.getRecyclerPresenter
 import com.github.luoyemyy.mvp.recycler.AbstractSingleRecyclerAdapter
 import com.github.luoyemyy.mvp.recycler.VH
@@ -54,15 +53,13 @@ class AlbumActivity : AppCompatActivity() {
         requestedOrientation = if (ImagePicker.option.portrait) ActivityInfo.SCREEN_ORIENTATION_PORTRAIT else ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         mAlbumPresenter.setMenu()
 
-        mAlbumPresenter.apply {
-            liveDataInit.observe(this@AlbumActivity, Observer {
-                mBucketPresenter.buckets = mAlbumPresenter.buckets
-                mBucketPresenter.loadInit()
-            })
-            liveDataMenu.observe(this@AlbumActivity, Observer {
-                invalidateOptionsMenu()
-            })
-        }
+        mAlbumPresenter.liveDataInit.observe(this, Observer {
+            mBucketPresenter.buckets = mAlbumPresenter.buckets
+            mBucketPresenter.loadInit()
+        })
+        mAlbumPresenter.liveDataMenu.observe(this, Observer {
+            invalidateOptionsMenu()
+        })
 
         mBinding.recyclerView.apply {
             setGridManager(mAlbumPresenter.getSpan())

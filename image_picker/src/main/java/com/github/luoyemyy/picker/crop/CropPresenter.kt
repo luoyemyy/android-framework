@@ -13,7 +13,6 @@ import com.github.luoyemyy.mvp.recycler.Paging
 import com.github.luoyemyy.picker.ImagePicker
 import com.github.luoyemyy.picker.R
 import com.github.luoyemyy.picker.entity.CropImage
-import java.io.File
 
 class CropPresenter(var app: Application) : AbstractRecyclerPresenter<CropImage>(app) {
 
@@ -45,7 +44,7 @@ class CropPresenter(var app: Application) : AbstractRecyclerPresenter<CropImage>
             cropPath = srcPath
             isCrop = false
             getAdapterSupport()?.apply {
-                getDataSet().change(index, getAdapter()) {}
+                getDataSet().change(index, getAdapter())
             }
             liveDataCropImage.postValue(this)
         }
@@ -56,7 +55,7 @@ class CropPresenter(var app: Application) : AbstractRecyclerPresenter<CropImage>
             cropPath = filePath
             isCrop = true
             getAdapterSupport()?.apply {
-                getDataSet().change(index, getAdapter()) {}
+                getDataSet().change(index, getAdapter())
             }
             if (mImages.size > index + 1) {
                 liveDataCropImage.postValue(mImages[index + 1])

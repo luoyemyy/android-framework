@@ -17,8 +17,7 @@ import com.github.luoyemyy.picker.R
 import com.github.luoyemyy.picker.databinding.ImagePickerCropBinding
 import com.github.luoyemyy.picker.databinding.ImagePickerCropRecyclerBinding
 import com.github.luoyemyy.picker.entity.CropImage
-import com.github.luoyemyy.picker.helper.BindAdapter
-import com.github.luoyemyy.picker.helper.CropHelper
+import com.github.luoyemyy.picker.helper.ImagePickerHelper
 import kotlin.math.roundToInt
 
 class CropActivity : AppCompatActivity() {
@@ -41,7 +40,7 @@ class CropActivity : AppCompatActivity() {
 
         mPresenter.liveDataCropImage.observe(this, Observer {
             if (it != null) {
-                BindAdapter.imagePicker(mBinding.imgPreview, it.cropPath)
+                ImagePickerHelper.imagePicker(mBinding.imgPreview, it.cropPath)
             }
         })
         mPresenter.liveDataSingleImage.observe(this, Observer {
@@ -70,7 +69,7 @@ class CropActivity : AppCompatActivity() {
             }
             R.id.crop -> {
                 mBinding.imgPreview.crop {
-                    CropHelper.saveBitmap(it) { ok, path ->
+                    ImagePickerHelper.saveBitmap(it) { ok, path ->
                         if (ok && path != null) {
                             mPresenter.crop(path)
                         }

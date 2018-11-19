@@ -14,7 +14,7 @@ import android.view.View
 import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.picker.R
 import com.github.luoyemyy.picker.databinding.ImagePickerPreviewBinding
-import com.github.luoyemyy.picker.helper.BindAdapter
+import com.github.luoyemyy.picker.helper.ImagePickerHelper
 import com.github.luoyemyy.picker.view.ImageViewListener
 
 class PreviewActivity : AppCompatActivity() {
@@ -38,7 +38,7 @@ class PreviewActivity : AppCompatActivity() {
             val shareName = intent.extras?.getString("shareName")
             val path = intent.extras?.getString("image")
             ViewCompat.setTransitionName(this, shareName)
-            BindAdapter.imagePicker(this, path)
+            ImagePickerHelper.imagePicker(this, path)
 
 
             addImageViewListener(object : ImageViewListener {

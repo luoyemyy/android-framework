@@ -12,6 +12,7 @@ class DataSet<T> {
         const val MORE_INIT = -100
         const val MORE_LOADING = -101
         const val MORE_END = -102
+        const val MORE_END_GONE = -105
         const val MORE_COMPLETE = -103
         const val MORE_ERROR = -104
         const val CONTENT = 1
@@ -22,8 +23,18 @@ class DataSet<T> {
      */
     private data class ExtraItem(val type: Int)
 
+    /**
+     * 是否显示空数据item
+     */
     internal var enableEmpty = true
+    /**
+     * 是否显示加载更多item
+     */
     internal var enableMore = true
+    /**
+     * 加载完全部数据后，加载更多item
+     */
+    internal var moreEndGone = false
 
     /**
      * 内容列表
@@ -69,8 +80,8 @@ class DataSet<T> {
     /**
      * 设置加载结束，无更多数据
      */
-    fun loadMoreEnd() {
-        mLoadMoreState = MORE_END
+    fun loadMoreEnd(gone: Boolean) {
+        mLoadMoreState = if (gone) MORE_END_GONE else MORE_END
     }
 
     /**
@@ -87,6 +98,10 @@ class DataSet<T> {
         mLoadMoreState = MORE_ERROR
     }
 
+    private fun hideMoreEnd(): Boolean {
+        return mLoadMoreState == MORE_END_GONE
+    }
+
     /**
      * 统计所有的item数量
      */
@@ -97,7 +112,7 @@ class DataSet<T> {
                 count++
             }
         } else {
-            if (enableMore) {
+            if (enableMore && !hideMoreEnd()) {
                 count++
             }
         }
@@ -148,7 +163,7 @@ class DataSet<T> {
             mData.forEach {
                 list.add(it)
             }
-            if (enableMore) {
+            if (enableMore && !hideMoreEnd()) {
                 list.add(null)
             }
         }
@@ -173,6 +188,9 @@ class DataSet<T> {
                     MORE_INIT, MORE_LOADING, MORE_COMPLETE -> list.add(mMoreLoadingItem)
                     MORE_END -> list.add(mMoreEndItem)
                     MORE_ERROR -> list.add(mMoreErrorItem)
+                    MORE_END_GONE -> {
+                        //nothing
+                    }
                 }
             }
         }
@@ -212,7 +230,7 @@ class DataSet<T> {
                 mData.addAll(list)
                 loadMoreCompleted()
             } else {
-                loadMoreEnd()
+                loadMoreEnd(moreEndGone)
             }
         }.dispatchUpdatesTo(adapter)
     }
@@ -247,6 +265,12 @@ class DataSet<T> {
         }.dispatchUpdatesTo(adapter)
     }
 
+    fun setMoreEnd(gone: Boolean = false, adapter: RecyclerView.Adapter<*>) {
+        postData {
+            loadMoreEnd(gone)
+        }.dispatchUpdatesTo(adapter)
+    }
+
     /**
      * 删除内容列表，并刷新数据
      */
@@ -261,7 +285,7 @@ class DataSet<T> {
     /**
      * 修改某一项数据，并刷新变化的数据
      */
-    fun change(position: Int, adapter: RecyclerView.Adapter<*>, change: (value: T) -> Unit) {
+    fun change(position: Int, adapter: RecyclerView.Adapter<*>, change: (value: T) -> Unit = {}) {
         item(position)?.let {
             change(it)
             adapter.notifyItemChanged(position, "change")
