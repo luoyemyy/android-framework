@@ -82,7 +82,7 @@ class MainActivity : AppCompatActivity(), BusResult {
                 4 -> startActivity(Intent(this@MainActivity, PagingActivity::class.java))
                 5 -> startActivity(Intent(this@MainActivity, RecyclerActivity::class.java))
                 6 -> {
-                    PermissionHelper.newFuture().withPass {
+                    PermissionHelper.withPass {
                         toast(message = "ok")
                     }.withDenied { _, _ ->
                         toast(message = "fail")

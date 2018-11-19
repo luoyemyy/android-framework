@@ -9,7 +9,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentActivity
 import android.support.v4.content.ContextCompat
 
@@ -65,9 +64,8 @@ object PermissionHelper {
 
             val requestPermission = filterPermissions(activity, permissions) ?: return
 
-            mPresenter = ViewModelProviders.of(activity).get(PermissionPresenter::class.java).also {
-                it.addObserver(activity, this)
-            }
+            mPresenter = ViewModelProviders.of(activity).get(PermissionPresenter::class.java)
+            mPresenter?.addObserver(activity, this)
 
             PermissionFragment.startPermissionFragment(activity.supportFragmentManager, requestPermission)
         }

@@ -8,20 +8,19 @@ import android.arch.lifecycle.Observer
 
 class PermissionPresenter(app: Application) : AndroidViewModel(app) {
 
-    private var data: MutableLiveData<Array<String>> = MutableLiveData()
+    private var data: MutableLiveData<Array<String>>? = null
 
     fun addObserver(owner: LifecycleOwner, observer: Observer<Array<String>>) {
-        if (data.hasObservers()) {
-            data.removeObservers(owner)
-        }
-        data.observe(owner, observer)
+        data?.removeObservers(owner)
+        data = MutableLiveData()
+        data?.observe(owner, observer)
     }
 
     fun removeObserver(observer: Observer<Array<String>>) {
-        data.removeObserver(observer)
+        data?.removeObserver(observer)
     }
 
     fun postValue(array: Array<String>) {
-        data.postValue(array)
+        data?.postValue(array)
     }
 }

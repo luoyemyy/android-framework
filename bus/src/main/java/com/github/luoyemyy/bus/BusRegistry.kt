@@ -9,7 +9,7 @@ import android.arch.lifecycle.OnLifecycleEvent
  * bus 管理注册器
  * 注册后，此事件监听会绑定生命周期，不用手动去释放
  */
-internal class BusRegistry constructor(private val lifecycle: Lifecycle, private val mResult: BusResult, private var mEvents: Array<out String>) : BusManager.Callback, LifecycleObserver {
+internal class BusRegistry constructor(private val lifecycle: Lifecycle, private val mResult: BusResult, private var mEvent: String) : BusManager.Callback, LifecycleObserver {
 
     private val popEvents: MutableList<EventInfo> = mutableListOf()
 
@@ -39,13 +39,7 @@ internal class BusRegistry constructor(private val lifecycle: Lifecycle, private
         popEvents.clear()
     }
 
-    override val callbackId: String by lazy {
-        interceptEvent().sorted().joinToString("&")
-    }
-
-    override fun interceptGroup(): Int = BusManager.GROUP_DEFAULT
-
-    override fun interceptEvent(): Array<out String> = mEvents
+    override fun interceptEvent(): String = mEvent
 
     override fun busResult(event: String, msg: BusMsg) {
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
