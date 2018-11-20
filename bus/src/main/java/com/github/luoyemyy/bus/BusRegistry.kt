@@ -11,7 +11,7 @@ import android.arch.lifecycle.OnLifecycleEvent
  */
 internal class BusRegistry constructor(private val lifecycle: Lifecycle, private val mResult: BusResult, private var mEvent: String) : BusManager.Callback, LifecycleObserver {
 
-    private val popEvents: MutableList<EventInfo> = mutableListOf()
+    private val pendingEvents: MutableList<EventInfo> = mutableListOf()
 
     init {
         lifecycle.addObserver(this)
@@ -33,10 +33,10 @@ internal class BusRegistry constructor(private val lifecycle: Lifecycle, private
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     fun onResume(source: LifecycleOwner?) {
-        popEvents.forEach {
+        pendingEvents.forEach {
             mResult.busResult(it.event, it.msg)
         }
-        popEvents.clear()
+        pendingEvents.clear()
     }
 
     override fun interceptEvent(): String = mEvent
@@ -45,7 +45,7 @@ internal class BusRegistry constructor(private val lifecycle: Lifecycle, private
         if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
             mResult.busResult(event, msg)
         } else {
-            popEvents.add(EventInfo(event, msg))
+            pendingEvents.add(EventInfo(event, msg))
         }
     }
 

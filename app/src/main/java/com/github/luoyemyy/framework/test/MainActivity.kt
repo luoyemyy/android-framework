@@ -79,7 +79,6 @@ class MainActivity : AppCompatActivity(), BusResult {
                 1 -> startActivity(Intent(this@MainActivity, DrawerActivity::class.java))
                 2 -> startActivity(Intent(this@MainActivity, MvpActivity::class.java))
                 3 -> startActivity(Intent(this@MainActivity, NavigationActivity::class.java))
-//                4 -> startActivity(Intent(this@MainActivity, PagingActivity::class.java))
                 5 -> startActivity(Intent(this@MainActivity, RecyclerActivity::class.java))
                 6 -> {
                     PermissionHelper.withPass {
@@ -103,9 +102,6 @@ class MainActivity : AppCompatActivity(), BusResult {
                                 toast(message = it?.toJsonString() ?: "")
                             }
                 }
-                11->{
-                    throw NullPointerException()
-                }
             }
         }
 
@@ -119,14 +115,12 @@ class MainActivity : AppCompatActivity(), BusResult {
                     "drawer",
                     "mvp",
                     "navigation",
-//                    "paging",
                     "recycler",
                     "permission",
                     "transition",
                     "exoPlayer",
                     "imagePicker",
-                    "imagePicker-crop",
-                    "exception"
+                    "imagePicker-crop"
             ) else listOf()
         }
     }

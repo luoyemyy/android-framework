@@ -50,11 +50,7 @@ object BusManager {
     fun post(event: String, intValue: Int = 0, longValue: Long = 0L, boolValue: Boolean = false, stringValue: String? = null, extra: Bundle? = null) {
         mHandler.post {
             val msg = BusMsg(event, intValue, longValue, boolValue, stringValue, extra)
-            mCallbacks.filter {
-                it.interceptEvent() == event
-            }.forEach {
-                it.busResult(msg.event, msg)
-            }
+            mCallbacks.filter { it.interceptEvent() == event }.forEach { it.busResult(msg.event, msg) }
         }
     }
 

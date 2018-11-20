@@ -245,10 +245,10 @@ class FileManager(val app: Application) {
         /**
          * 公共目录，android定义的标准目录
          * 需要权限 Manifest.permission.WRITE_EXTERNAL_STORAGE
-         * @param dir      PUBLIC_DIRECTORY_*
+         * @param dir      Environment.PUBLIC_DIRECTORY_*
          * /storage/emulated/0/${type}
          */
-        fun publicStandardDir(@StandardType dir: String): File? =
+        fun publicStandardDir(dir: String): File? =
                 if (isMounted() && hasPermission()) {
                     Environment.getExternalStoragePublicDirectory(dir).takeIf { it.exists() || it.mkdirs() }
                 } else null
@@ -256,12 +256,12 @@ class FileManager(val app: Application) {
         /**
          * 公共目录，android定义的标准目录下的文件
          * 需要权限 Manifest.permission.WRITE_EXTERNAL_STORAGE
-         * @param dir       PUBLIC_DIRECTORY_*
+         * @param dir       Environment.PUBLIC_DIRECTORY_*
          * @param name      文件名 没有文件类型
          * @param suffix    文件类型
          * /storage/emulated/0/${type}/${name}${suffix}
          */
-        fun publicStandardFile(@StandardType dir: String, name: String, suffix: String): File? = publicStandardDir(dir)?.let { File(it, "$name$suffix") }
+        fun publicStandardFile(dir: String, name: String, suffix: String): File? = publicStandardDir(dir)?.let { File(it, "$name$suffix") }
 
         private fun isMounted(): Boolean = Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
 
@@ -324,16 +324,6 @@ class FileManager(val app: Application) {
             }
         }
     }
-
-
-    @Suppress("ANNOTATION_ARGUMENT_IS_NON_CONST")
-    @StringDef(value = [
-        Environment.DIRECTORY_MUSIC, Environment.DIRECTORY_PODCASTS, Environment.DIRECTORY_ALARMS,
-        Environment.DIRECTORY_RINGTONES, Environment.DIRECTORY_NOTIFICATIONS, Environment.DIRECTORY_PICTURES,
-        Environment.DIRECTORY_PICTURES, Environment.DIRECTORY_MOVIES, Environment.DIRECTORY_DOWNLOADS,
-        Environment.DIRECTORY_DCIM, Environment.DIRECTORY_DOCUMENTS])
-    @Retention(AnnotationRetention.SOURCE)
-    annotation class StandardType
 
     data class Type(val dir: String, val suffix: String)
 

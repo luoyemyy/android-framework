@@ -11,13 +11,14 @@ class PermissionPresenter(app: Application) : AndroidViewModel(app) {
     private var data: MutableLiveData<Array<String>>? = null
 
     fun addObserver(owner: LifecycleOwner, observer: Observer<Array<String>>) {
-        data?.removeObservers(owner)
-        data = MutableLiveData()
-        data?.observe(owner, observer)
+        data = MutableLiveData<Array<String>>().apply {
+            observe(owner, observer)
+        }
     }
 
     fun removeObserver(observer: Observer<Array<String>>) {
         data?.removeObserver(observer)
+        data = null
     }
 
     fun postValue(array: Array<String>) {

@@ -38,12 +38,7 @@ class CapturePresenter(app: Application) : AndroidViewModel(app) {
             Log.e("CapturePresenter", "创建文件失败")
             return
         }
-        val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            FileProvider.getUriForFile(activity, ImagePicker.option.fileProvider, file)
-        } else {
-            Uri.fromFile(file)
-        }
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, createUri(activity, file))
         activity.startActivityForResult(intent, CAPTURE_REQUEST_CODE)
         mCacheCaptureFile = file.absolutePath
     }
@@ -54,6 +49,14 @@ class CapturePresenter(app: Application) : AndroidViewModel(app) {
         MediaStore.Images.Media.insertImage(context.contentResolver, fileName, file.name, null)
         context.sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)))
         return listOf(fileName)
+    }
+
+    private fun createUri(context: Context, file: File): Uri {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(context, ImagePicker.option.fileProvider, file)
+        } else {
+            Uri.fromFile(file)
+        }
     }
 
     private fun createFile(): File? {
