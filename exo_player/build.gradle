@@ -4,7 +4,7 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'com.github.dcendents.android-maven'
 
-group='com.github.luoyemyy'
+group = 'com.github.luoyemyy'
 
 android {
     compileSdkVersion 28
@@ -26,11 +26,13 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation "com.android.support.constraint:constraint-layout:1.1.3"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "com.android.support.constraint:constraint-layout:$constraint_version"
     implementation "android.arch.lifecycle:extensions:$lifecycle_version"
-    implementation 'com.google.android.exoplayer:exoplayer-core:2.9.0'
-    implementation 'com.google.android.exoplayer:exoplayer-ui:2.9.0'
+    implementation "com.android.support:support-media-compat:$support_version"
+    implementation "com.android.support:support-fragment:$support_version"
+    implementation "com.google.android.exoplayer:exoplayer-core:$exoplayer_version"
+    implementation "com.google.android.exoplayer:exoplayer-ui:$exoplayer_version"
     implementation project(':permission')
     implementation project(':mvp')
     implementation project(':file')
