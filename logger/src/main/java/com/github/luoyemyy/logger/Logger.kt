@@ -20,20 +20,25 @@ object Logger {
         log("D", tag, msg, e)
     }
 
+    fun w(tag: String, msg: String, e: Throwable? = null) {
+        log("W", tag, msg, e)
+    }
+
     private fun log(level: String, tag: String, msg: String, e: Throwable?) {
         if (enableConsoleLog) {
             when (level) {
                 "E" -> Log.e(tag, msg, e)
                 "I" -> Log.i(tag, msg, e)
                 "D" -> Log.d(tag, msg, e)
+                "W" -> Log.w(tag, msg, e)
             }
         }
-        val path = logPath ?: let {
-            Log.w(tag, "logPath is null")
-            return
-        }
         if (enableFileLog) {
-            LogWriter.single().write(e, Thread.currentThread().name, level, tag, msg, path)
+            val path = logPath ?: let {
+                Log.w(tag, "logPath is null")
+                return
+            }
+            LogWriter.write(e, Thread.currentThread().name, level, tag, msg, path)
         }
     }
 }

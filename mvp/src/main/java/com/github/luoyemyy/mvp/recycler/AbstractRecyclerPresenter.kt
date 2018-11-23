@@ -12,8 +12,10 @@ abstract class AbstractRecyclerPresenter<T>(app: Application) : AndroidViewModel
     private lateinit var mDelegate: RecyclerPresenterDelegate<T>
 
     fun setup(owner: LifecycleOwner, adapter: RecyclerAdapterSupport<T>) {
-        adapter.setup(this)
-        mDelegate = RecyclerPresenterDelegate(owner, adapter, this)
+        mDelegate = adapter.let {
+            it.setup(this)
+            RecyclerPresenterDelegate(owner, adapter, this)
+        }
     }
 
     override fun getPaging(): Paging {

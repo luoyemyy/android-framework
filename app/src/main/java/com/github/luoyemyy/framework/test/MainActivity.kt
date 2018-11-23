@@ -16,6 +16,7 @@ import com.github.luoyemyy.ext.toJsonString
 import com.github.luoyemyy.ext.toast
 import com.github.luoyemyy.framework.test.databinding.ActivityMainBinding
 import com.github.luoyemyy.framework.test.databinding.ActivityMainRecyclerBinding
+import com.github.luoyemyy.framework.test.design.DesignActivity
 import com.github.luoyemyy.framework.test.drawer.DrawerActivity
 import com.github.luoyemyy.framework.test.exoplayer.ExoPlayerActivity
 import com.github.luoyemyy.framework.test.mvp.MvpActivity
@@ -27,7 +28,6 @@ import com.github.luoyemyy.mvp.getPresenter
 import com.github.luoyemyy.mvp.recycler.*
 import com.github.luoyemyy.permission.PermissionHelper
 import com.github.luoyemyy.picker.ImagePicker
-import java.lang.NullPointerException
 
 
 class MainActivity : AppCompatActivity(), BusResult {
@@ -56,15 +56,15 @@ class MainActivity : AppCompatActivity(), BusResult {
         const val BUS_EVENT = "com.github.luoyemyy.framework.test.MainActivity"
     }
 
-    inner class Adapter : AbstractSingleRecyclerAdapter<String, ActivityMainRecyclerBinding>(mBinding.recyclerView) {
+    inner class Adapter : AbstractSingleRecyclerAdapter<Action, ActivityMainRecyclerBinding>(mBinding.recyclerView) {
 
         override fun createContentView(inflater: LayoutInflater, parent: ViewGroup, viewType: Int): ActivityMainRecyclerBinding {
             return ActivityMainRecyclerBinding.inflate(inflater, parent, false)
         }
 
-        override fun bindContentViewHolder(binding: ActivityMainRecyclerBinding, content: String, position: Int) {
+        override fun bindContentViewHolder(binding: ActivityMainRecyclerBinding, content: Action, position: Int) {
             binding.apply {
-                name = content
+                name = content.name
                 executePendingBindings()
             }
         }
@@ -74,11 +74,11 @@ class MainActivity : AppCompatActivity(), BusResult {
         }
 
         override fun onItemClickListener(vh: VH<ActivityMainRecyclerBinding>, view: View?) {
-            when (vh.adapterPosition) {
-                0 -> startActivity(Intent(this@MainActivity, StatusActivity::class.java))
-                1 -> startActivity(Intent(this@MainActivity, DrawerActivity::class.java))
-                2 -> startActivity(Intent(this@MainActivity, MvpActivity::class.java))
-                3 -> startActivity(Intent(this@MainActivity, NavigationActivity::class.java))
+            when (getItem(vh.adapterPosition)?.id) {
+                1 -> startActivity(Intent(this@MainActivity, StatusActivity::class.java))
+                2 -> startActivity(Intent(this@MainActivity, DrawerActivity::class.java))
+                3 -> startActivity(Intent(this@MainActivity, MvpActivity::class.java))
+                4 -> startActivity(Intent(this@MainActivity, NavigationActivity::class.java))
                 5 -> startActivity(Intent(this@MainActivity, RecyclerActivity::class.java))
                 6 -> {
                     PermissionHelper.withPass {
@@ -102,26 +102,38 @@ class MainActivity : AppCompatActivity(), BusResult {
                                 toast(message = it?.toJsonString() ?: "")
                             }
                 }
+                11 -> {
+                    val qqIntent = Intent(Intent.ACTION_SEND)
+                    qqIntent.type = "text/plain"
+                    qqIntent.putExtra(Intent.EXTRA_TEXT, "分享到微信的内容")
+                    startActivity(Intent.createChooser(qqIntent, "分享"))
+                }
+                12 -> startActivity(Intent(this@MainActivity, DesignActivity::class.java))
             }
         }
 
     }
 
-    class Presenter(app: Application) : AbstractRecyclerPresenter<String>(app) {
+    data class Action(val id: Int, val name: String)
 
-        override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<String>? {
-            return if (paging.current() == 1L) listOf(
-                    "浸入状态栏",
-                    "drawer",
-                    "mvp",
-                    "navigation",
-                    "recycler",
-                    "permission",
-                    "transition",
-                    "exoPlayer",
-                    "imagePicker",
-                    "imagePicker-crop"
-            ) else listOf()
+    class Presenter(app: Application) : AbstractRecyclerPresenter<Action>(app) {
+
+
+        override fun loadData(loadType: LoadType, paging: Paging, bundle: Bundle?, search: String?): List<Action>? {
+            return listOf(
+                    Action(1, "浸入状态栏"),
+                    Action(2, "drawer"),
+                    Action(3, "mvp"),
+                    Action(4, "navigation"),
+                    Action(5, "recycler"),
+                    Action(6, "permission"),
+                    Action(7, "transition"),
+                    Action(8, "exoPlayer"),
+                    Action(9, "imagePicker"),
+                    Action(10, "imagePicker-crop"),
+                    Action(11, "分享"),
+                    Action(12, "design")
+            )
         }
     }
 
